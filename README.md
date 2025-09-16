@@ -1,6 +1,11 @@
 **Install project**
 
-```npm install```
+```
+cd client
+npm install
+cd ../server
+npm install
+```
 
 **Run client**
 
