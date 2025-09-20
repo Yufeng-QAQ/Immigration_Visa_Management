@@ -6,6 +6,7 @@ import './App.css'
 import Button from "@mui/material/Button";
 
 import Users from './Users';
+import Employee from './Employee';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -41,6 +42,8 @@ function App() {
       </div>
 
       <Users></Users>
+
+      <Employee></Employee>
     </>
   )
 }
