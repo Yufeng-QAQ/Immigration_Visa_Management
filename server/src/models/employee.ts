@@ -17,7 +17,7 @@ export interface IEmployee extends Document {
   salary: number;
   positionTitle: string;
   highestDegree: string;
-  department: mongoose.Types.ObjectId;
+  department?: mongoose.Types.ObjectId;
   visaHistory: mongoose.Types.ObjectId[];
   activateStatus: boolean;
 }
