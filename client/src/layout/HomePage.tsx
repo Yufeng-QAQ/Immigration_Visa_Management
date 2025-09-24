@@ -36,11 +36,12 @@ export default function HomePage() {
           </Button>
         </Grid>
 
-        <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="lg">
+        <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
           <DialogContent>
             <EmployeeForm onClose={handleCloseCreateDialog}/>
           </DialogContent>
         </Dialog>
+        {/* <EmployeeForm onClose={handleCloseCreateDialog} /> */}
 
 
       </Box>

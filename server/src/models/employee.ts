@@ -17,7 +17,7 @@ export interface IEmployee extends Document {
   salary: number;
   positionTitle: string;
   highestDegree: string;
-  department?: mongoose.Types.ObjectId;
+  // department?: mongoose.Types.ObjectId;
   visaHistory: mongoose.Types.ObjectId[];
   activateStatus: boolean;
 }
@@ -41,9 +41,9 @@ const EmployeeSchema: Schema = new Schema({
   salary: Number,
   positionTitle: String,
   highestDegree: String,
-  department: { type: Schema.Types.ObjectId, ref: "Department" },
+  // department: { type: Schema.Types.ObjectId, ref: "Department" },
   visaHistory: [{ type: Schema.Types.ObjectId, ref: "VisaRecord" }],
-  activateSatatus: {type: Boolean, default: true},
+  activateStatus: {type: Boolean, default: true},
 });
 
 export const Employee =

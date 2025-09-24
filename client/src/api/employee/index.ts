@@ -13,10 +13,10 @@ export interface EmployeeItem {
   middleName?: string;
   dateOfBirth: Date | null;
   email: string;
-  addresses: AddressItem[];
+  addresses: string[];
   salary: number;
   positionTitle: string;
   highestDegree: string;
-  department: string; // 假设前端用下拉选择部门 id
+  department: string;   // Not yet decided
   activateStatus: boolean;
 }
