@@ -1,4 +1,6 @@
 import { Typography, Box, Container, Paper } from "@mui/material";
+import Employee from "../components/Employee";
+import Display from "../components/Employee/Display";
 
 export default function HomePage() {
   return (
@@ -13,7 +15,18 @@ export default function HomePage() {
         </Typography>
 
       </Box>
+    <Employee/>
+    <Display/>
     </Container>
+
+   
+
+   
+
+
+    
+
+   
   );
 }
 

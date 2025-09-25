@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Typography, Button, Container } from "@mui/material";
 import LandingPage from "./layout/LandingPage";
 import HomePage from "./layout/HomePage";
 
+
 function App() {
   return (
     <Router>
@@ -26,6 +27,12 @@ function App() {
         </Routes>
       </Container>
     </Router>
+
+
+
+
+
+
   );
 }
 
