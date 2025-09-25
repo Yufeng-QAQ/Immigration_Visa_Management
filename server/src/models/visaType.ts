@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface IVisa extends Document {
+export interface IVisaType extends Document {
   visaType: string;
   validFrom: Date,
   validTo: Date,
@@ -8,7 +8,7 @@ export interface IVisa extends Document {
   employee: mongoose.Types.ObjectId[],
 }
 
-const VisaSchema = new Schema<IVisa>({
+const VisaTypeSchema = new Schema<IVisaType>({
   visaType: { type: String, required: true },
   validTo: { type: Date, required: true },
   status: { type: String, default: "active" },
@@ -16,4 +16,4 @@ const VisaSchema = new Schema<IVisa>({
 });
 
 export const Visa =
-  mongoose.models.Visa || mongoose.model<IVisa>("Visa", VisaSchema);
+  mongoose.models.Visa || mongoose.model<IVisaType>("VisaType", VisaTypeSchema);

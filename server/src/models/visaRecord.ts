@@ -10,7 +10,7 @@ export interface IVisaRecord extends Document {
 const VisaRecordSchema = new Schema<IVisaRecord>({
   recordId: { type: String, required: true, unique: true },
   employee: { type: Schema.Types.ObjectId, ref: "Employee", required: true },
-  visa: { type: Schema.Types.ObjectId, ref: "Visa", required: true },
+  visa: { type: Schema.Types.ObjectId, ref: "VisaType", required: true },
   status: { type: String, enum: ["Active", "Expired", "Pending"], default: "Pending" }
 });
 
