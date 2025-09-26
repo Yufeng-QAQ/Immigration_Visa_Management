@@ -66,7 +66,7 @@ export default function UpdateEmployeeForm({ open, employeeId, onClose, onSucces
     activateStatus: true
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  //const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
@@ -77,7 +77,7 @@ export default function UpdateEmployeeForm({ open, employeeId, onClose, onSucces
     if (!employeeId) return;
     try {
       setLoading(true);
-      setError(null);
+      //setError(null);
       const res = await axios.get(`http://localhost:8000/api/employee/getEmployeeById/${employeeId}`);
       const employee: Employee = res.data;
 
@@ -101,7 +101,7 @@ export default function UpdateEmployeeForm({ open, employeeId, onClose, onSucces
         })) || []
       });
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message);
+      //setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -155,7 +155,7 @@ export default function UpdateEmployeeForm({ open, employeeId, onClose, onSucces
 
     try {
       setLoading(true);
-      setError(null);
+      //setError(null);
 
       const dataToSubmit = {
         ...formData,
@@ -179,7 +179,7 @@ export default function UpdateEmployeeForm({ open, employeeId, onClose, onSucces
         handleClose();
       }, 1000);
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message);
+      //setError(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
     }
@@ -187,7 +187,7 @@ export default function UpdateEmployeeForm({ open, employeeId, onClose, onSucces
 
   const handleClose = () => {
     setFormData({ addresses: [], visaHistory: [], activateStatus: true });
-    setError(null);
+    //setError(null);
     setSuccess(false);
     setLoading(false);
     onClose();
@@ -201,7 +201,7 @@ export default function UpdateEmployeeForm({ open, employeeId, onClose, onSucces
           {loading && !formData.firstName && (
             <Box display="flex" justifyContent="center" my={2}><CircularProgress /></Box>
           )}
-          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {/* {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>} */}
           {success && <Alert severity="success" sx={{ mb: 2 }}>Update Successful!</Alert>}
 
           <Box>

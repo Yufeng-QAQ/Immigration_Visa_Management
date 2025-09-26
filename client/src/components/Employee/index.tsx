@@ -26,8 +26,10 @@ interface Address {
 
 interface VisaInput {
   visaType: string;
-  startDate: string;
-  expireDate: string;
+  validPeriod: {
+    startDate: string;  
+    expireDate: string;
+  };
 }
 
 interface Department {
@@ -67,7 +69,15 @@ export default function EmployeeForm() {
       department: { collegeName: "", departmentName: "" },
       activateStatus: true,
       addresses: [{ street: "", city: "", state: "", zip: "", country: "" }],
-      visaHistory: [{ visaType: "", startDate: "", expireDate: "" }],
+      visaHistory: [
+                  {
+                  visaType: "",
+                  validPeriod: {
+                      startDate: "",
+                      expireDate: ""
+                  }
+        }
+      ],
     }
   });
 
@@ -75,7 +85,7 @@ export default function EmployeeForm() {
     try {
       await axios.post(
         "http://localhost:8000/api/employee/createEmployee",
-        { ...data, employeeId: uuidv4() },
+        { ...data},
         { headers: { "Content-Type": "application/json" } }
       );
       alert("Employee created successfully!");
@@ -235,14 +245,14 @@ export default function EmployeeForm() {
               render={({ field }) => <TextField {...field} label="Visa Type" />}
             />
             <Controller
-              name={`visaHistory.${index}.startDate`}
+              name={`visaHistory.${index}.validPeriod.startDate`}
               control={control}
               render={({ field }) => (
                 <TextField {...field} type="date" InputLabelProps={{ shrink: true }} label="Start Date" />
               )}
             />
             <Controller
-              name={`visaHistory.${index}.expireDate`}
+              name={`visaHistory.${index}.validPeriod.expireDate`}
               control={control}
               render={({ field }) => (
                 <TextField {...field} type="date" InputLabelProps={{ shrink: true }} label="Expire Date" />
@@ -262,7 +272,7 @@ export default function EmployeeForm() {
       <Button
         startIcon={<Add />}
         type="button"
-        onClick={() => append({ visaType: "", startDate: "", expireDate: "" })}
+        onClick={() => append({ visaType: "", validPeriod:{startDate:"", expireDate:""} })}
         sx={{ mt: 1 }}
       >
         Add Visa

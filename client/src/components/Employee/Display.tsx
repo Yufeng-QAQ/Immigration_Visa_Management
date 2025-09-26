@@ -113,12 +113,49 @@ export default function Display() {
   const calculateDaysLeft = (expireDate?: string) => {
     if (!expireDate) return "-";
     const diff = new Date(expireDate).getTime() - new Date().getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
   };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+
+  
+  
+  interface EmployeeVisaInfo {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  earliestExpire: string | null; 
+}
+
+function getEmployeesSortedByVisaExpire(employeeList: EmployeeSummary[]): EmployeeVisaInfo[] {
+  return employeeList
+    .filter(emp => emp.visaHistory.length > 0) 
+    .map(emp => {
+      const earliestVisa = emp.visaHistory.reduce((prev, curr) => {
+        const prevDate = prev.validPeriod?.expireDate ? new Date(prev.validPeriod.expireDate) : new Date(8640000000000000);
+        const currDate = curr.validPeriod?.expireDate ? new Date(curr.validPeriod.expireDate) : new Date(8640000000000000);
+        return prevDate < currDate ? prev : curr;
+      });
+
+      return {
+        _id: emp._id,
+        firstName: emp.firstName,
+        lastName: emp.lastName,
+        earliestExpire: earliestVisa.validPeriod?.expireDate ?? null
+      };
+    })
+    .sort((a, b) => {
+      if (!a.earliestExpire) return 1;
+      if (!b.earliestExpire) return -1;
+      return new Date(a.earliestExpire).getTime() - new Date(b.earliestExpire).getTime();
+    });
+}
+
+  
+
+  
 
   const deleteEmployee = async (id: string) => {
   try {
