@@ -11,6 +11,7 @@ import {
   CardContent,
   Typography, InputLabel, OutlinedInput, InputAdornment, FormControl
 } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 import dayjs, { Dayjs } from 'dayjs';
 import type { EmployeeItem } from "../../api";
 
@@ -19,29 +20,42 @@ interface EmployeeFormProps {
 }
 
 export default function EmployeeForm({ onClose }: EmployeeFormProps) {
-  const degrees = ["Middle School or Lower", "High School or Equivalent", "Associate", "Bachelor", "Master", "PhD"];
+  const degrees = ["PhD", "Master", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower"];
+  const Visatypes = ["J-1", "H-1B", "OPT - 1 Year", "OPT - 3 Years"];
+
   const methods = useForm<EmployeeItem>({
     defaultValues: {
       employeeId: "",
       firstName: "",
       lastName: "",
       middleName: "",
-      dateOfBirth: new Date(Date.now()),
+      dateOfBirth: null,
       email: "",
-      addresses: [],
+      addresses: [{ address: "" }],
       salary: 0,
       positionTitle: "",
       highestDegree: "",
-      department: "",
+      departmentInfo: {
+        college: "",
+        department: "",
+        supervisor: "",
+        admin: ""
+      },
+      activeVisa: {
+        visaType: "",
+        issueDate: null,
+        expireDate: null,
+        status: "Active"
+      },
       activateStatus: true
-    },
+    }
   });
 
-  const { control, handleSubmit, setValue, getValues } = methods;
-  // const { fields, append, remove } = useFieldArray({
-  //   control,
-  //   name: "addresses"
-  // });
+  const { control, handleSubmit} = methods;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "addresses",
+  });
 
   const onSubmit = (data: EmployeeItem) => {
     console.log(data);
@@ -57,8 +71,11 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
           </Typography>
           <Card elevation={2}>
             <CardContent>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Basic Information
+              </Typography>
               <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
-                <Grid size={{ xs: 6 }}>
+                <Grid size={{ xs: 7 }}>
                   <Controller
                     name="firstName"
                     control={control}
@@ -68,7 +85,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     )}
                   />
                 </Grid>
-                <Grid size={{ xs: 6 }}>
+                <Grid size={{ xs: 4 }}>
                   <Controller
                     name="middleName"
                     control={control}
@@ -78,7 +95,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     )}
                   />
                 </Grid>
-                <Grid size={{ xs: 6 }}>
+                <Grid size={{ xs: 7 }}>
                   <Controller
                     name="lastName"
                     control={control}
@@ -100,11 +117,11 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                 </Grid>
                 <Grid size={{ xs: 6 }}>
                   <Controller
-                    name="email"
+                    name="positionTitle"
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
-                      <TextField {...field} required label="Email" fullWidth variant="standard" />
+                      <TextField {...field} required label="Position Title" fullWidth variant="standard" />
                     )}
                   />
                 </Grid>
@@ -122,36 +139,143 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     )}
                   />
                 </Grid>
+                <Grid size={{xs: 18}} container spacing={2} columns={18} alignItems="center" justifyContent="space-between">
+                  <Grid size={{xs: 12}}>
+                    <Controller
+                      name="email"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <TextField {...field} required label="Email" fullWidth variant="standard" />
+                      )}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }} mb={2}>
+                    <Controller
+                      name="highestDegree"
+                      control={control}
+                      rules={{ required: "Please select a degree" }}
+                      render={({ field }) => (
+                        <FormControl fullWidth sx={{ m: 0 }}>
+                          <InputLabel id="highest-degree-label">Highest Degree</InputLabel>
+                          <Select
+                            {...field}
+                            required
+                            labelId="highest-degree-label"
+                            label="Highest Degree"
+                          >
+                            {degrees.map((deg) => (
+                              <MenuItem key={deg} value={deg}>
+                                {deg}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  {fields.map((field, index) => (
+                    <Grid key={field.id}>
+                      <Box display="flex"  gap={1}>
+                        <Controller
+                          name={`addresses.${index}.address`}
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              required
+                              label={`Address ${index + 1}`}
+                              fullWidth
+                              variant="standard"
+                            />
+                          )}
+                        />
+                        {index > 0 && (
+                          <Button
+                            type="button"
+                            color="error"
+                            size="small"
+                            onClick={() => remove(index)}
+                            sx={{ ml: 1 }}
+                          >
+                            <DeleteIcon/>
+                          </Button>
+                        )}
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
 
-                {/* The Address class has not implement yet. Thus use string[] instead */}
-                {/* Will prevent rendering if use AddressItem[] without sending class object */}
-                <Grid size={{ xs: 10 }}>
+                <Grid size={{xs:4}} mt={1}>
+                  <Button
+                    type="button"
+                    variant="contained"
+                    size="small"
+                    onClick={() => append({address: ""})}
+                    sx={{ color: '#fdb515'}}
+                  >
+                    Add Address
+                  </Button>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+          <Card elevation={2} sx={{mt: 2, mb: 2}}>
+            <CardContent>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Department Information
+              </Typography>
+              <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
+                <Grid size={{ xs: 9 }}>
                   <Controller
-                    name="addresses"
+                    name="departmentInfo.college"
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
-                      <TextField {...field} required label="Address" fullWidth variant="standard" />
+                      <TextField {...field} required label="College" fullWidth variant="standard" />
                     )}
                   />
                 </Grid>
-                <Grid size={{ xs: 8 }}>
+                <Grid size={{ xs: 9 }}>
                   <Controller
-                    name="positionTitle"
+                    name="departmentInfo.department"
                     control={control}
                     rules={{ required: true }}
                     render={({ field }) => (
-                      <TextField {...field} required label="Position Title" fullWidth variant="standard" />
+                      <TextField {...field} required label="Department" fullWidth variant="standard" />
                     )}
                   />
                 </Grid>
-                <Grid size={{ xs: 6 }}>
+                <Grid size={{ xs: 9 }}>
+                  <Controller
+                    name="departmentInfo.supervisor"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <TextField {...field} required label="Supervisor" fullWidth variant="standard" />
+                    )}
+                  />
+                </Grid>
+                <Grid size={{ xs: 9 }}>
+                  <Controller
+                    name="departmentInfo.admin"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField {...field} label="Admin" fullWidth variant="standard" />
+                    )}
+                  />
+                </Grid>
+                
+                <Grid size={{ xs: 7 }}>
                   <Controller
                     name="salary"
                     control={control}
                     rules={{ required: true, min: 0 }}
                     render={({ field }) => (
-                      <FormControl fullWidth sx={{ m: 1 }}>
+                      <FormControl fullWidth>
                         <InputLabel htmlFor="outlined-adornment-amount">Salary</InputLabel>
                         <OutlinedInput
                           {...field}
@@ -165,34 +289,74 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     )}
                   />
                 </Grid>
-                <Grid size={{ xs: 6 }}>
+              </Grid>
+            </CardContent>
+          </Card>
+
+          <Card elevation={2}>
+            <CardContent>
+              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                Current Visa
+              </Typography>
+              <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
+                <Grid size={{ xs: 18 }}>
+                  <Grid size={{ xs: 7 }}>
+                    <Controller
+                      name="activeVisa.visaType"
+                      control={control}
+                      rules={{ required: "Please select a degree" }}
+                      render={({ field }) => (
+                        <FormControl fullWidth sx={{ m: 1 }}>
+                          <InputLabel id="highest-degree-label">Visa Type</InputLabel>
+                          <Select
+                            {...field}
+                            labelId="activeVisa-label"
+                            label="Highest Degree"
+                          >
+                            {Visatypes.map((type) => (
+                              <MenuItem key={type} value={type}>
+                                {type}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid size={{ xs: 7 }} ml={1}>
                   <Controller
-                    name="highestDegree"
                     control={control}
-                    rules={{ required: "Please select a degree" }}
+                    name="activeVisa.issueDate"
                     render={({ field }) => (
-                      <FormControl fullWidth sx={{ m: 1 }}>
-                        <InputLabel id="highest-degree-label">Highest Degree</InputLabel>
-                        <Select
-                          {...field}
-                          labelId="highest-degree-label"
-                          label="Highest Degree"
-                        >
-                          {degrees.map((deg) => (
-                            <MenuItem key={deg} value={deg}>
-                              {deg}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                      <DatePicker
+                        label="Issue Date"
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(date: Dayjs | null) => field.onChange(date?.toDate() || null)}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid size={{ xs: 7 }}>
+                  <Controller
+                    control={control}
+                    name="activeVisa.expireDate"
+                    render={({ field }) => (
+                      <DatePicker
+                        label="Exp Date"
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(date: Dayjs | null) => field.onChange(date?.toDate() || null)}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
                     )}
                   />
                 </Grid>
               </Grid>
             </CardContent>
           </Card>
-          <Box sx={{ mt: 1 }}>
-            <Button type="submit" variant="contained">Create Employee</Button>
+          <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+            <Button type="submit" variant="contained" sx={{ color: '#fdb515'}}>Create Employee</Button>
           </Box>
         </form>
       </Box>

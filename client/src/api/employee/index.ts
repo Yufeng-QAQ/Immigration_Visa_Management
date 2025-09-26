@@ -1,9 +1,19 @@
 interface AddressItem {
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
+  address: string;
+}
+
+interface ActiveVisaItem {
+  visaType: string;
+  issueDate: Date | null;
+  expireDate: Date | null;
+  status: "Active" | "Expired" | "Pending";
+}
+
+interface DepartmentInfoItem {
+  college: string;
+  department: string;
+  supervisor: string;
+  admin?: string;
 }
 
 export interface EmployeeItem {
@@ -13,10 +23,11 @@ export interface EmployeeItem {
   middleName?: string;
   dateOfBirth: Date | null;
   email: string;
-  addresses: string[];
+  addresses: AddressItem[];
   salary: number;
   positionTitle: string;
   highestDegree: string;
-  department: string;   // Not yet decided
+  departmentInfo: DepartmentInfoItem;
+  activeVisa: ActiveVisaItem;
   activateStatus: boolean;
 }

@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { AppBar, Toolbar, Typography, Button, Container } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box, Container } from "@mui/material";
 import LandingPage from "./layout/LandingPage";
 import HomePage from "./layout/HomePage";
+import logo from "/umbc_logo.png";
 
 function App() {
   return (
@@ -9,10 +10,13 @@ function App() {
       {/* Navigation Bar */}
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Box>
+            <img src= {logo} width={ 30} />
+          </Box>
+          <Typography color="secondary" variant="h6" sx={{ flexGrow: 1 , ml : 1}}>
             Visa Management System
           </Typography>
-          <Button color="inherit" component={Link} to="/">
+          <Button color="secondary" component={Link} to="/">
             Logout
           </Button>
         </Toolbar>
