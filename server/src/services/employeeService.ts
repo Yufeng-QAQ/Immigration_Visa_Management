@@ -90,6 +90,7 @@ export const getEmployee = async (req: Request, res: Response) => {
         match: { status: "Active" },            
         options: { sort: { issueDate: -1 }, limit: 1 } 
       });
+    console.log("即将返回给前端的 employees:", JSON.stringify(employees, null, 2));
     res.json(employees);
   } catch (err) {
     console.error(err);
@@ -131,22 +132,36 @@ export const updateEmployee = async (req: Request, res: Response) => {
 
 
 
-export const getEmployeeById = async (req: Request, res: Response): Promise<void> => {
+export const getEmployeeById = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const employee = await Employee.findById(id);
+    const employee = await Employee.findById(req.params.id)
+      .populate({
+        path: "visaHistory",
+        match: { status: "Active" }, 
+        options: { sort: { issueDate: -1 }, limit: 1 } 
+      });
+
+    if (!employee) return res.status(404).json({ error: "Employee not found" });
+
     
-    if (!employee) {
-      res.status(404).json({ error: "Employee not found" });
-      return;
-    }
+    const activeVisa = employee.visaHistory && employee.visaHistory.length > 0
+      ? employee.visaHistory[0]
+      : { visaType: "", issueDate: null, expireDate: null, status: "Active" };
+
     
-    res.json(employee);
+    const result = {
+      ...employee.toObject(),
+      activeVisa,        
+    };
+
+    console.log("返回数据:", JSON.stringify(result, null, 2));
+    res.json(result);
   } catch (err) {
-    console.error("error:", err);
+    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
+
 
 export interface IVisaRecord {
   visaType: string;

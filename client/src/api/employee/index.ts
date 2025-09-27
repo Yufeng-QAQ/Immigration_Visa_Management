@@ -24,6 +24,7 @@ export interface EmployeeItem {
   dateOfBirth: Date | null;
   email: string;
   addresses: AddressItem[];
+  //addresses: string[];
   salary: number;
   positionTitle: string;
   highestDegree: string;

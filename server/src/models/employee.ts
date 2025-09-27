@@ -7,6 +7,10 @@ export interface IDepartmentInfoItem {
   admin?: string;
 }
 
+export interface AddressItem {
+  address: string;
+}
+
 export interface IEmployee {
   employeeId: string;
   firstName: string;
@@ -14,7 +18,7 @@ export interface IEmployee {
   middleName?: string;
   dateOfBirth: Date;
   email: string;
-  addresses: string[];
+  addresses: AddressItem[];
   salary: number;
   positionTitle: string;
   highestDegree: string;
@@ -22,6 +26,10 @@ export interface IEmployee {
   visaHistory: mongoose.Types.ObjectId[];
   activateStatus: boolean;
 }
+
+const AddressSchema = new Schema<AddressItem>({
+  address: { type: String, required: true }
+});
 
 // 让 Schema 知道是 IEmployee
 const EmployeeSchema: Schema<IEmployee> = new Schema({
@@ -31,7 +39,7 @@ const EmployeeSchema: Schema<IEmployee> = new Schema({
   lastName: { type: String, required: true },
   dateOfBirth: { type: Date, required: true },
   email: { type: String, required: true },
-  addresses: [{ type: String }],
+  addresses: [AddressSchema],
   salary: Number,
   positionTitle: String,
   highestDegree: String,

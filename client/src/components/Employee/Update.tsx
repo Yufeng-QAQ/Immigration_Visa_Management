@@ -15,7 +15,8 @@ import {
   DialogTitle,
   DialogContent,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  DialogActions
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import dayjs, { Dayjs } from 'dayjs';
@@ -52,7 +53,7 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
         salary: 0,
         positionTitle: "",
         highestDegree: "",
-        addresses: [],
+        addresses: [{ address: "" }],
         departmentInfo: {
             college: "",
             department: "",
@@ -89,7 +90,9 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
                 salary: employee.salary,
                 positionTitle: employee.positionTitle,
                 highestDegree: employee.highestDegree,
-                addresses: employee.addresses,
+                addresses: employee.addresses
+                ? employee.addresses.map(addr => typeof addr === "string" ? { address: addr } : addr)
+                : [{ address: "" }],
                 departmentInfo: {
                     college: employee.departmentInfo.college,
                     department: employee.departmentInfo.department,
@@ -105,44 +108,39 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
                 activateStatus: employee.activateStatus
             });
             console.log(employee.addresses);
+            console.log("formData 设置后:", formData);
 
         }finally{
             setLoading(false);
         }
         
     }
-            // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            //     const { name, value, type, checked } = e.target;
-            //     setFormData(prev => ({
-            //       ...prev,
-            //       [name]: type === 'number' ? Number(value) : type === 'checkbox' ? checked : value
-            //     }));
-            //   };
+            
 
             const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 const { name, value, type, checked } = e.target;
                 const val = type === 'number' ? Number(value) : type === 'checkbox' ? checked : value;
 
                 if (name.includes('.')) {
-                    // 处理嵌套对象，比如 "departmentInfo.college"
-                    const keys = name.split('.'); // ['departmentInfo', 'college']
+                    
+                    const keys = name.split('.'); 
                     setFormData(prev => {
                     let nested: any = { ...prev };
                     let current = nested;
 
-                    // 遍历到倒数第二个 key
+                    
                     for (let i = 0; i < keys.length - 1; i++) {
-                        current[keys[i]] = { ...current[keys[i]] }; // 保留已有嵌套对象
+                        current[keys[i]] = { ...current[keys[i]] }; 
                         current = current[keys[i]];
                     }
 
-                    // 设置最后一个 key 的值
+                    
                     current[keys[keys.length - 1]] = val;
 
                     return nested;
                     });
                 } else {
-                    // 处理顶层字段
+                    
                     setFormData(prev => ({
                     ...prev,
                     [name]: val
@@ -227,26 +225,28 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
 
 
 
-    
-            const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
+            const handleAddressChange = (
+                e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+                index: number
+                ) => {
                 const { value } = e.target;
-
                 setFormData(prev => {
-                    const newAddresses = prev.addresses ? [...prev.addresses] : [];
-                    newAddresses[index] = { ...newAddresses[index], address: value };
-                    return {
-                    ...prev,
-                    addresses: newAddresses
-                    };
+                    const newAddresses = [...prev.addresses];
+                    newAddresses[index] = { address: value }; 
+                    return { ...prev, addresses: newAddresses };
                 });
-            };
+                }
+
+           
 
             const addAddress = () => {
                 setFormData(prev => ({
                     ...prev,
-                    addresses: [...(prev.addresses || []), { address: '' }]
+                    addresses: [...(prev.addresses || []), { address: "" }],
                 }));
-            };
+                };
+
+
 
             const removeAddress = (index: number) => {
                 setFormData(prev => ({
@@ -256,7 +256,7 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
             };
             
             const handleVisaChange = (
-                field: keyof ActiveVisaItem, // "visaType" | "issueDate" | "expireDate" | "status"
+                field: keyof ActiveVisaItem, 
                 value: string | Date
                 ) => {
                 setFormData(prev => ({
@@ -382,46 +382,50 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
                                     value={formData.activeVisa?.visaType || ""}
                                     onChange={e => handleVisaChange("visaType", e.target.value)}
                                     required
-                                />
+                                    />
 
-                               <TextField
+                                    <TextField
                                     label="Issue Date"
                                     type="date"
                                     InputLabelProps={{ shrink: true }}
                                     value={formatDate(formData.activeVisa?.issueDate)}
                                     onChange={e => handleVisaChange("issueDate", e.target.value)}
                                     required
-                                />
+                                    />
 
-
-                                <TextField
+                                    <TextField
                                     label="Expire Date"
                                     type="date"
                                     InputLabelProps={{ shrink: true }}
                                     value={formatDate(formData.activeVisa?.expireDate)}
                                     onChange={e => handleVisaChange("expireDate", e.target.value)}
                                     required
-                                />
+                                    />
 
-                                <TextField
+                                    <TextField
                                     label="Status"
                                     value={formData.activeVisa?.status || ""}
                                     onChange={e => handleVisaChange("status", e.target.value)}
                                     required
-                                />
-                        </Box>
+                                    />
 
-                        
-
+                        </Box>     
 
 
                     </Box>
 
 
-
-
-
                 </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={handleClose} disabled={loading}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" variant="contained" disabled={loading}>
+                        {loading ? "Saving..." : "Save"}
+                    </Button>
+                </DialogActions>
+
             </form>
         </Dialog>
       )
