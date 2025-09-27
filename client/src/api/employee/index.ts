@@ -1,8 +1,8 @@
-interface AddressItem {
+export interface AddressItem {
   address: string;
 }
 
-interface ActiveVisaItem {
+export interface ActiveVisaItem {
   visaType: string;
   issueDate: Date | null;
   expireDate: Date | null;
