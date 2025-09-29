@@ -44,5 +44,4 @@ const EmployeeSchema: Schema = new Schema({
   activateStatus: {type: Boolean, default: true},
 });
 
-export const Employee =
-  mongoose.models.Employee || mongoose.model<IEmployee>("Employee", EmployeeSchema);
+export default mongoose.model<IEmployee>("Employee", EmployeeSchema);
