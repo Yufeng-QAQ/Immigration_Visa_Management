@@ -23,11 +23,9 @@ export const createEmployee = async (req: Request, res: Response) => {
       visaHistory: [] 
     });
     const savedEmployee = await newEmployee.save();
-
     
     if (req.body.activeVisa) {
       const { visaType, issueDate, expireDate, status } = req.body.activeVisa;
-
       const newVisa = new VisaRecord({
         recordId: `VR-${Date.now()}`, 
         employee: savedEmployee._id,
@@ -56,9 +54,6 @@ export const createEmployee = async (req: Request, res: Response) => {
 
 
 
-
-
-
 const API = 'http://localhost:8000/api/employee/createEmployee'
 
 export const getEmployee = async (req: Request, res: Response) => {
@@ -84,8 +79,14 @@ export const updateEmployee = async (req: Request, res: Response) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    //?>?
     if (updateData.dateOfBirth) updateData.dateOfBirth = new Date(updateData.dateOfBirth);
+    
+    if (Array.isArray(updateData.addresses)) {
+      updateData.addresses = updateData.addresses.map(
+        (item: any) => (typeof item === "string" ? item : item.address)
+      );
+    }
+
     if (updateData.visaHistory) {
       updateData.visaHistory = updateData.visaHistory.map((v: any) => ({
         ...v,
@@ -97,10 +98,8 @@ export const updateEmployee = async (req: Request, res: Response) => {
     const employee = await Employee.findById(id);
     if (!employee) return res.status(404).json({ error: "Employee not found" });
 
-    
+  
     Object.assign(employee, updateData);
-
-    
     const saved = await employee.save();
     res.json({ message: "Employee updated", employee: saved });
   } catch (err: any) {

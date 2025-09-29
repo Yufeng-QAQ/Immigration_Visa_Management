@@ -1,22 +1,22 @@
 import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
-  TextField,
-  Button,
-  Grid,
-  Box,
-  Select,
-  MenuItem,
-  Card,
-  CardContent,
-  Typography, InputLabel, OutlinedInput, InputAdornment, FormControl,
-  Dialog,
-  Alert,
-  DialogTitle,
-  DialogContent,
-  FormControlLabel,
-  Checkbox,
-  DialogActions
+    TextField,
+    Button,
+    Grid,
+    Box,
+    Select,
+    MenuItem,
+    Card,
+    CardContent,
+    Typography, InputLabel, OutlinedInput, InputAdornment, FormControl,
+    Dialog,
+    Alert,
+    DialogTitle,
+    DialogContent,
+    FormControlLabel,
+    Checkbox,
+    DialogActions
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import dayjs, { Dayjs } from 'dayjs';
@@ -33,11 +33,11 @@ interface EditFormProps {
 }
 
 interface Employee extends EmployeeItem {
-  _id: string;
+    _id: string;
 }
 
 
-export default function Update({ open, employeeId, onClose, onSuccess }:EditFormProps){
+export default function Update({ open, employeeId, onClose, onSuccess }: EditFormProps) {
     const degrees = ["PhD", "Master", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower"];
     const Visatypes = ["J-1", "H-1B", "OPT - 1 Year", "OPT - 3 Years"];
     const [loading, setLoading] = useState(false);
@@ -71,11 +71,11 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
 
     useEffect(() => {
         if (open && employeeId) fetchEmployeeDetails();
-      }, [open, employeeId]);
+    }, [open, employeeId]);
 
 
     const fetchEmployeeDetails = async () => {
-        try{
+        try {
 
             const res = await axios.get(`http://localhost:8000/api/employee/getEmployeeById/${employeeId}`)
             const employee: Employee = res.data;
@@ -91,8 +91,8 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
                 positionTitle: employee.positionTitle,
                 highestDegree: employee.highestDegree,
                 addresses: employee.addresses
-                ? employee.addresses.map(addr => typeof addr === "string" ? { address: addr } : addr)
-                : [{ address: "" }],
+                    ? employee.addresses.map(addr => typeof addr === "string" ? { address: addr } : addr)
+                    : [{ address: "" }],
                 departmentInfo: {
                     college: employee.departmentInfo.college,
                     department: employee.departmentInfo.department,
@@ -108,186 +108,186 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
                 activateStatus: employee.activateStatus
             });
             console.log(employee.addresses);
-            console.log("formData 设置后:", formData);
+            // console.log("formData 设置后:", formData);
 
-        }finally{
+        } finally {
             setLoading(false);
         }
-        
+
     }
-            
 
-            const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                const { name, value, type, checked } = e.target;
-                const val = type === 'number' ? Number(value) : type === 'checkbox' ? checked : value;
 
-                if (name.includes('.')) {
-                    
-                    const keys = name.split('.'); 
-                    setFormData(prev => {
-                    let nested: any = { ...prev };
-                    let current = nested;
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        const val = type === 'number' ? Number(value) : type === 'checkbox' ? checked : value;
 
-                    
-                    for (let i = 0; i < keys.length - 1; i++) {
-                        current[keys[i]] = { ...current[keys[i]] }; 
-                        current = current[keys[i]];
-                    }
+        if (name.includes('.')) {
 
-                    
-                    current[keys[keys.length - 1]] = val;
+            const keys = name.split('.');
+            setFormData(prev => {
+                const nested: any = { ...prev };
+                let current = nested;
 
-                    return nested;
-                    });
-                } else {
-                    
-                    setFormData(prev => ({
-                    ...prev,
-                    [name]: val
-                    }));
+
+                for (let i = 0; i < keys.length - 1; i++) {
+                    current[keys[i]] = { ...current[keys[i]] };
+                    current = current[keys[i]];
+                }
+
+
+                current[keys[keys.length - 1]] = val;
+
+                return nested;
+            });
+        } else {
+
+            setFormData(prev => ({
+                ...prev,
+                [name]: val
+            }));
+        }
+    };
+
+
+
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        try {
+            setLoading(true);
+
+            const dataToSubmit = {
+                ...formData,
+                activeVisa: {
+                    visaType: formData.activeVisa?.visaType || "",
+                    issueDate: formData.activeVisa?.issueDate
+                        ? new Date(formData.activeVisa.issueDate)
+                        : null,
+                    expireDate: formData.activeVisa?.expireDate
+                        ? new Date(formData.activeVisa.expireDate)
+                        : null,
+                    status: formData.activeVisa?.status || "Active"
+                },
+                departmentInfo: {
+                    college: formData.departmentInfo?.college || "",
+                    department: formData.departmentInfo?.department || "",
+                    supervisor: formData.departmentInfo?.supervisor || "",
+                    admin: formData.departmentInfo?.admin || ""
                 }
             };
 
 
+            await axios.put(
+                `http://localhost:8000/api/employee/updateEmployee/${employeeId}`,
+                dataToSubmit,
+                { headers: { "Content-Type": "application/json" } }
+            );
+
+            setSuccess(true);
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleClose = () => {
+        setFormData({
+            employeeId: "",
+            firstName: "",
+            lastName: "",
+            middleName: "",
+            dateOfBirth: null,
+            email: "",
+            salary: 0,
+            positionTitle: "",
+            highestDegree: "",
+            addresses: [],
+            departmentInfo: {
+                college: "",
+                department: "",
+                supervisor: "",
+                admin: ""
+            },
+            activeVisa: {
+                visaType: "",
+                issueDate: null,
+                expireDate: null,
+                status: "Active"
+            },
+            activateStatus: true
+        });
+
+        setSuccess(false);
+        setLoading(false);
+        onClose();
+    }
 
 
-            const handleSubmit = async (e: React.FormEvent) => {
-                e.preventDefault();
 
-                try{
-                    setLoading(true);
-
-                    const dataToSubmit = {
-                        ...formData,
-                        activeVisa: {
-                            visaType: formData.activeVisa?.visaType || "",
-                            issueDate: formData.activeVisa?.issueDate
-                            ? new Date(formData.activeVisa.issueDate)
-                            : null,
-                            expireDate: formData.activeVisa?.expireDate
-                            ? new Date(formData.activeVisa.expireDate)
-                            : null,
-                            status: formData.activeVisa?.status || "Active"
-                        },
-                        departmentInfo: {
-                            college: formData.departmentInfo?.college || "",
-                            department: formData.departmentInfo?.department || "",
-                            supervisor: formData.departmentInfo?.supervisor || "",
-                            admin: formData.departmentInfo?.admin || ""
-                        }
-                    };
+    const handleAddressChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+        index: number
+    ) => {
+        const { value } = e.target;
+        setFormData(prev => {
+            const newAddresses = [...prev.addresses];
+            newAddresses[index] = { address: value };
+            return { ...prev, addresses: newAddresses };
+        });
+    }
 
 
-                    await axios.put(
-                        `http://localhost:8000/api/employee/updateEmployee/${employeeId}`,
-                        dataToSubmit,
-                        { headers: { "Content-Type": "application/json" } }
-                    );
 
-                    setSuccess(true);
+    const addAddress = () => {
+        setFormData(prev => ({
+            ...prev,
+            addresses: [...(prev.addresses || []), { address: "" }],
+        }));
+    };
 
-                } finally{
-                    setLoading(false);
-                }
+
+
+    const removeAddress = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            addresses: prev.addresses?.filter((_, i) => i !== index) || []
+        }));
+    };
+
+    const handleVisaChange = (
+        field: keyof ActiveVisaItem,
+        value: string | Date
+    ) => {
+        setFormData(prev => ({
+            ...prev,
+            activeVisa: {
+                ...prev.activeVisa!,
+                [field]: value
             }
+        }));
+    };
 
-                const handleClose = () => {
-                    setFormData({
-                        employeeId: "",
-                        firstName: "",
-                        lastName: "",
-                        middleName: "",
-                        dateOfBirth: null,
-                        email: "",
-                        salary: 0,
-                        positionTitle: "",
-                        highestDegree: "",
-                        addresses: [],
-                        departmentInfo: {
-                            college: "",
-                            department: "",
-                            supervisor: "",
-                            admin: ""
-                        },
-                        activeVisa: {
-                            visaType: "",
-                            issueDate: null,
-                            expireDate: null,
-                            status: "Active"
-                        },
-                        activateStatus: true
-                    });
-
-                    setSuccess(false);
-                    setLoading(false);
-                    onClose();
-                }
+    const formatDate = (date: string | Date | null) => {
+        if (!date) return "";
+        const d = new Date(date);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+    };
 
 
 
-            const handleAddressChange = (
-                e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-                index: number
-                ) => {
-                const { value } = e.target;
-                setFormData(prev => {
-                    const newAddresses = [...prev.addresses];
-                    newAddresses[index] = { address: value }; 
-                    return { ...prev, addresses: newAddresses };
-                });
-                }
-
-           
-
-            const addAddress = () => {
-                setFormData(prev => ({
-                    ...prev,
-                    addresses: [...(prev.addresses || []), { address: "" }],
-                }));
-                };
 
 
 
-            const removeAddress = (index: number) => {
-                setFormData(prev => ({
-                    ...prev,
-                    addresses: prev.addresses?.filter((_, i) => i !== index) || []
-                }));
-            };
-            
-            const handleVisaChange = (
-                field: keyof ActiveVisaItem, 
-                value: string | Date
-                ) => {
-                setFormData(prev => ({
-                    ...prev,
-                    activeVisa: {
-                    ...prev.activeVisa!,
-                    [field]: value
-                    }
-                }));
-            };
-
-            const formatDate = (date: string | Date | null) => {
-                if (!date) return "";
-                const d = new Date(date);
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, "0");
-                const dd = String(d.getDate()).padStart(2, "0");
-                return `${yyyy}-${mm}-${dd}`;
-            };
-        
 
 
-
-        
-
-     
-
-      return(
-        <Dialog open = {open} onClose={handleClose}>
+    return (
+        <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Update Employee Information</DialogTitle>
-            <form onSubmit = {handleSubmit}>
+            <form onSubmit={handleSubmit}>
                 <DialogContent>
                     {success && <Alert severity="success" sx={{ mb: 2 }}>Update Successful!</Alert>}
 
@@ -311,7 +311,7 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
                             }}
                             InputLabelProps={{ shrink: true }}
                             disabled={loading}
-                        />                        
+                        />
 
                         <TextField
                             label="College"
@@ -323,7 +323,7 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
                         <TextField
                             label="Department"
                             name="departmentInfo.department"
-                            value={formData.departmentInfo?.department  || ''}
+                            value={formData.departmentInfo?.department || ''}
                             onChange={handleInputChange}
                             disabled={loading}
                         />
@@ -352,21 +352,21 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
                         <Box>
                             {formData.addresses.map((addr, index) => (
                                 <Box key={index} display="flex" alignItems="center" mb={1}>
-                                <TextField
-                                    label={`Address ${index + 1}`}
-                                    value={addr.address || ''}
-                                    onChange={e => handleAddressChange(e, index)}
-                                    disabled={loading}
-                                    fullWidth
-                                />
-                                <Button
-                                    onClick={() => removeAddress(index)}
-                                    color="error"
-                                    variant="outlined"
-                                    sx={{ ml: 1 }}
-                                >
-                                    Remove
-                                </Button>
+                                    <TextField
+                                        label={`Address ${index + 1}`}
+                                        value={addr.address || ''}
+                                        onChange={e => handleAddressChange(e, index)}
+                                        disabled={loading}
+                                        fullWidth
+                                    />
+                                    <Button
+                                        onClick={() => removeAddress(index)}
+                                        color="error"
+                                        variant="outlined"
+                                        sx={{ ml: 1 }}
+                                    >
+                                        Remove
+                                    </Button>
                                 </Box>
                             ))}
                             <Button onClick={addAddress} variant="contained" sx={{ mt: 2 }}>
@@ -377,39 +377,39 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
 
                         <Box>
                             <Typography>Visa</Typography>
-                               <TextField
-                                    label="Visa Type"
-                                    value={formData.activeVisa?.visaType || ""}
-                                    onChange={e => handleVisaChange("visaType", e.target.value)}
-                                    required
-                                    />
+                            <TextField
+                                label="Visa Type"
+                                value={formData.activeVisa?.visaType || ""}
+                                onChange={e => handleVisaChange("visaType", e.target.value)}
+                                required
+                            />
 
-                                    <TextField
-                                    label="Issue Date"
-                                    type="date"
-                                    InputLabelProps={{ shrink: true }}
-                                    value={formatDate(formData.activeVisa?.issueDate)}
-                                    onChange={e => handleVisaChange("issueDate", e.target.value)}
-                                    required
-                                    />
+                            <TextField
+                                label="Issue Date"
+                                type="date"
+                                InputLabelProps={{ shrink: true }}
+                                value={formatDate(formData.activeVisa?.issueDate)}
+                                onChange={e => handleVisaChange("issueDate", e.target.value)}
+                                required
+                            />
 
-                                    <TextField
-                                    label="Expire Date"
-                                    type="date"
-                                    InputLabelProps={{ shrink: true }}
-                                    value={formatDate(formData.activeVisa?.expireDate)}
-                                    onChange={e => handleVisaChange("expireDate", e.target.value)}
-                                    required
-                                    />
+                            <TextField
+                                label="Expire Date"
+                                type="date"
+                                InputLabelProps={{ shrink: true }}
+                                value={formatDate(formData.activeVisa?.expireDate)}
+                                onChange={e => handleVisaChange("expireDate", e.target.value)}
+                                required
+                            />
 
-                                    <TextField
-                                    label="Status"
-                                    value={formData.activeVisa?.status || ""}
-                                    onChange={e => handleVisaChange("status", e.target.value)}
-                                    required
-                                    />
+                            <TextField
+                                label="Status"
+                                value={formData.activeVisa?.status || ""}
+                                onChange={e => handleVisaChange("status", e.target.value)}
+                                required
+                            />
 
-                        </Box>     
+                        </Box>
 
 
                     </Box>
@@ -428,7 +428,7 @@ export default function Update({ open, employeeId, onClose, onSuccess }:EditForm
 
             </form>
         </Dialog>
-      )
+    )
 
 
 
