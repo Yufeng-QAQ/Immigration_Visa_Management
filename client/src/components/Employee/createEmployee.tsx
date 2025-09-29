@@ -1,3 +1,5 @@
+import axios from "axios";
+import {AxiosError} from "axios";
 import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
@@ -14,7 +16,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import dayjs, { Dayjs } from 'dayjs';
 import type { EmployeeItem } from "../../api";
-import axios from "axios";
+
 
 interface EmployeeFormProps {
   onClose: () => void;
@@ -61,29 +63,31 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
   const onSubmit = async (data: EmployeeItem) => {
   try {
     await addEmployee(data);
-    console.log(data);
-    onClose(); // 确保请求成功后再关闭
+    onClose();
   } catch (error) {
     console.error(error);
   }
 };
 
   const addEmployee = async (data: EmployeeItem) => {
-  try {
-    await axios.post(
-      "http://localhost:8000/api/employee/createEmployee",
-      data,
-      { headers: { "Content-Type": "application/json" } }
-    );
-    alert("Employee created successfully!");
-  } catch (error: any) {
-    console.error(error.response?.data || error.message);
-    throw error; // 让 onSubmit catch 到
-  }
-};
-
-
-  
+    try {
+      await axios.post(
+        "http://localhost:8000/api/employee/createEmployee",
+        data,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      alert("Employee created successfully!");
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        console.error(error.response?.data || error.message);
+      } else if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.error(error);
+      }
+      throw error;
+    }
+  };
 
 
   return (

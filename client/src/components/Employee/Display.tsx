@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
+import { calculateDaysLeft } from "../../util";
 
 interface VisaRecord {
   visaType: string;
@@ -114,12 +115,6 @@ export default function Display() {
       setSelectedEmployee(emp);
       setOpen(true);
     }
-  };
-
-  const calculateDaysLeft = (expireDate?: string) => {
-    if (!expireDate) return "-";
-    const diff = new Date(expireDate).getTime() - new Date().getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
   };
 
   const deleteEmployee = async (id: string) => {

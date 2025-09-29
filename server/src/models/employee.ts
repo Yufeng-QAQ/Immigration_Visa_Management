@@ -1,24 +1,20 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
-export interface IDepartmentInfoItem {
+export interface IDepartmentInfoItem extends Document {
   college: string;
   department: string;
   supervisor: string;
   admin?: string;
 }
 
-export interface AddressItem {
-  address: string;
-}
-
-export interface IEmployee {
+export interface IEmployee extends Document {
   employeeId: string;
   firstName: string;
   lastName: string;
   middleName?: string;
   dateOfBirth: Date;
   email: string;
-  addresses: AddressItem[];
+  addresses: string[];
   salary: number;
   positionTitle: string;
   highestDegree: string;
@@ -27,19 +23,14 @@ export interface IEmployee {
   activateStatus: boolean;
 }
 
-const AddressSchema = new Schema<AddressItem>({
-  address: { type: String, required: true }
-});
-
-// 让 Schema 知道是 IEmployee
-const EmployeeSchema: Schema<IEmployee> = new Schema({
-  employeeId: { type: String, required: true, unique: true },
+const EmployeeSchema: Schema = new Schema({
+  employeeId: { type: String, require: true, unique: true },
   firstName: { type: String, required: true },
   middleName: String,
   lastName: { type: String, required: true },
   dateOfBirth: { type: Date, required: true },
   email: { type: String, required: true },
-  addresses: [AddressSchema],
+  addresses: [{ type: String }],
   salary: Number,
   positionTitle: String,
   highestDegree: String,
@@ -53,6 +44,4 @@ const EmployeeSchema: Schema<IEmployee> = new Schema({
   activateStatus: { type: Boolean, default: true },
 });
 
-// 正确声明 Model 类型
-export const Employee: Model<IEmployee> =
-  mongoose.models.Employee || mongoose.model<IEmployee>("Employee", EmployeeSchema);
+export default mongoose.model<IEmployee>("Employee", EmployeeSchema);

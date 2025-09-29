@@ -1,4 +1,4 @@
-import {Employee} from "../models/employee";
+import Employee from "../models/employee";
 import { response, type Request, type Response } from "express";
 import axios from "axios";
 import {Department} from "../models/department";
@@ -13,29 +13,10 @@ export interface Address {
 
 import { VisaRecord } from "../models/visaRecord";
 
- interface TaskItemCreate {
-  employeeId?: string;
-  firstName: string;
-  lastName: string;
-  middleName?: string;
-  dateOfBirth?: string;  
-  email: string;
-  addresses: Address[];
-  salary: number;
-  positionTitle: string;
-  highestDegree: string;
-  department: string;
-  visaHistory: string[];
-  activateStatus: boolean;
-}
-
-
 export const createEmployee = async (req: Request, res: Response) => {
   try {
     
     const addresses = req.body.addresses?.map((item: { address: string }) => item.address) || [];
-
-    
     const newEmployee = new Employee({
       ...req.body,
       addresses,
@@ -56,9 +37,7 @@ export const createEmployee = async (req: Request, res: Response) => {
         status
       });
 
-      const savedVisa = await newVisa.save();
-
-      
+      const savedVisa = await newVisa.save();     
       savedEmployee.visaHistory.push(savedVisa._id);
       await savedEmployee.save();
     }
@@ -90,7 +69,7 @@ export const getEmployee = async (req: Request, res: Response) => {
         match: { status: "Active" },            
         options: { sort: { issueDate: -1 }, limit: 1 } 
       });
-    console.log("即将返回给前端的 employees:", JSON.stringify(employees, null, 2));
+    // console.log("即将返回给前端的 employees:", JSON.stringify(employees, null, 2));
     res.json(employees);
   } catch (err) {
     console.error(err);
