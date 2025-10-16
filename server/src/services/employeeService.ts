@@ -1,6 +1,8 @@
 import { type Request, type Response } from "express";
 import { VisaRecord } from "../models/visaRecord";
 import Employee from "../models/employee";
+import mongoose, { Schema, Document } from "mongoose";
+
 
 export const createEmployee = async (req: Request, res: Response) => {
   try {
@@ -59,39 +61,184 @@ export const getEmployee = async (req: Request, res: Response) => {
 };
 
 
+// export const updateEmployee = async (req: Request, res: Response) => {
+//   try {
+//     const { id } = req.params;
+//     const updateData = req.body;
+
+    
+//     if (updateData.dateOfBirth) {
+//       updateData.dateOfBirth = new Date(updateData.dateOfBirth);
+//     }
+
+   
+//     if (Array.isArray(updateData.addresses)) {
+//       updateData.addresses = updateData.addresses.map(
+//         (item: any) => (typeof item === "string" ? item : item.address)
+//       );
+//     }
+
+
+//     const employee = await Employee.findById(id);
+//     if (!employee) return res.status(404).json({ error: "Employee not found" });
+
+
+//     Object.assign(employee, updateData);
+
+
+//     if (updateData.activeVisa) {
+//       const { visaType, issueDate, expireDate, status } = updateData.activeVisa;
+
+      
+//       const newVisa = new VisaRecord({
+//         recordId: `VR-${Date.now()}`,
+//         employee: employee._id,
+//         visaType,
+//         issueDate,
+//         expireDate,
+//         status
+//       });
+//       const savedVisa = await newVisa.save();
+
+      
+//       if (employee.visaHistory.length > 0) {
+//         employee.visaHistory[employee.visaHistory.length - 1] = savedVisa._id;
+//       } else {
+//         employee.visaHistory.push(savedVisa._id);
+//       }
+//     }
+
+  
+//     const savedEmployee = await employee.save();
+
+//     res.json({ message: "Employee updated", employee: savedEmployee });
+//   } catch (err: any) {
+//     console.error(err);
+//     res.status(500).json({ error: err.message || "Server error" });
+//   }
+// };
+
 export const updateEmployee = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
-    if (updateData.dateOfBirth) updateData.dateOfBirth = new Date(updateData.dateOfBirth);
+    
+    if (updateData.dateOfBirth) {
+      updateData.dateOfBirth = new Date(updateData.dateOfBirth);
+    }
 
+    
     if (Array.isArray(updateData.addresses)) {
       updateData.addresses = updateData.addresses.map(
         (item: any) => (typeof item === "string" ? item : item.address)
       );
     }
 
-    if (updateData.visaHistory) {
-      updateData.visaHistory = updateData.visaHistory.map((v: any) => ({
-        ...v,
-        startDate: new Date(v.startDate),
-        expireDate: new Date(v.expireDate)
-      }));
-    }
 
     const employee = await Employee.findById(id);
     if (!employee) return res.status(404).json({ error: "Employee not found" });
 
+    
     Object.assign(employee, updateData);
-    const saved = await employee.save();
-    res.json({ message: "Employee updated", employee: saved });
+
+    
+    if (updateData.activeVisa) {
+      const { visaType, issueDate, expireDate } = updateData.activeVisa;
+
+      
+      await VisaRecord.updateMany(
+        { _id: { $in: employee.visaHistory }, status: "Active" },
+        { $set: { status: "Inactive" } }
+      );
+
+      
+      const newVisa = new VisaRecord({
+        recordId: `VR-${Date.now()}`,
+        employee: employee._id,
+        visaType,
+        issueDate: new Date(issueDate),
+        expireDate: new Date(expireDate),
+        status: "Active"
+      });
+
+      const savedVisa = await newVisa.save();
+
+      
+      employee.visaHistory.push(savedVisa._id);
+    }
+
+    const savedEmployee = await employee.save();
+
+    res.json({ message: "Employee updated", employee: savedEmployee });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Server error" });
+  }
+}
+
+
+
+export const getVisaStats = async (req: Request, res: Response) => {
+  try {
+    const today = new Date();
+    
+    const result = await VisaRecord.aggregate([
+      { $match: { status: "Active" } }, 
+      {
+        $addFields: {
+          daysToExpire: {
+            $ceil: {
+              $divide: [
+                { $subtract: ["$expireDate", today] },
+                1000 * 60 * 60 * 24
+              ]
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$visaType",
+          total: { $sum: 1 },
+          urgentRed: {
+            $sum: { $cond: [{ $lte: ["$daysToExpire", 30] }, 1, 0] }
+          },
+          urgentYellow: {
+            $sum: { $cond: [{ $and: [{ $gt: ["$daysToExpire", 30] }, { $lte: ["$daysToExpire", 60] }] }, 1, 0] }
+          },
+          urgentBlue: {
+            $sum: { $cond: [{ $and: [{ $gt: ["$daysToExpire", 60] }, { $lte: ["$daysToExpire", 90] }] }, 1, 0] }
+          }
+        }
+      }
+    ]);
+
+    
+    const visaCount: Record<string, number> = {};
+    let urgentRed = 0, urgentYellow = 0, urgentBlue = 0;
+
+    result.forEach((r: any) => {
+      visaCount[r._id] = r.total;
+      urgentRed += r.urgentRed;
+      urgentYellow += r.urgentYellow;
+      urgentBlue += r.urgentBlue;
+    });
+
+    res.json({
+      visaCount,
+      urgent: {
+        red: urgentRed,
+        yellow: urgentYellow,
+        blue: urgentBlue
+      }
+    });
+
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: err.message || "Server error" });
   }
 };
-
 
 
 export const getEmployeeById = async (req: Request, res: Response) => {
@@ -168,3 +315,5 @@ export const deleteEmployee = async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+

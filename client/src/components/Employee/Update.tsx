@@ -177,6 +177,8 @@ export default function Update({ open, employeeId, onClose, onSuccess }: EditFor
                 }
             };
 
+            console.log(dataToSubmit.activeVisa);
+
 
             await axios.put(
                 `http://localhost:8000/api/employee/updateEmployee/${employeeId}`,
@@ -255,18 +257,30 @@ export default function Update({ open, employeeId, onClose, onSuccess }: EditFor
         }));
     };
 
+
     const handleVisaChange = (
         field: keyof ActiveVisaItem,
         value: string | Date
     ) => {
+        
         setFormData(prev => ({
             ...prev,
             activeVisa: {
-                ...prev.activeVisa!,
+                ...prev.activeVisa,
                 [field]: value
             }
         }));
     };
+
+    // const handleVisaChange = () =>{
+        
+    //     setFormData(prev => ({
+    //         ...prev,
+    //     }))
+    // }
+
+
+    
 
     const formatDate = (date: string | Date | null) => {
         if (!date) return "";

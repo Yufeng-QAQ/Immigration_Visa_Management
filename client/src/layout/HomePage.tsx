@@ -6,6 +6,7 @@ import DialogContent from "@mui/material/DialogContent";
 
 import EmployeeForm from "../components/Employee/createEmployee";
 import Display from "../components/Employee/Display";
+import VisaStatsCard from "../components/Employee/sum";
 
 export default function HomePage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
@@ -47,6 +48,7 @@ export default function HomePage() {
       </Box>
 
       <Display></Display>
+      <VisaStatsCard></VisaStatsCard>
     </Container>
 
    
