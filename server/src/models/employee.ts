@@ -1,32 +1,47 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface VisaRecord {
-  type: string;
-  addedAt: Date;
+export interface IDepartmentInfoItem extends Document {
+  college: string;
+  department: string;
+  supervisor: string;
+  admin?: string;
 }
 
 export interface IEmployee extends Document {
+  employeeId: string;
   firstName: string;
   lastName: string;
+  middleName?: string;
+  dateOfBirth: Date;
   email: string;
-  layer1: string;
-  layer2: string;
-  visa: VisaRecord[];
+  addresses: string[];
+  salary: number;
+  positionTitle: string;
+  highestDegree: string;
+  departmentInfo: IDepartmentInfoItem;
+  visaHistory: mongoose.Types.ObjectId[];
+  activateStatus: boolean;
 }
 
 const EmployeeSchema: Schema = new Schema({
+  employeeId: { type: String, require: true, unique: true },
   firstName: { type: String, required: true },
+  middleName: String,
   lastName: { type: String, required: true },
+  dateOfBirth: { type: Date, required: true },
   email: { type: String, required: true },
-  layer1: { type: String, required: true },
-  layer2: { type: String, required: true },
-  visa: [
-    {
-      type: { type: String, required: true },
-      addedAt: { type: Date, default: Date.now }
-    }
-  ]
+  addresses: [{ type: String }],
+  salary: Number,
+  positionTitle: String,
+  highestDegree: String,
+  departmentInfo: {
+    college: { type: String, required: true },
+    department: { type: String, required: true },
+    supervisor: { type: String, required: true },
+    admin: { type: String },
+  },
+  visaHistory: [{ type: Schema.Types.ObjectId, ref: "VisaRecord" }],
+  activateStatus: { type: Boolean, default: true },
 });
-
 
 export default mongoose.model<IEmployee>("Employee", EmployeeSchema);

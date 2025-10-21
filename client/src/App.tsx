@@ -1,51 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { AppBar, Toolbar, Typography, Button, Box, Container } from "@mui/material";
+import LandingPage from "./layout/LandingPage";
+import HomePage from "./layout/HomePage";
+import logo from "/umbc_logo.png";
 
-import Button from "@mui/material/Button";
-
-import Users from './Users';
-import Employee from './Employee';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    <Router>
+      {/* Navigation Bar */}
+      <AppBar position="static">
+        <Toolbar>
+          <Box>
+            <img src= {logo} width={ 30} />
+          </Box>
+          <Typography color="secondary" variant="h6" sx={{ flexGrow: 1 , ml : 1}}>
+            Visa Management System
+          </Typography>
+          <Button color="secondary" component={Link} to="/">
+            Logout
+          </Button>
+        </Toolbar>
+      </AppBar>
 
-      <div>
-        <h1>Hello MUI</h1>
-        <Button variant="contained" color="primary">
-          点我们
-        </Button>
-      </div>
+      {/* Page Content */}
+      <Container sx={{ mt: 4 }}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/home" element={<HomePage />} />
+        </Routes>
+      </Container>
+    </Router>
 
-      <Users></Users>
 
-      <Employee></Employee>
-    </>
-  )
+
+
+
+
+  );
 }
 
-export default App
+export default App;
