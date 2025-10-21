@@ -123,11 +123,9 @@ export const updateEmployee = async (req: Request, res: Response) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    
     if (updateData.dateOfBirth) {
       updateData.dateOfBirth = new Date(updateData.dateOfBirth);
     }
-
     
     if (Array.isArray(updateData.addresses)) {
       updateData.addresses = updateData.addresses.map(
@@ -135,24 +133,18 @@ export const updateEmployee = async (req: Request, res: Response) => {
       );
     }
 
-
     const employee = await Employee.findById(id);
     if (!employee) return res.status(404).json({ error: "Employee not found" });
 
-    
     Object.assign(employee, updateData);
 
-    
     if (updateData.activeVisa) {
       const { visaType, issueDate, expireDate } = updateData.activeVisa;
-
-      
       await VisaRecord.updateMany(
         { _id: { $in: employee.visaHistory }, status: "Active" },
         { $set: { status: "Inactive" } }
       );
 
-      
       const newVisa = new VisaRecord({
         recordId: `VR-${Date.now()}`,
         employee: employee._id,
@@ -178,11 +170,8 @@ export const updateEmployee = async (req: Request, res: Response) => {
 }
 
 
-
 export const getVisaStats = async (req: Request, res: Response) => {
   try {
-    const today = new Date();
-    
     const result = await VisaRecord.aggregate([
       { $match: { status: "Active" } }, 
       {
@@ -190,7 +179,7 @@ export const getVisaStats = async (req: Request, res: Response) => {
           daysToExpire: {
             $ceil: {
               $divide: [
-                { $subtract: ["$expireDate", today] },
+                { $subtract: ["$expireDate", "$$NOW"] },
                 1000 * 60 * 60 * 24
               ]
             }
@@ -214,7 +203,6 @@ export const getVisaStats = async (req: Request, res: Response) => {
       }
     ]);
 
-    
     const visaCount: Record<string, number> = {};
     let urgentRed = 0, urgentYellow = 0, urgentBlue = 0;
 
