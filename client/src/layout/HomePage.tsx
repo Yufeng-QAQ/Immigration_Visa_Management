@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Typography, Box, Container, Grid, Button } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
+import type { GridColDef } from "@mui/x-data-grid";
 
 import EmployeeForm from "../components/Employee/createEmployee";
+import EmployeeTable from "../components/Employee/EmployeeTable";
 import Display from "../components/Employee/Display";
 import VisaStatsComponent from "../components/Reports/visaSummary";
 
@@ -17,6 +19,15 @@ export default function HomePage() {
   const handleCloseCreateDialog = () => {
     setIsCreateDialogOpen(false);
   };
+
+  const employeeColumns: GridColDef[] = [
+    { field: "employeeId", headerName: "Employee ID", width: 130 },
+    { field: "firstName", headerName: "First Name", width: 150 },
+    { field: "lastName", headerName: "Last Name", width: 150 },
+    { field: "email", headerName: "Email", width: 200 },
+    { field: "positionTitle", headerName: "Position", width: 180 },
+    { field: "salary", headerName: "Salary", width: 120 },
+  ];
   return (
     <Container>
       <Box sx={{ py: 5 }}>
@@ -41,13 +52,21 @@ export default function HomePage() {
             <EmployeeForm onClose={handleCloseCreateDialog}/>
           </DialogContent>
         </Dialog>
-        {/* <EmployeeForm onClose={handleCloseCreateDialog} /> */}
-
-
       </Box>
 
-      <Display></Display>
-      <VisaStatsComponent></VisaStatsComponent>
+      <Box>
+        <Grid container>
+          <EmployeeTable
+            title="Employee Directory"
+            url="employee/getEmployee"
+            columns={employeeColumns}
+          />
+        </Grid>
+      </Box>
+     
+      <Box>
+        <VisaStatsComponent></VisaStatsComponent>
+      </Box>
     </Container>
 
    
