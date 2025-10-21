@@ -247,17 +247,34 @@ export const addVisa = async (req: Request, res: Response) => {
   }
 };
 
-
 export const deleteEmployee = async (req: Request, res: Response) => {
   try {
-    const deleted = await Employee.findByIdAndDelete(req.params.id);
-    if (!deleted) {
+    const { id } = req.params;
+
+    const employee = await Employee.findById(id);
+    if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
-    res.json({ message: "Employee deleted successfully", deleted });
+
+    const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
+
+    await VisaModel.deleteMany({
+      _id: { $in: employee.visaHistory },
+      status: "Active"
+    });
+
+    const deleted = await Employee.findByIdAndDelete(id);
+
+    res.json({
+      message: "Employee and related active visa records deleted successfully",
+      deleted
+    });
+
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: err.message || "Server error" });
   }
 };
+
 
 
