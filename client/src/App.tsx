@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { AppBar, Toolbar, Typography, Button, Box, Container } from "@mui/material";
 import LandingPage from "./layout/LandingPage";
 import HomePage from "./layout/HomePage";
+import { GlobalNotification } from "./components/MUI/Notification/Notification";
 import logo from "/umbc_logo.png";
 
 
@@ -25,6 +26,7 @@ function App() {
 
       {/* Page Content */}
       <Container sx={{ mt: 4 }}>
+        <GlobalNotification />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/home" element={<HomePage />} />

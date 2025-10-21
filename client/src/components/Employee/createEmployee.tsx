@@ -18,6 +18,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import dayjs, { Dayjs } from 'dayjs';
 import type { EmployeeItem } from "../../api";
+import { notify } from "../MUI/Notification/eventBus";
+
 
 interface EmployeeFormProps {
   onClose: () => void;
@@ -79,7 +81,8 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
         data,
         { headers: { "Content-Type": "application/json" } }
       );
-      alert("Employee created successfully!");
+      // alert("Employee created successfully!");
+      notify.success("Employee created successfully!");
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         console.error(error.response?.data || error.message);
