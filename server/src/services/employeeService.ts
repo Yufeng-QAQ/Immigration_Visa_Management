@@ -257,11 +257,12 @@ export const deleteEmployee = async (req: Request, res: Response) => {
     }
 
     const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
-
-    await VisaModel.deleteMany({
-      _id: { $in: employee.visaHistory },
-      status: "Active"
-    });
+    // Validate if visaRecord exist
+    if (employee.visaHistory && employee.visaHistory.length > 0) {
+      await VisaModel.deleteMany({
+        _id: { $in: employee.visaHistory },
+      });
+    }
 
     const deleted = await Employee.findByIdAndDelete(id);
 
