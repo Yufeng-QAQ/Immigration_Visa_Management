@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
-import { Box, Card, Grid, CircularProgress, Alert, Typography } from "@mui/material";
+import { Box, Card, Grid, Alert, Typography } from "@mui/material";
 
 interface EmployeeTableProps {
   url: string;
   title: string;
   columns: GridColDef[];
+  reload?: number;
 }
 
 const BASE_URL = "http://localhost:8000/api/";
 
-export default function EmployeeTable({ url, title, columns }: EmployeeTableProps) {
+export default function EmployeeTable({ url, title, columns, reload }: EmployeeTableProps) {
   const [rows, setRows] = useState<any[]>([]);
   const [isloading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +37,7 @@ export default function EmployeeTable({ url, title, columns }: EmployeeTableProp
     };
 
     fetchData();
-  }, [url]);
+  }, [url, reload]);
 
   return (
     <Card>

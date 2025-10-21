@@ -11,6 +11,12 @@ import VisaStatsComponent from "../components/Reports/visaSummary";
 
 export default function HomePage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
+  const [reload, setReload] = useState<number>(0);
+  const triggerReload = () => {
+    setReload(prev => prev + 1);
+    console.log("reloaded");
+    
+  };
 
   const handleOpenCreateDialog = () => {
     setIsCreateDialogOpen(true);
@@ -49,7 +55,7 @@ export default function HomePage() {
 
         <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
           <DialogContent>
-            <EmployeeForm onClose={handleCloseCreateDialog}/>
+            <EmployeeForm onClose={handleCloseCreateDialog} onAddSuccess={triggerReload}/>
           </DialogContent>
         </Dialog>
       </Box>
@@ -60,10 +66,11 @@ export default function HomePage() {
             title="Employee Directory"
             url="employee/getEmployee"
             columns={employeeColumns}
+            reload={reload}
           />
         </Grid>
       </Box>
-     
+     <Display></Display>
       <Box>
         <VisaStatsComponent></VisaStatsComponent>
       </Box>

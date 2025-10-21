@@ -1,5 +1,6 @@
+import { useState } from "react";
 import axios from "axios";
-import {AxiosError} from "axios";
+import { AxiosError } from "axios";
 import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
@@ -14,15 +15,16 @@ import {
   Typography, InputLabel, OutlinedInput, InputAdornment, FormControl
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
+
 import dayjs, { Dayjs } from 'dayjs';
 import type { EmployeeItem } from "../../api";
 
-
 interface EmployeeFormProps {
   onClose: () => void;
+  onAddSuccess?: () => void;
 }
 
-export default function EmployeeForm({ onClose }: EmployeeFormProps) {
+export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProps) {
   const degrees = ["PhD", "Master", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower"];
   const Visatypes = ["J-1", "H-1B", "OPT - 1 Year", "OPT - 3 Years"];
 
@@ -54,20 +56,21 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
     }
   });
 
-  const { control, handleSubmit} = methods;
+  const { control, handleSubmit } = methods;
   const { fields, append, remove } = useFieldArray({
     control,
     name: "addresses",
   });
 
   const onSubmit = async (data: EmployeeItem) => {
-  try {
-    await addEmployee(data);
-    onClose();
-  } catch (error) {
-    console.error(error);
-  }
-};
+    try {
+      await addEmployee(data);
+      if (onAddSuccess) onAddSuccess(); // Refreash table data
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const addEmployee = async (data: EmployeeItem) => {
     try {
@@ -88,7 +91,6 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
       throw error;
     }
   };
-
 
   return (
     <FormProvider {...methods}>
@@ -166,8 +168,8 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     )}
                   />
                 </Grid>
-                <Grid size={{xs: 18}} container spacing={2} columns={18} alignItems="center" justifyContent="space-between">
-                  <Grid size={{xs: 12}}>
+                <Grid size={{ xs: 18 }} container spacing={2} columns={18} alignItems="center" justifyContent="space-between">
+                  <Grid size={{ xs: 12 }}>
                     <Controller
                       name="email"
                       control={control}
@@ -205,7 +207,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                 <Grid size={{ xs: 12 }}>
                   {fields.map((field, index) => (
                     <Grid key={field.id}>
-                      <Box display="flex"  gap={1}>
+                      <Box display="flex" gap={1}>
                         <Controller
                           name={`addresses.${index}.address`}
                           control={control}
@@ -228,7 +230,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                             onClick={() => remove(index)}
                             sx={{ ml: 1 }}
                           >
-                            <DeleteIcon/>
+                            <DeleteIcon />
                           </Button>
                         )}
                       </Box>
@@ -236,13 +238,13 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                   ))}
                 </Grid>
 
-                <Grid size={{xs:4}} mt={1}>
+                <Grid size={{ xs: 4 }} mt={1}>
                   <Button
                     type="button"
                     variant="contained"
                     size="small"
-                    onClick={() => append({address: ""})}
-                    sx={{ color: '#fdb515'}}
+                    onClick={() => append({ address: "" })}
+                    sx={{ color: '#fdb515' }}
                   >
                     Add Address
                   </Button>
@@ -250,7 +252,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
               </Grid>
             </CardContent>
           </Card>
-          <Card elevation={2} sx={{mt: 2, mb: 2}}>
+          <Card elevation={2} sx={{ mt: 2, mb: 2 }}>
             <CardContent>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Department Information
@@ -295,7 +297,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     )}
                   />
                 </Grid>
-                
+
                 <Grid size={{ xs: 7 }}>
                   <Controller
                     name="salary"
@@ -382,8 +384,8 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
               </Grid>
             </CardContent>
           </Card>
-          <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-            <Button type="submit" variant="contained" sx={{ color: '#fdb515'}}>Create Employee</Button>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+            <Button type="submit" variant="contained" sx={{ color: '#fdb515' }}>Create Employee</Button>
           </Box>
         </form>
       </Box>
