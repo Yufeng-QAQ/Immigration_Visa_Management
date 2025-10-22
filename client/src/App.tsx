@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { AppBar, Toolbar, Typography, Button, Box, Container } from "@mui/material";
 import LandingPage from "./layout/LandingPage";
 import HomePage from "./layout/HomePage";
+import ManageEmp from "./layout/ManageEmployee";
+import Archive from "./layout/Archive";
 import { GlobalNotification } from "./components/MUI/Notification/Notification";
 import logo from "/umbc_logo.png";
 
@@ -30,6 +32,8 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/home" element={<HomePage />} />
+          <Route path="/manage" element={<ManageEmp />} />
+          <Route path="/archive" element={<Archive />} />
         </Routes>
       </Container>
     </Router>
