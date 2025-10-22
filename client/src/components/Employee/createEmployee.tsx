@@ -102,6 +102,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Basic Information
               </Typography>
+              
               <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
                 <Grid size={{ xs: 7 }}>
                   <Controller
@@ -113,6 +114,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     )}
                   />
                 </Grid>
+
                 <Grid size={{ xs: 4 }}>
                   <Controller
                     name="middleName"
@@ -152,6 +154,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     )}
                   />
                 </Grid>
+
                 <Grid size={{ xs: 6 }}>
                   <Controller
                     control={control}
@@ -202,6 +205,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     />
                   </Grid>
                 </Grid>
+                
                 <Grid size={{ xs: 12 }}>
                   {fields.map((field, index) => (
                     <Grid key={field.id}>
