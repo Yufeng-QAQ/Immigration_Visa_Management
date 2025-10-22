@@ -18,6 +18,11 @@ import {
 } from "@mui/material";
 import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
 import { calculateDaysLeft } from "../../util";
+import type { EmployeeItem, ActiveVisaItem, AddressItem } from "../../api";
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
+
 
 interface VisaRecord {
   visaType: string;
@@ -58,7 +63,9 @@ export default function Display() {
     const [selectedEmployee, setSelectedEmployee] = useState<EmployeeSummary | null>(null);
     const [open, setOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
-
+    const [editMode, setEditMode] = useState(false);
+    
+    
     const showEmployee = async () => {
         try {
           setLoading(true);
@@ -104,6 +111,47 @@ export default function Display() {
         }
       };
 
+    type InputValue = string | Date | null;
+
+
+interface FlexibleInputEvent {
+  target: {
+    name: string;
+    value: InputValue;
+  };
+}
+
+
+const handleInputChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | FlexibleInputEvent
+) => {
+  if (!selectedEmployee) return;
+  const { name, value } = e.target;
+
+  if (name.includes('.')) {
+    const keys = name.split('.');
+    setSelectedEmployee(prev => {
+      if (!prev) return prev;
+      const nested: any = { ...prev };
+      let current = nested;
+      for (let i = 0; i < keys.length - 1; i++) {
+        current[keys[i]] = { ...current[keys[i]] };
+        current = current[keys[i]];
+      }
+      current[keys[keys.length - 1]] = value; 
+      return nested as EmployeeSummary;
+    });
+  } else {
+    setSelectedEmployee(prev => {
+      if (!prev) return prev;
+      return { ...prev, [name]: value } as EmployeeSummary;
+    });
+  }
+};
+
+
+
+
     useEffect(() => {
         showEmployee();
     }, []);
@@ -127,7 +175,118 @@ export default function Display() {
         }
       };
 
+      const handleAddressChange = (
+            e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+            index: number
+        ) => {
+            const { value } = e.target;
+            setSelectedEmployee(prev => {
+                if (!prev) return prev;
+                const newAddresses = [...prev.addresses];
+                newAddresses[index] = value;
+                return { ...prev, addresses: newAddresses };
+            });
+        };
+
+       
+
+
+
+const handleVisaHistoryChange = (
+    index: number,
+    field: "startDate" | "expireDate" | "visaType",
+    value: string | Date | null
+    ) => {
+    setSelectedEmployee(prev => {
+        if (!prev) return prev;
+
+        const newVisaHistory = [...prev.visaHistory];
+
+        if (field === "startDate" || field === "expireDate") {
+        newVisaHistory[index] = {
+            ...newVisaHistory[index],
+            validPeriod: {
+            ...newVisaHistory[index].validPeriod,
+            [field]: value, 
+            },
+        };
+        } else {
+        newVisaHistory[index] = {
+            ...newVisaHistory[index],
+            visaType: value ? String(value) : "",
+        };
+        }
+
+        return {
+        ...prev,
+        visaHistory: newVisaHistory,
+        };
+    });
+};
+
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!selectedEmployee) return;
+
+  try {
+    setLoading(true);
+
     
+    const dataToSubmit = {
+      _id: selectedEmployee._id,
+      employeeId: selectedEmployee.employeeId,
+      firstName: selectedEmployee.firstName,
+      middleName: selectedEmployee.middleName || "",
+      lastName: selectedEmployee.lastName,
+      dateOfBirth: selectedEmployee.dateOfBirth || "",
+      email: selectedEmployee.email,
+      addresses: selectedEmployee.addresses || [],
+      salary: selectedEmployee.salary || 0,
+      positionTitle: selectedEmployee.positionTitle || "",
+      highestDegree: selectedEmployee.highestDegree || "",
+      departmentInfo: selectedEmployee.department
+        ? {
+            college: selectedEmployee.department.collegeName,
+            department: selectedEmployee.department.departmentName,
+            supervisor: selectedEmployee.department.supervisor,
+            admin: selectedEmployee.department.admin
+          }
+        : null,
+      
+      activeVisa: selectedEmployee.visaHistory?.[0]
+        ? {
+            visaType: selectedEmployee.visaHistory[0].visaType,
+            issueDate: selectedEmployee.visaHistory[0].validPeriod?.startDate
+              ? new Date(selectedEmployee.visaHistory[0].validPeriod.startDate)
+              : null,
+            expireDate: selectedEmployee.visaHistory[0].validPeriod?.expireDate
+              ? new Date(selectedEmployee.visaHistory[0].validPeriod.expireDate)
+              : null,
+            status: "Active"
+          }
+        : null,
+      activateStatus: selectedEmployee.activateStatus || false
+    };
+
+    console.log("Submitting employee data:", dataToSubmit);
+
+    await axios.put(
+      `http://localhost:8000/api/employee/updateEmployee/${selectedEmployee._id}`,
+      dataToSubmit,
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    setEditMode(false);
+    showEmployee();
+  } catch (err) {
+    console.error("Failed to update employee:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
     if (loading) return <div>Loading...</div>;
 
       return (
@@ -198,12 +357,12 @@ export default function Display() {
                                 <Grid size={{ xs: 7 }}>
                                     <TextField
                                         label="First Name"
+                                        name="firstName"
                                         fullWidth
                                         variant="standard"
                                         value={selectedEmployee?.firstName || ""}
-                                        slotProps={{
-                                            input: { readOnly: true },
-                                        }}
+                                        onChange={e => handleInputChange(e)}
+                                        InputProps={{ readOnly: !editMode }}
                                     />
                                 </Grid>
 
@@ -211,12 +370,12 @@ export default function Display() {
                                 <Grid size={{ xs: 4 }}>
                                     <TextField
                                         label="Middle Name"
+                                        name="middleName"
                                         fullWidth
                                         variant="standard"
                                         value={selectedEmployee?.middleName || ""}
-                                        slotProps={{
-                                            input: { readOnly: true },
-                                        }}
+                                        onChange={handleInputChange}
+                                        InputProps={{ readOnly: !editMode }}
                                     />
                                 </Grid>
 
@@ -224,12 +383,12 @@ export default function Display() {
                                 <Grid size={{ xs: 7 }}>
                                     <TextField
                                         label="Last Name"
+                                        name="lastName"
                                         fullWidth
                                         variant="standard"
                                         value={selectedEmployee?.lastName || ""}
-                                        slotProps={{
-                                            input: { readOnly: true },
-                                        }}
+                                        onChange={handleInputChange}
+                                        InputProps={{ readOnly: !editMode }}
                                     />
                                 </Grid>
 
@@ -237,12 +396,12 @@ export default function Display() {
                                 <Grid size={{ xs: 6 }}>
                                     <TextField
                                         label="Employee ID"
+                                        name="employeeId"
                                         fullWidth
                                         variant="standard"
                                         value={selectedEmployee?.employeeId || ""}
-                                        slotProps={{
-                                            input: { readOnly: true },
-                                        }}
+                                        onChange={handleInputChange}
+                                        InputProps={{ readOnly: !editMode }}
                                     />
                                 </Grid>
 
@@ -250,27 +409,38 @@ export default function Display() {
                                 <Grid size={{ xs: 6 }}>
                                     <TextField
                                         label="Postion Title"
+                                        name="positionTitle"
                                         fullWidth
                                         variant="standard"
                                         value={selectedEmployee?.positionTitle || ""}
-                                        slotProps={{
-                                            input: { readOnly: true },
-                                        }}
+                                        onChange={handleInputChange}
+                                        InputProps={{ readOnly: !editMode }}
                                     />
                                 </Grid>
 
                                 {/* Date of Birth */}
-                                <Grid size={{ xs: 6 }}>
-                                    <TextField
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                                    <Grid size={{ xs: 6 }}>
+                                        <DatePicker
                                         label="Date of Birth"
-                                        fullWidth
-                                        variant="standard"
-                                        value={selectedEmployee?.dateOfBirth ? new Date(selectedEmployee.dateOfBirth).toLocaleDateString() : "N/A"}
-                                        slotProps={{
-                                            input: { readOnly: true },
+                                        value={selectedEmployee?.dateOfBirth ? dayjs(selectedEmployee.dateOfBirth) : null}
+                                        onChange={(newValue) => {
+                                            if (editMode) handleInputChange({
+                                            target: { name: "dateOfBirth", value: newValue?.toDate() || null }
+                                            });
                                         }}
-                                    />
-                                </Grid>
+                                        slotProps={{
+                                            textField: {
+                                            fullWidth: true,
+                                            variant: "standard",
+                                            InputProps: { readOnly: !editMode }
+                                            }
+                                        }}
+                                        />
+                                    </Grid>
+                                </LocalizationProvider>
+
 
                                 <Grid size={{xs: 18}} container spacing={2} columns={18} alignItems="center" justifyContent="space-between">
 
@@ -278,12 +448,12 @@ export default function Display() {
                                     <Grid size={{ xs: 12 }}>
                                         <TextField
                                             label="Email"
+                                            name="email"
                                             fullWidth
                                             variant="standard"
                                             value={selectedEmployee?.email|| ""}
-                                            slotProps={{
-                                                input: { readOnly: true },
-                                            }}
+                                            onChange={handleInputChange}
+                                            InputProps={{ readOnly: !editMode }}
                                         />
                                     </Grid>
                                         
@@ -291,12 +461,12 @@ export default function Display() {
                                     <Grid size={{ xs: 6 }} mb={2}>
                                         <TextField
                                             label="HighestDegree"
+                                            name="highestDegree"
                                             fullWidth
                                             variant="standard"
                                             value={selectedEmployee?.highestDegree|| ""}
-                                            slotProps={{
-                                                input: { readOnly: true },
-                                            }}
+                                            onChange={handleInputChange}
+                                            InputProps={{ readOnly: !editMode }}
                                         />
                                     </Grid>
 
@@ -315,7 +485,8 @@ export default function Display() {
                                                 fullWidth
                                                 variant="standard"
                                                 value={value}
-                                                slotProps={{ input: { readOnly: true } }}
+                                                onChange={e => handleAddressChange(e, idx)}
+                                                InputProps={{ readOnly: !editMode }}
                                             />
                                             </Box>
                                         );
@@ -337,60 +508,61 @@ export default function Display() {
                             <Grid size={{ xs: 9 }}>
                                 <TextField
                                     label="College"
+                                    name="department.collegeName"
+                                    value={selectedEmployee?.department?.collegeName || ""}
+                                    onChange={handleInputChange}
                                     fullWidth
                                     variant="standard"
-                                    value={selectedEmployee?.department?.collegeName|| ""}
-                                    slotProps={{
-                                    input: { readOnly: true },
-                                    }}
+                                    InputProps={{ readOnly: !editMode }}
                                 />
+
                             </Grid>
 
                             <Grid size={{ xs: 9 }}>
                                 <TextField
                                     label="Department"
+                                    name="department.departmentName"
+                                    value={selectedEmployee?.department?.departmentName || ""}
+                                    onChange={handleInputChange}
                                     fullWidth
                                     variant="standard"
-                                    value={selectedEmployee?.department?.departmentName|| ""}
-                                    slotProps={{
-                                    input: { readOnly: true },
-                                    }}
+                                    InputProps={{ readOnly: !editMode }}
                                 />
                             </Grid>
 
                             <Grid size={{ xs: 9 }}>
                                 <TextField
                                     label="Supervisor"
+                                    name="department.supervisor"
+                                    value={selectedEmployee?.department?.supervisor || ""}
+                                    onChange={handleInputChange}
                                     fullWidth
                                     variant="standard"
-                                    value={selectedEmployee?.department?.supervisor|| ""}
-                                    slotProps={{
-                                    input: { readOnly: true },
-                                    }}
+                                    InputProps={{ readOnly: !editMode }}
                                 />
                             </Grid>
 
                             <Grid size={{ xs: 9 }}>
                                 <TextField
                                     label="Admin"
+                                    name="department.admin"
+                                    value={selectedEmployee?.department?.admin || ""}
+                                    onChange={handleInputChange}
                                     fullWidth
                                     variant="standard"
-                                    value={selectedEmployee?.department?.admin|| ""}
-                                    slotProps={{
-                                    input: { readOnly: true },
-                                    }}
+                                    InputProps={{ readOnly: !editMode }}
                                 />
                             </Grid>
                             
                             <Grid size={{ xs: 7 }}>
                                 <TextField
                                     label="Salary"
+                                    name="salary"
                                     fullWidth
                                     variant="standard"
                                     value={selectedEmployee?.salary|| "0"}
-                                    slotProps={{
-                                    input: { readOnly: true },
-                                    }}
+                                    onChange={handleInputChange}
+                                    InputProps={{ readOnly: !editMode }}
                                 />
                             </Grid>
                         </Grid>
@@ -409,82 +581,119 @@ export default function Display() {
                                         label="VisaType"
                                         fullWidth
                                         variant="standard"
-                                        value={selectedEmployee?.visaHistory[0].visaType|| ""}
-                                        slotProps={{
-                                        input: { readOnly: true },
-                                        }}
+                                        value={selectedEmployee?.visaHistory[0]?.visaType|| ""}
+                                        onChange={e => handleVisaHistoryChange(0, "visaType", e.target.value)}
+                                        InputProps={{ readOnly: !editMode }}
                                     />
                                 </Grid>
                             </Grid>
-
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <Grid size={{ xs: 7 }}>
-                                <TextField
-                                    label="Issue Date"
-                                    fullWidth
-                                    variant="standard"
-                                    value={
-                                    selectedEmployee?.visaHistory[0]?.validPeriod?.startDate
-                                        ? new Date(selectedEmployee.visaHistory[0].validPeriod.startDate).toLocaleDateString()
-                                        : ""
+                                <DatePicker
+                                label="Issue Date"
+                                value={
+                                    selectedEmployee?.visaHistory?.[0]?.validPeriod?.startDate
+                                    ? dayjs(selectedEmployee.visaHistory[0].validPeriod.startDate)
+                                    : null
+                                }
+                                onChange={(newValue) =>
+                                    editMode && handleVisaHistoryChange(0, "startDate", newValue?.toDate() || null)
+                                }
+                                slotProps={{
+                                    textField: {
+                                    fullWidth: true,
+                                    variant: "standard",
+                                    InputProps: { readOnly: !editMode }
                                     }
-                                    InputProps={{
-                                    readOnly: true,
-                                    }}
+                                }}
                                 />
                             </Grid>
 
 
                             <Grid size={{ xs: 7 }}>
-                                <TextField
-                                    label="Expire Date"
-                                    fullWidth
-                                    variant="standard"
-                                    value={
-                                    selectedEmployee?.visaHistory[0]?.validPeriod?.expireDate
-                                        ? new Date(selectedEmployee.visaHistory[0].validPeriod.expireDate).toLocaleDateString()
-                                        : ""
+                                <DatePicker
+                                label="Expire Date"
+                                value={
+                                    selectedEmployee?.visaHistory?.[0]?.validPeriod?.expireDate
+                                    ? dayjs(selectedEmployee.visaHistory[0].validPeriod.expireDate)
+                                    : null
+                                }
+                                onChange={(newValue) =>
+                                    editMode && handleVisaHistoryChange(0, "expireDate", newValue?.toDate() || null)
+                                }
+                                slotProps={{
+                                    textField: {
+                                    fullWidth: true,
+                                    variant: "standard",
+                                    InputProps: { readOnly: !editMode }
                                     }
-                                    InputProps={{
-                                    readOnly: true,
-                                    }}
+                                }}
                                 />
                             </Grid>
+                        </LocalizationProvider>
                         </Grid>
                     </CardContent>
                 </Card>
             </DialogContent>
             <DialogActions>
-                <Button onClick={() => setOpen(false)}>Close</Button>
+                <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+  {!editMode && (
+    <>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setEditMode(true)}
+      >
+        Edit
+      </Button>
+      <Button
+        variant="outlined"
+        color="error"
+        onClick={() => {
+            if (selectedEmployee?._id) {
+            const confirmDelete = window.confirm(
+                "Are you sure you want to delete this employee?"
+            );
+            if (confirmDelete) {
+                deleteEmployee(selectedEmployee._id);
+            }
+            }
+        }}
+        >
+        Delete
+    </Button>
 
-                <Button 
-                    variant="contained"
-                    onClick={() => {
-                        setEditOpen(true);
-                        setOpen(false);
-                    }}
-                >Edit</Button>
+    </>
+  )}
 
-                <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => {
-                    if (selectedEmployee?._id && window.confirm("Are you sure you want to delete this employee?")) {
-                        deleteEmployee(selectedEmployee._id);
-                    }
-                    }}
-                >Delete</Button>
+  {editMode && (
+    <>
+      <Button
+        variant="contained"
+        color="success"
+        onClick={(e) => {
+            handleSubmit(e);
+
+            }}
+        >
+        Save
+      </Button>
+      <Button
+        variant="outlined"
+        onClick={() => {
+            setEditMode(false);
+            setOpen(false);
+        }}
+        >
+        Cancel
+        </Button>
+    </>
+  )}
+</Box>
+
             </DialogActions>
         </Dialog>
 
-        <UpdateEmployeeForm
-            open={editOpen}
-            employeeId={selectedEmployee?._id || ""}
-            onClose={() => setEditOpen(false)}
-            onSuccess={() => {
-            setEditOpen(false);
-            showEmployee();
-            }}
-        />
         </Container>
       );
 }
