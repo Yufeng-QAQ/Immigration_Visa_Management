@@ -2,6 +2,7 @@ import { type Request, type Response } from "express";
 import { VisaRecord } from "../models/visaRecord";
 import Employee from "../models/employee";
 import mongoose, { Schema, Document } from "mongoose";
+import { Model } from "mongoose";
 
 
 export const createEmployee = async (req: Request, res: Response) => {
@@ -61,71 +62,17 @@ export const getEmployee = async (req: Request, res: Response) => {
 };
 
 
-// export const updateEmployee = async (req: Request, res: Response) => {
-//   try {
-//     const { id } = req.params;
-//     const updateData = req.body;
-
-    
-//     if (updateData.dateOfBirth) {
-//       updateData.dateOfBirth = new Date(updateData.dateOfBirth);
-//     }
-
-   
-//     if (Array.isArray(updateData.addresses)) {
-//       updateData.addresses = updateData.addresses.map(
-//         (item: any) => (typeof item === "string" ? item : item.address)
-//       );
-//     }
-
-
-//     const employee = await Employee.findById(id);
-//     if (!employee) return res.status(404).json({ error: "Employee not found" });
-
-
-//     Object.assign(employee, updateData);
-
-
-//     if (updateData.activeVisa) {
-//       const { visaType, issueDate, expireDate, status } = updateData.activeVisa;
-
-      
-//       const newVisa = new VisaRecord({
-//         recordId: `VR-${Date.now()}`,
-//         employee: employee._id,
-//         visaType,
-//         issueDate,
-//         expireDate,
-//         status
-//       });
-//       const savedVisa = await newVisa.save();
-
-      
-//       if (employee.visaHistory.length > 0) {
-//         employee.visaHistory[employee.visaHistory.length - 1] = savedVisa._id;
-//       } else {
-//         employee.visaHistory.push(savedVisa._id);
-//       }
-//     }
-
-  
-//     const savedEmployee = await employee.save();
-
-//     res.json({ message: "Employee updated", employee: savedEmployee });
-//   } catch (err: any) {
-//     console.error(err);
-//     res.status(500).json({ error: err.message || "Server error" });
-//   }
-// };
 
 export const updateEmployee = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
+    
     if (updateData.dateOfBirth) {
       updateData.dateOfBirth = new Date(updateData.dateOfBirth);
     }
+
     
     if (Array.isArray(updateData.addresses)) {
       updateData.addresses = updateData.addresses.map(
@@ -133,18 +80,26 @@ export const updateEmployee = async (req: Request, res: Response) => {
       );
     }
 
+    
     const employee = await Employee.findById(id);
     if (!employee) return res.status(404).json({ error: "Employee not found" });
 
     Object.assign(employee, updateData);
 
+    
     if (updateData.activeVisa) {
       const { visaType, issueDate, expireDate } = updateData.activeVisa;
-      await VisaRecord.updateMany(
-        { _id: { $in: employee.visaHistory }, status: "Active" },
-        { $set: { status: "Inactive" } }
-      );
 
+      
+      const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
+
+     
+      await VisaModel.deleteMany({
+        _id: { $in: employee.visaHistory },
+        status: "Active"
+      });
+
+      
       const newVisa = new VisaRecord({
         recordId: `VR-${Date.now()}`,
         employee: employee._id,
@@ -167,7 +122,8 @@ export const updateEmployee = async (req: Request, res: Response) => {
     console.error(err);
     res.status(500).json({ error: err.message || "Server error" });
   }
-}
+};
+
 
 
 export const getVisaStats = async (req: Request, res: Response) => {
@@ -291,17 +247,35 @@ export const addVisa = async (req: Request, res: Response) => {
   }
 };
 
-
 export const deleteEmployee = async (req: Request, res: Response) => {
   try {
-    const deleted = await Employee.findByIdAndDelete(req.params.id);
-    if (!deleted) {
+    const { id } = req.params;
+
+    const employee = await Employee.findById(id);
+    if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
-    res.json({ message: "Employee deleted successfully", deleted });
+
+    const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
+    // Validate if visaRecord exist
+    if (employee.visaHistory && employee.visaHistory.length > 0) {
+      await VisaModel.deleteMany({
+        _id: { $in: employee.visaHistory },
+      });
+    }
+
+    const deleted = await Employee.findByIdAndDelete(id);
+
+    res.json({
+      message: "Employee and related active visa records deleted successfully",
+      deleted
+    });
+
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: err.message || "Server error" });
   }
 };
+
 
 
