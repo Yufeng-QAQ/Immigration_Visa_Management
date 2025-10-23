@@ -18,7 +18,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+    fontFamily: "'Inter', sans-serif",
     h1: { fontSize: "2.5rem", fontWeight: 700 },
     h2: { fontSize: "2rem", fontWeight: 600 },
     button: {
@@ -45,10 +45,20 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#1b1b1b",
+           backgroundImage: 'url(/img_src/bar_bkgr.png)',
+           backgroundSize: 'auto 1500% !important',
+           borderBottom: '3px solid #fdb515',
+           boxShadow: 'none',
         },
       },
     },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: "#fdb515",
+        },
+      },
+    }
   },
 });
 

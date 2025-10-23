@@ -13,11 +13,11 @@ function App() {
     <Router>
       {/* Navigation Bar */}
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar sx={{mr:1}}>
           <Box>
-            <img src= {logo} width={ 30} />
+            <img src= {'/img_src/UMBC_Shield.png'} width={120} />
           </Box>
-          <Typography color="secondary" variant="h6" sx={{ flexGrow: 1 , ml : 1}}>
+          <Typography color="background" variant="h6" sx={{ flexGrow: 1 , ml : 2}}>
             Visa Management System
           </Typography>
           <Button color="secondary" component={Link} to="/">

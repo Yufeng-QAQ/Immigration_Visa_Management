@@ -1,32 +1,15 @@
 import { useState } from "react";
-import { Typography, Box, Container, Grid, Button} from "@mui/material";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
+import { Typography, Box, Container, Grid} from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
 
-import EmployeeForm from "../components/Employee/createEmployee";
+import { CssBaseline } from '@mui/material';
 import EmployeeTable from "../components/Employee/EmployeeTable";
-import Display from "../components/Employee/Display";
 import TemporaryDrawer from "../components/Employee/Drawer";
 import VisaStatsComponent from "../components/Reports/visaSummary";
 
 
 export default function HomePage() {
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
-  const [reload, setReload] = useState<number>(0);
-  const triggerReload = () => {
-    setReload(prev => prev + 1);
-    console.log("reloaded");
-    
-  };
-
-  const handleOpenCreateDialog = () => {
-    setIsCreateDialogOpen(true);
-  };
-
-  const handleCloseCreateDialog = () => {
-    setIsCreateDialogOpen(false);
-  };
+  const [reload] = useState<number>(0);
 
   const employeeColumns: GridColDef[] = [
     { field: "employeeId", headerName: "Employee ID", width: 130 },
@@ -37,44 +20,35 @@ export default function HomePage() {
     { field: "daysRemain", headerName: "Days Remain", width: 120 },
   ];
   return (
-    <Container>
-      {/*Left sidebar */}
-      <TemporaryDrawer />
-      <Box sx={{ display: 'flex', alignItems: 'center',  width: '100%'}}>
-        <Grid container spacing={2} columns={{ xs: 12, md: 12 }}>
-          
-          <Typography variant="h2">
+    <Container maxWidth={false} disableGutters>
+      <CssBaseline />
+      <Box sx={{ display: 'flex', alignItems: 'center',  width: '100%', pb:1}}>
+        <TemporaryDrawer />
+        <Grid container spacing={2} columns={{ xs: 12, md: 12 }} justifyContent="center" >
+          <Typography variant="h2" sx={{whiteSpace: 'nowrap', pl:'100%'}}>
             Current Live Cases
           </Typography>
         </Grid>
 
-        <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
-          <DialogContent>
-            <EmployeeForm onClose={handleCloseCreateDialog} onAddSuccess={triggerReload}/>
-          </DialogContent>
-        </Dialog>
       </Box>
-    
-      <Box>
-        <Grid container>
-          <EmployeeTable
-            title=""
-            url="employee/getEmployee"
-            columns={employeeColumns}
-            reload={reload}
-          />
-        </Grid>
-      </Box>
+      <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+        <Box sx={{ flex: 2}}>
+          <Grid container spacing={2}>
+            <EmployeeTable
+              title=""
+              url="employee/getEmployee"
+              columns={employeeColumns}
+              reload={reload}
+            />
+          </Grid>
+        </Box>
+        
 
-     <Display />
-      <Box>
-        <VisaStatsComponent />
+
+        <Box sx={{ flex: 1 , minWidth: 0 , pl:1}}>
+          <VisaStatsComponent />
+        </Box>
       </Box>
-        <Grid container>
-          <Button variant="contained" color="primary" onClick={handleOpenCreateDialog}>
-            Create Employee
-          </Button>
-        </Grid>
     </Container>
 
    
