@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Typography, Box, Container, Grid} from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
 
-import { CssBaseline } from '@mui/material';
+
 import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Drawer";
 import VisaStatsComponent from "../components/Reports/visaSummary";
@@ -20,18 +20,17 @@ export default function HomePage() {
     { field: "daysRemain", headerName: "Days Remain", width: 120 },
   ];
   return (
-    <Container maxWidth={false} disableGutters>
-      <CssBaseline />
-      <Box sx={{ display: 'flex', alignItems: 'center',  width: '100%', pb:1}}>
+    <Container>
+      <Box sx={{ display: 'flex', alignItems: 'center',  width: '100%', pb:1, mt:1.5}}>
         <TemporaryDrawer />
-        <Grid container spacing={2} columns={{ xs: 12, md: 12 }} justifyContent="center" >
-          <Typography variant="h2" sx={{whiteSpace: 'nowrap', pl:'100%'}}>
+        <Grid container spacing={2} columns={{ xs: 12, md: 12 }} justifyContent="center">
+          <Typography variant="h2" sx={{whiteSpace: 'nowrap', fontWeight: 'bold'}}>
             Current Live Cases
           </Typography>
         </Grid>
 
       </Box>
-      <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+      <Box sx={{ display: 'flex', gap: 2, width: '100%' ,ml:8}}>
         <Box sx={{ flex: 2}}>
           <Grid container spacing={2}>
             <EmployeeTable

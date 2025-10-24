@@ -13,9 +13,9 @@ import { useNavigate } from "react-router-dom";
 export default function TemporaryDrawer() {
     const navigate = useNavigate();
     const menu = [
-        { text: 'Homepage', action: () => navigate("/home") },
-        { text: 'Manage Employee', action: () => navigate("/manage") },
-        { text: 'Archive', action: () => navigate("/archive") },
+        { text: 'Homepage', action: () => navigate("/home"),  path:"/home" },
+        { text: 'Manage Employee', action: () => navigate("/manage"), path:"/manage" },
+        { text: 'Archive', action: () => navigate("/archive"), path:"/archive" },
     ];
     const [open, setOpen] = useState(false);
     const toggleDrawer = (state: boolean) => () => {
@@ -35,11 +35,22 @@ export default function TemporaryDrawer() {
         >
             <Box sx={{ width: 250, p: 2 }}>
             <List>
-                {menu.map((choice) => (
-                <ListItemButton key={choice.text} onClick = {choice.action}>
+                {menu.map((choice) => {
+                const isActive = location.pathname === choice.path;
+                return(
+                <ListItemButton 
+                    key={choice.text} 
+                    onClick = {choice.action} 
+                    sx={{
+                        backgroundColor: isActive ? "#555555" : "transparent",
+                        "&:hover": {
+                            backgroundColor: isActive ? "#555555" : "transparent",
+                        }
+                    }}>
                     <ListItemText primary={choice.text} />
                 </ListItemButton>
-                ))}
+                );
+                })}
             </List>
             </Box>
         </Drawer>

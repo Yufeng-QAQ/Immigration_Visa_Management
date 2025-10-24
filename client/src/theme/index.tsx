@@ -55,10 +55,22 @@ const theme = createTheme({
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: "#fdb515",
+          backgroundColor: "#222222",
+          color: "#ffffffff"
         },
       },
-    }
+    },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          marginLeft: ' 0 !important',
+          marginTop: ' 0 !important',
+          marginRight: ' 0 !important',
+          maxWidth: '100% !important',
+          paddingLeft: ' 0 !important'
+        },
+      },
+    },
   },
 });
 
