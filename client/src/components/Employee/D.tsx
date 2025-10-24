@@ -14,7 +14,11 @@ import {
   DialogContent,
   DialogActions,
   Card,
-  CardContent,Grid,TextField
+  CardContent,Grid,TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from "@mui/material";
 import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
 import { calculateDaysLeft } from "../../util";
@@ -342,7 +346,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             Refresh Data
         </Button>
         
-        <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="lg">
+        <Dialog open={open} onClose={() => {setOpen(false);setEditMode(false); }} fullWidth maxWidth="lg">
             <DialogTitle>Employee Details</DialogTitle>
             <DialogContent>
                 <Card elevation={2}>
@@ -456,18 +460,24 @@ const handleSubmit = async (e: React.FormEvent) => {
                                             InputProps={{ readOnly: !editMode }}
                                         />
                                     </Grid>
-                                        
-                                    {/* Degree */}
-                                    <Grid size={{ xs: 6 }} mb={2}>
-                                        <TextField
-                                            label="HighestDegree"
-                                            name="highestDegree"
-                                            fullWidth
-                                            variant="standard"
-                                            value={selectedEmployee?.highestDegree|| ""}
-                                            onChange={handleInputChange}
-                                            InputProps={{ readOnly: !editMode }}
-                                        />
+                                    <Grid size ={{xs:6}} mb ={2}>
+                                      <FormControl fullWidth sx={{m:0}}>
+                                        <InputLabel>Highest Degree</InputLabel>
+                                        <Select
+                                          name="highestDegree"
+                                          value={selectedEmployee?.highestDegree|| ""}
+                                          onChange={handleInputChange}
+                                          variant="standard"
+                                          disabled={!editMode} 
+                                        >
+                                        <MenuItem value = "Middle School or Lower">Middle School</MenuItem>
+                                        <MenuItem value = "High School or Equivalent">High School</MenuItem>
+                                        <MenuItem value = "Associate">Associate</MenuItem>
+                                        <MenuItem value = "Bachelor">Bachelor</MenuItem>
+                                        <MenuItem value = "Master">Master</MenuItem>
+                                        <MenuItem value = "PhD">PhD</MenuItem>
+                                        </Select>
+                                      </FormControl>
                                     </Grid>
 
                                 </Grid>
@@ -577,14 +587,27 @@ const handleSubmit = async (e: React.FormEvent) => {
                         <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
                             <Grid size={{ xs: 18 }}>
                                 <Grid size={{ xs: 7 }}>
-                                    <TextField
-                                        label="VisaType"
-                                        fullWidth
-                                        variant="standard"
-                                        value={selectedEmployee?.visaHistory[0]?.visaType|| ""}
-                                        onChange={e => handleVisaHistoryChange(0, "visaType", e.target.value)}
-                                        InputProps={{ readOnly: !editMode }}
-                                    />
+                                    <FormControl fullWidth sx={{m:0}}>
+                                      <InputLabel>Visa Type</InputLabel>
+                                      <Select
+                                          name="VisaType"
+                                          value={selectedEmployee?.visaHistory[0]?.visaType|| ""}
+                                          onChange={e => handleVisaHistoryChange(0, "visaType", e.target.value)}
+                                          variant="standard"
+                                          disabled={!editMode} 
+                                        >
+                                          <MenuItem value="F1">F1</MenuItem>
+                                          <MenuItem value="J1">J1</MenuItem>
+                                          <MenuItem value="H1B">H1B</MenuItem>
+                                          <MenuItem value="OPT">OPT</MenuItem>
+
+                                        </Select>
+                                    </FormControl>
+
+
+      
+
+                                    
                                 </Grid>
                             </Grid>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
