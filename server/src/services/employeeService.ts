@@ -16,9 +16,8 @@ export const createEmployee = async (req: Request, res: Response) => {
     });
     const savedEmployee = await newEmployee.save();
 
-    if (req.body.activeVisa) {
-      const { visaType, issueDate, expireDate, status } = req.body.activeVisa;
-      console.log("Creating VisaRecord with:", { visaType, issueDate, expireDate, status });
+    if (req.body.visaHistory) {
+      const { visaType, issueDate, expireDate, status } = req.body.visaHistory[0];
       const newVisa = new VisaRecord({
         recordId: `VR-${Date.now()}`,
         employee: savedEmployee._id,
@@ -415,11 +414,12 @@ export const deleteEmployee = async (req: Request, res: Response) => {
     }
 
     const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
-
-    await VisaModel.deleteMany({
-      _id: { $in: employee.visaHistory },
-      status: "Active"
-    });
+    // Validate if visaRecord exist
+    if (employee.visaHistory && employee.visaHistory.length > 0) {
+      await VisaModel.deleteMany({
+        _id: { $in: employee.visaHistory },
+      });
+    }
 
     const deleted = await Employee.findByIdAndDelete(id);
 

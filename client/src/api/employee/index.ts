@@ -27,6 +27,7 @@ export interface Department {
 
 
 export interface EmployeeItem {
+  _id: string;
   employeeId: string;
   firstName: string;
   lastName: string;
@@ -39,7 +40,7 @@ export interface EmployeeItem {
   positionTitle: string;
   highestDegree: string;
   departmentInfo: DepartmentInfoItem;
-  activeVisa: ActiveVisaItem;
+  visaHistory: ActiveVisaItem[];
   activateStatus: boolean;
   comment: string;
 }

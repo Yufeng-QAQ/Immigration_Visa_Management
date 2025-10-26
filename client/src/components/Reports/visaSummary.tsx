@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Grid } from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface VisaStats {
@@ -29,7 +30,7 @@ export default function VisaStatsComponent() {
   if (!stats) return <div>Loading...</div>;
 
   return (
-    <div>
+    <Grid>
       <h3>Visa Counts</h3>
       <ul>
         {Object.entries(stats.visaCount).map(([type, count]) => (
@@ -43,6 +44,6 @@ export default function VisaStatsComponent() {
         <li>Yellow (31-60 days): {stats.urgent.yellow}</li>
         <li>Blue (61-90 days): {stats.urgent.blue}</li>
       </ul>
-    </div>
+    </Grid>
   );
 }
