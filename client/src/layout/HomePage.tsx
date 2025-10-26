@@ -31,23 +31,23 @@ export default function HomePage() {
     { field: "daysRemain", headerName: "Days Remain", width: 120 },
   ];
   return (
-    <Box sx={{ml: 5}}>
-      <Container sx={{ ml: 5, mt: 2 }}>
+    <Box sx={{ml: 7}}>
+      <Container>
         <Box sx={{ mb: 2, mt: 2 }}>
           <TemporaryDrawer />
         </Box>
 
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 12, lg: 7 }} sx={{mr: 5}}>
+        <Grid container spacing={2} display={"flex"} justifyContent={"space-around"}>
+          <Grid size={{ xs: 12, lg: 8 }} sx={{mr: 5}}>
             <EmployeeTable
-              title=""
+              title="Current Live Cases"
               url="employee/getEmployee"
               columns={employeeColumns}
               reload={reload}
             />
           </Grid>
 
-          <Grid size={{ xs: 12, lg: 4 }}>
+          <Grid size={{ xs: 12, lg: 3 }}>
             <VisaStatsComponent />
           </Grid>
         </Grid>
