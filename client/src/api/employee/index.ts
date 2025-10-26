@@ -17,6 +17,7 @@ interface DepartmentInfoItem {
 }
 
 export interface EmployeeItem {
+  _id: string;
   employeeId: string;
   firstName: string;
   lastName: string;
@@ -24,11 +25,10 @@ export interface EmployeeItem {
   dateOfBirth: Date | null;
   email: string;
   addresses: AddressItem[];
-  //addresses: string[];
   salary: number;
   positionTitle: string;
   highestDegree: string;
   departmentInfo: DepartmentInfoItem;
-  activeVisa: ActiveVisaItem;
+  visaHistory: ActiveVisaItem[];
   activateStatus: boolean;
 }
