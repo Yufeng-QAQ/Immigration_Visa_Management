@@ -1,5 +1,8 @@
-export const calculateDaysLeft = (expireDate?: string) => {
+export const calculateDaysLeft = (expireDate: string | Date | null) => {
   if (!expireDate) return "-";
-  const diff = new Date(expireDate).getTime() - new Date().getTime();
-  return Math.floor(diff / (1000 * 60 * 60 * 24));
+  const exp = typeof expireDate === "string" ? new Date(expireDate) : expireDate;
+  if (isNaN(exp.getTime())) return "-";
+  
+  const diffTime = exp.getTime() - new Date().getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };

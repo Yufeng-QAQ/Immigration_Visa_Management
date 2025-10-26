@@ -13,6 +13,7 @@ export interface TaskItemCreate {
   middleName?: string;
   dateOfBirth?: string;  
   email: string;
+  countryOfBirth: string;
   addresses: Address[];
   salary: number;
   positionTitle: string;

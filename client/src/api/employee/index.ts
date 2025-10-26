@@ -24,11 +24,12 @@ export interface EmployeeItem {
   dateOfBirth: Date | null;
   email: string;
   addresses: AddressItem[];
-  //addresses: string[];
+  countryOfBirth: string;
   salary: number;
   positionTitle: string;
   highestDegree: string;
   departmentInfo: DepartmentInfoItem;
   activeVisa: ActiveVisaItem;
   activateStatus: boolean;
+  comment: string;
 }

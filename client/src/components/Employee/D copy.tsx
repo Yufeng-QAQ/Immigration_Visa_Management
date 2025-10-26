@@ -28,18 +28,13 @@ import dayjs, { Dayjs } from 'dayjs';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 
-type VisaRecord = {
-  _id?: string;
+interface VisaRecord {
   visaType: string;
-  validPeriod: {
-    startDate: Date | null;
-    expireDate: Date | null;
+  validPeriod?: {
+    startDate?: string;
+    expireDate?: string;
   };
-  status?: string; 
-};
-
-
-
+}
 
 interface Department {
   _id: string;
@@ -75,14 +70,6 @@ interface EmployeeSummary {
   comment: CommentType[];
 }
 
-interface HistoryVisa {
-  visaId: string;
-  visaType: string;
-  status: string;
-  comments: CommentType[];
-}
-
-
 export default function Display() {
     const [employeeList, setEmployeeList] = useState<EmployeeSummary[]>([]);
     const [loading, setLoading] = useState(true);
@@ -92,11 +79,8 @@ export default function Display() {
     const [editMode, setEditMode] = useState(false);
     const [initialEmployeeData, setInitialEmployeeData] = useState<EmployeeSummary | null>(null);
     const [newComment, setNewComment] = useState("");
-    const [currentComments, setVisaComments] = useState<CommentType[]>([]);
-    //const [historyVisaComments, setHistoryVisaComments] = useState<Record<string, CommentType[]>>({});
-    const [historyVisaComments, setHistoryVisaComments] = useState<HistoryVisa[]>([]);
-
-
+    //const [comments, setComments] = useState<CommentType[]>([]);
+    
     const showEmployee = async () => {
         try {
           setLoading(true);
@@ -126,13 +110,11 @@ export default function Display() {
                 }
               : null,
             visaHistory: emp.visaHistory.map((visa: any) => ({
-              _id: visa._id,  // ✅ 添加这一行
               visaType: visa.visaType,
               validPeriod: {
                 startDate: visa.issueDate,
                 expireDate: visa.expireDate
-              },
-              status: visa.status || undefined
+              }
             })),
             activateStatus: emp.activateStatus || false,
 
@@ -357,93 +339,6 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 };
 
-const handleAddComment = async () => {
-  if (!selectedEmployee) return;
-  if (!newComment.trim()) return;
-
-  const lastVisaIndex = selectedEmployee.visaHistory.length - 1;
-  if (lastVisaIndex < 0) {
-    alert("No visa found for this employee.");
-    return;
-  }
-
-  const visaId = selectedEmployee.visaHistory[lastVisaIndex]._id;
-  if (!visaId) {
-    alert("Visa ID is missing.");
-    return;
-  }
-
-  try {
-    const response = await axios.post(
-      `http://localhost:8000/api/employee/${selectedEmployee._id}/comments`,
-      {
-        visaId,
-        content: newComment
-      }
-    );
-
-    
-    setSelectedEmployee(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        comment: [...prev.comment, response.data.comment]
-      };
-    });
-
-    setNewComment("");
-  } catch (err) {
-    console.error(err);
-    alert("Failed to add comment. See console for details.");
-  }
-};
-
-const fetchVisaComments = async () => {
-  if (!selectedEmployee || !selectedEmployee.visaHistory?.length) return;
-
-  const currentVisaId = selectedEmployee.visaHistory[selectedEmployee.visaHistory.length - 1]._id;
-  console.log("currentVisaId:", currentVisaId); 
-  console.log("selectedEmployee.comments:", selectedEmployee.comment); 
-
-  try {
-    const response = await axios.get(
-      `http://localhost:8000/api/employee/${selectedEmployee._id}/comments/${currentVisaId}`
-    );
-     
-    setVisaComments(response.data.comments || []);
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-useEffect(() => {
-  fetchVisaComments();
-}, [selectedEmployee]);
-
-
-
-
-useEffect(() => {
-  if (!selectedEmployee?._id) return;
-
-  const fetchHistoryComments = async () => {
-    try {
-      const res = await axios.get(
-        `http://localhost:8000/api/employee/${selectedEmployee._id}/history-comments`
-      );
-      console.log("Fetched history:", res.data.history);
-      setHistoryVisaComments(res.data.history || []);
-    } catch (err) {
-      console.error("Failed to fetch history comments:", err);
-    }
-  };
-
-  fetchHistoryComments();
-}, [selectedEmployee]);
-
-
-
-const currentVisa = selectedEmployee?.visaHistory?.find(v => v.status === "Active");
 
     if (loading) return <div>Loading...</div>;
 
@@ -477,7 +372,6 @@ const currentVisa = selectedEmployee?.visaHistory?.find(v => v.status === "Activ
                   const expire = visa.validPeriod?.expireDate
                     ? new Date(visa.validPeriod.expireDate).toLocaleDateString()
                     : "N/A";
-
                   const days = visa.validPeriod?.expireDate
                     ? calculateDaysLeft(visa.validPeriod.expireDate)
                     : "-";
@@ -779,146 +673,108 @@ const currentVisa = selectedEmployee?.visaHistory?.find(v => v.status === "Activ
 
                 <Card elevation={2}>
                     <CardContent>
-                      
-                      <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                        Current Visa
-                      </Typography>
+                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                            Current Visa
+                        </Typography>
+                        <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
+                            <Grid size={{ xs: 18 }}>
+                                <Grid size={{ xs: 7 }}>
+                                    <FormControl fullWidth sx={{m:0}}>
+                                      <InputLabel>Visa Type</InputLabel>
+                                      <Select
+                                          name="VisaType"
+                                          value={selectedEmployee?.visaHistory[0]?.visaType|| ""}
+                                          onChange={e => handleVisaHistoryChange(0, "visaType", e.target.value)}
+                                          variant="standard"
+                                          disabled={!editMode} 
+                                        >
+                                          <MenuItem value="J-1">J-1</MenuItem>
+                                          <MenuItem value="H-1B">H-1B</MenuItem>
+                                          <MenuItem value="OPT - 1 Year">OPT - 1 Year</MenuItem>
+                                          <MenuItem value="OPT - 3 Years">OPT - 3 Years</MenuItem>
 
-                      <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
-                        
-                        <Grid size={{ xs: 7 }}>
-                          <FormControl fullWidth sx={{ m: 0 }}>
-                            <InputLabel>Visa Type</InputLabel>
-                            <Select
-                              name="VisaType"
-                              value={selectedEmployee?.visaHistory?.[0]?.visaType || ""}
-                              onChange={(e) => handleVisaHistoryChange(0, "visaType", e.target.value)}
-                              variant="standard"
-                              disabled={!editMode}
-                            >
-                              <MenuItem value="J-1">J-1</MenuItem>
-                              <MenuItem value="H-1B">H-1B</MenuItem>
-                              <MenuItem value="OPT - 1 Year">OPT - 1 Year</MenuItem>
-                              <MenuItem value="OPT - 3 Years">OPT - 3 Years</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
+                                        </Select>
+                                    </FormControl>
 
-                        
+                                  
+                                </Grid>
+                            </Grid>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <Grid size={{ xs: 7 }}>
-                            <DatePicker
-                              label="Issue Date"
-                              value={
-                                selectedEmployee?.visaHistory?.[0]?.validPeriod?.startDate
-                                  ? dayjs(selectedEmployee.visaHistory[0].validPeriod.startDate)
-                                  : null
-                              }
-                              onChange={(newValue) =>
-                                editMode &&
-                                handleVisaHistoryChange(0, "startDate", newValue?.toDate() || null)
-                              }
-                              slotProps={{
-                                textField: {
-                                  fullWidth: true,
-                                  variant: "standard",
-                                  InputProps: { readOnly: !editMode },
-                                },
-                              }}
-                            />
-                          </Grid>
-
-                          <Grid size={{ xs: 7 }}>
-                            <DatePicker
-                              label="Expire Date"
-                              value={
-                                selectedEmployee?.visaHistory?.[0]?.validPeriod?.expireDate
-                                  ? dayjs(selectedEmployee.visaHistory[0].validPeriod.expireDate)
-                                  : null
-                              }
-                              onChange={(newValue) =>
-                                editMode &&
-                                handleVisaHistoryChange(0, "expireDate", newValue?.toDate() || null)
-                              }
-                              slotProps={{
-                                textField: {
-                                  fullWidth: true,
-                                  variant: "standard",
-                                  InputProps: { readOnly: !editMode },
-                                },
-                              }}
-                            />
-                          </Grid>
-                        </LocalizationProvider>
-
-                        
-                        <Grid size={{ xs: 18 }}>
-                          <Box mt={2}>
-                            <Typography variant="subtitle1">Comments</Typography>
-                            
-                            
-                            {currentComments.map((c, idx) => (
-                              <Box key={idx} sx={{ mb: 1, p: 1, border: "1px solid #ddd", borderRadius: 1 }}>
-                                <Typography variant="body2">{c.content}</Typography>
-                                <Typography variant="caption" color="text.secondary">
-                                  {new Date(c.date).toLocaleString()}
-                                </Typography>
-                              </Box>
-                            ))}
-
-
-                            
-                            <TextField
-                              label="Add Comment"
-                              fullWidth
-                              multiline
-                              rows={3}
-                              value={newComment}
-                              onChange={(e) => setNewComment(e.target.value)}
-                              sx={{ mt: 1 }}
-                              disabled={!editMode}
-                            />
-                            <Button
-                              variant="contained"
-                              sx={{ mt: 1 }}
-                              disabled={!editMode || !newComment.trim()}
-                              onClick={handleAddComment}
-                            >
-                              Add Comment
-                            </Button>
-
-                          </Box>
-                        </Grid>
-                      </Grid>       
-
-                    </CardContent>
-
-                </Card>
-
-                <Card elevation={2} sx={{mt: 2, mb: 2}}>
-                  <Grid  container spacing={2} columns={{ xs: 18, md: 18 }}>
-                              <Grid size={{ xs: 18 }}>
-                                  {historyVisaComments.map((h, idx) => (
-                                    <Box key={idx} sx={{mt: 3, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
-                                      <Typography variant="subtitle1" fontWeight="bold">
-                                        {h.visaType} ({h.status})
-                                      </Typography>
-
-                                      {h.comments.map((c:any, cidx:number) => (
-                                        <Box key={cidx} sx={{mb: 1, p: 1, border: "1px solid #ddd", borderRadius: 1 }}>
-                                          <Typography variant="body2">{c.content}</Typography>
-                                          <Typography variant="caption" color="text.secondary">
-                                            {new Date(c.date).toLocaleString()}
-                                          </Typography>
-                                        </Box>
-                                      ))}
-                                    </Box>
-                                  ))}
-                              </Grid>
+                            <Grid size={{ xs: 7 }}>
+                                <DatePicker
+                                label="Issue Date"
+                                value={
+                                    selectedEmployee?.visaHistory?.[0]?.validPeriod?.startDate
+                                    ? dayjs(selectedEmployee.visaHistory[0].validPeriod.startDate)
+                                    : null
+                                }
+                                onChange={(newValue) =>
+                                    editMode && handleVisaHistoryChange(0, "startDate", newValue?.toDate() || null)
+                                }
+                                slotProps={{
+                                    textField: {
+                                    fullWidth: true,
+                                    variant: "standard",
+                                    InputProps: { readOnly: !editMode }
+                                    }
+                                }}
+                                />
                             </Grid>
 
-                </Card>
 
+                            <Grid size={{ xs: 7 }}>
+                                <DatePicker
+                                label="Expire Date"
+                                value={
+                                    selectedEmployee?.visaHistory?.[0]?.validPeriod?.expireDate
+                                    ? dayjs(selectedEmployee.visaHistory[0].validPeriod.expireDate)
+                                    : null
+                                }
+                                onChange={(newValue) =>
+                                    editMode && handleVisaHistoryChange(0, "expireDate", newValue?.toDate() || null)
+                                }
+                                slotProps={{
+                                    textField: {
+                                    fullWidth: true,
+                                    variant: "standard",
+                                    InputProps: { readOnly: !editMode }
+                                    }
+                                }}
+                                />
+                            </Grid>
+                        </LocalizationProvider>
+                                {/* // */}
+                              <Grid size={{ xs: 18 }}>
+                                 <Box mt={2}>
+                                  <Typography variant="subtitle1">Comments</Typography>
+                                  {selectedEmployee?.comment.map((c, idx) => (
+                                    <Box
+                                      key={idx} 
+                                      sx={{ mb: 1, p: 1, border: "1px solid #ddd", borderRadius: 1 }}
+                                    >
+                                      <Typography variant="body2">{c.content}</Typography>
+                                      <Typography variant="caption" color="text.secondary">
+                                        {new Date(c.date).toLocaleString()}
+                                      </Typography>
+                                    </Box>
+                                  ))}
+
+                                  <TextField
+                                    label="Add Comment"
+                                    fullWidth
+                                    multiline
+                                    rows={3}
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    sx={{ mt: 1 }}
+                                  />
+
+                                </Box>
+                              </Grid> 
+                              {/* // */}
+                        </Grid>
+                    </CardContent>
+                </Card>
             </DialogContent>
 
             <DialogActions>

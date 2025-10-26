@@ -16,11 +16,20 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import dayjs, { Dayjs } from 'dayjs';
 import type { EmployeeItem } from "../../api";
-
+import {useState} from "react";
 
 interface EmployeeFormProps {
   onClose: () => void;
 }
+
+interface CommentType {
+  _id?: string;         
+  record: string;        
+  content: string;       
+  date: string;          
+}
+
+
 
 export default function EmployeeForm({ onClose }: EmployeeFormProps) {
   const degrees = ["PhD", "Master", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower"];
@@ -38,6 +47,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
       salary: 0,
       positionTitle: "",
       highestDegree: "",
+      countryOfBirth:"",
       departmentInfo: {
         college: "",
         department: "",
@@ -50,7 +60,8 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
         expireDate: null,
         status: "Active"
       },
-      activateStatus: true
+      activateStatus: true,
+      comment: "" 
     }
   });
 
@@ -170,7 +181,7 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                   />
                 </Grid>
                 <Grid size={{xs: 18}} container spacing={2} columns={18} alignItems="center" justifyContent="space-between">
-                  <Grid size={{xs: 12}}>
+                  <Grid size={{xs: 6}}>
                     <Controller
                       name="email"
                       control={control}
@@ -180,6 +191,18 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                       )}
                     />
                   </Grid>
+
+                  <Grid size={{xs: 6}}>
+                    <Controller
+                      name="countryOfBirth"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <TextField {...field} required label="Country Of Birth" fullWidth variant="standard" />
+                      )}
+                    />
+                  </Grid>
+
                   <Grid size={{ xs: 6 }} mb={2}>
                     <Controller
                       name="highestDegree"
@@ -383,7 +406,27 @@ export default function EmployeeForm({ onClose }: EmployeeFormProps) {
                     )}
                   />
                 </Grid>
+
+                <Grid size={{ xs: 18 }}>
+                  <Controller
+                    name="comment"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Add Comment"
+                        fullWidth
+                        multiline
+                        rows={5}
+                      />
+                    )}
+                  />
+                </Grid>
+
+
+
               </Grid>
+
             </CardContent>
           </Card>
           <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
