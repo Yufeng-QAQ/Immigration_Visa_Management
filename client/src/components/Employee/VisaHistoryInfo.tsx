@@ -28,7 +28,7 @@ export const VisaHistoryInfo: React.FC<VisaHistoryInfoProps> = ({ historyVisaCom
     <Card elevation={2} sx={{ mt: 2, mb: 2 }}>
       <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
         <Grid size={{ xs: 18 }}>
-          {historyVisaComments.map((h, idx) => (
+          {historyVisaComments.slice().reverse().map((h, idx) => (
             <Box key={idx} sx={{ mt: 3, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
               <Typography variant="subtitle1" fontWeight="bold">
                 {h.visaType} {h.status ? `(${h.status})` : ""}
