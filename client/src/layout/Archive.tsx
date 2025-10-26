@@ -1,4 +1,4 @@
-import {Box, Container} from "@mui/material";
+import { Container } from "@mui/material";
 
 
 
@@ -8,21 +8,11 @@ import TemporaryDrawer from "../components/Employee/Drawer";
 
 export default function ManageEmployee() {
 
- 
+
   return (
     <Container>
-    {/*Left sidebar */}
-    <TemporaryDrawer />
-     <Display />
+      <TemporaryDrawer />
+      <Display />
     </Container>
-
-   
-
-   
-
-
-    
-
-   
   );
 }

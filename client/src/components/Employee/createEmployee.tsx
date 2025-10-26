@@ -62,9 +62,9 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
         issueDate: null,
         expireDate: null,
         status: "Active"
-      },
+      }],
       activateStatus: true,
-      comment: "" 
+      comment: "", 
     }
   });
 
