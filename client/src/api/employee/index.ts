@@ -16,6 +16,16 @@ interface DepartmentInfoItem {
   admin?: string;
 }
 
+export interface Department {
+  _id: string;
+  collegeName: string;
+  departmentName: string;
+  supervisor?: string;
+  admin?: string;
+}
+
+
+
 export interface EmployeeItem {
   employeeId: string;
   firstName: string;
