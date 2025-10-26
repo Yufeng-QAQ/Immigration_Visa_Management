@@ -1,11 +1,11 @@
-import {useState } from "react";
+import { useState } from "react";
 import {
-  List,
-  ListItemText,
-  ListItemButton,
-  Button,
-  Box,
-  Drawer
+    List,
+    ListItemText,
+    ListItemButton,
+    Button,
+    Box,
+    Drawer
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -13,9 +13,9 @@ import { useNavigate } from "react-router-dom";
 export default function TemporaryDrawer() {
     const navigate = useNavigate();
     const menu = [
-        { text: 'Homepage', action: () => navigate("/home"),  path:"/home" },
-        { text: 'Manage Employee', action: () => navigate("/manage"), path:"/manage" },
-        { text: 'Archive', action: () => navigate("/archive"), path:"/archive" },
+        { text: 'Homepage', action: () => navigate("/home"), path: "/home" },
+        { text: 'Manage Employee', action: () => navigate("/manage"), path: "/manage" },
+        { text: 'Archive', action: () => navigate("/archive"), path: "/archive" },
     ];
     const [open, setOpen] = useState(false);
     const toggleDrawer = (state: boolean) => () => {
@@ -24,36 +24,36 @@ export default function TemporaryDrawer() {
 
     return (
         <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
-        <Button  onClick={toggleDrawer(true)}>
-            <img src= "/img_src/menu_icon.png" width = {30}></img>
-        </Button>
+            <Button onClick={toggleDrawer(true)}>
+                <img src="/img_src/menu_icon.png" width={30}></img>
+            </Button>
 
-        <Drawer
-            anchor="left" 
-            open={open}
-            onClose={toggleDrawer(false)} 
-        >
-            <Box sx={{ width: 250, p: 2 }}>
-            <List>
-                {menu.map((choice) => {
-                const isActive = location.pathname === choice.path;
-                return(
-                <ListItemButton 
-                    key={choice.text} 
-                    onClick = {choice.action} 
-                    sx={{
-                        backgroundColor: isActive ? "#555555" : "transparent",
-                        "&:hover": {
-                            backgroundColor: isActive ? "#555555" : "transparent",
-                        }
-                    }}>
-                    <ListItemText primary={choice.text} />
-                </ListItemButton>
-                );
-                })}
-            </List>
-            </Box>
-        </Drawer>
+            <Drawer
+                anchor="left"
+                open={open}
+                onClose={toggleDrawer(false)}
+            >
+                <Box sx={{ width: 250, p: 2 }}>
+                    <List>
+                        {menu.map((choice) => {
+                            const isActive = location.pathname === choice.path;
+                            return (
+                                <ListItemButton
+                                    key={choice.text}
+                                    onClick={choice.action}
+                                    sx={{
+                                        backgroundColor: isActive ? "#555555" : "transparent",
+                                        "&:hover": {
+                                            backgroundColor: isActive ? "#555555" : "transparent",
+                                        }
+                                    }}>
+                                    <ListItemText primary={choice.text} />
+                                </ListItemButton>
+                            );
+                        })}
+                    </List>
+                </Box>
+            </Drawer>
         </Box>
     );
 }

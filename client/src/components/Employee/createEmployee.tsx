@@ -1,4 +1,3 @@
-import { useState } from "react";
 import axios from "axios";
 import { AxiosError } from "axios";
 import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
@@ -48,12 +47,12 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
         supervisor: "",
         admin: ""
       },
-      activeVisa: {
+      visaHistory: [{
         visaType: "",
         issueDate: null,
         expireDate: null,
         status: "Active"
-      },
+      }],
       activateStatus: true
     }
   });
@@ -66,6 +65,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
 
   const onSubmit = async (data: EmployeeItem) => {
     try {
+      console.log(data);
       await addEmployee(data);
       if (onAddSuccess) onAddSuccess(); // Refreash table data
       onClose();
@@ -334,7 +334,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                 <Grid size={{ xs: 18 }}>
                   <Grid size={{ xs: 7 }}>
                     <Controller
-                      name="activeVisa.visaType"
+                      name={`visaHistory.0.visaType`}
                       control={control}
                       rules={{ required: "Please select a degree" }}
                       render={({ field }) => (
@@ -359,7 +359,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                 <Grid size={{ xs: 7 }} ml={1}>
                   <Controller
                     control={control}
-                    name="activeVisa.issueDate"
+                    name={`visaHistory.0.issueDate`}
                     render={({ field }) => (
                       <DatePicker
                         label="Issue Date"
@@ -373,7 +373,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                 <Grid size={{ xs: 7 }}>
                   <Controller
                     control={control}
-                    name="activeVisa.expireDate"
+                    name={`visaHistory.0.expireDate`}
                     render={({ field }) => (
                       <DatePicker
                         label="Exp Date"

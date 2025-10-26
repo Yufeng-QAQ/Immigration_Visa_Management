@@ -15,8 +15,8 @@ export const createEmployee = async (req: Request, res: Response) => {
     });
     const savedEmployee = await newEmployee.save();
 
-    if (req.body.activeVisa) {
-      const { visaType, issueDate, expireDate, status } = req.body.activeVisa;
+    if (req.body.visaHistory) {
+      const { visaType, issueDate, expireDate, status } = req.body.visaHistory[0];
       const newVisa = new VisaRecord({
         recordId: `VR-${Date.now()}`,
         employee: savedEmployee._id,
