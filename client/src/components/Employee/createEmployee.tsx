@@ -17,6 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import dayjs, { Dayjs } from 'dayjs';
 import type { EmployeeItem } from "../../api";
+import {useState} from "react";
 import { notify } from "../MUI/Notification/eventBus";
 
 
@@ -24,6 +25,14 @@ interface EmployeeFormProps {
   onClose: () => void;
   onAddSuccess?: () => void;
 }
+
+interface CommentType {
+  _id?: string;         
+  record: string;        
+  content: string;       
+  date: string;          
+}
+
 
 export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProps) {
   const degrees = ["PhD", "Master", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower"];
@@ -41,6 +50,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
       salary: 0,
       positionTitle: "",
       highestDegree: "",
+      countryOfBirth:"",
       departmentInfo: {
         college: "",
         department: "",
@@ -52,8 +62,9 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
         issueDate: null,
         expireDate: null,
         status: "Active"
-      }],
-      activateStatus: true
+      },
+      activateStatus: true,
+      comment: "" 
     }
   });
 
@@ -107,6 +118,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Basic Information
               </Typography>
+              
               <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
                 <Grid size={{ xs: 7 }}>
                   <Controller
@@ -118,6 +130,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     )}
                   />
                 </Grid>
+
                 <Grid size={{ xs: 4 }}>
                   <Controller
                     name="middleName"
@@ -157,6 +170,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     )}
                   />
                 </Grid>
+
                 <Grid size={{ xs: 6 }}>
                   <Controller
                     control={control}
@@ -182,6 +196,18 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                       )}
                     />
                   </Grid>
+
+                  <Grid size={{xs: 6}}>
+                    <Controller
+                      name="countryOfBirth"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <TextField {...field} required label="Country Of Birth" fullWidth variant="standard" />
+                      )}
+                    />
+                  </Grid>
+
                   <Grid size={{ xs: 6 }} mb={2}>
                     <Controller
                       name="highestDegree"
@@ -207,6 +233,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     />
                   </Grid>
                 </Grid>
+                
                 <Grid size={{ xs: 12 }}>
                   {fields.map((field, index) => (
                     <Grid key={field.id}>
@@ -384,7 +411,27 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     )}
                   />
                 </Grid>
+
+                <Grid size={{ xs: 18 }}>
+                  <Controller
+                    name="comment"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Add Comment"
+                        fullWidth
+                        multiline
+                        rows={5}
+                      />
+                    )}
+                  />
+                </Grid>
+
+
+
               </Grid>
+
             </CardContent>
           </Card>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Typography, Box, Container, Grid } from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
 
+import EmployeeForm from "../components/Employee/createEmployee";
+import Display from "../components/Employee/D";
 import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Drawer";
 import VisaStatsComponent from "../components/Reports/visaSummary";
@@ -54,6 +56,14 @@ export default function HomePage() {
       </Container>
     </Box>
 
+//     <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
+//       <DialogContent>
+//         <EmployeeForm onClose={handleCloseCreateDialog}/>
+//       </DialogContent>
+//     </Dialog>
+        
+
+   
   );
 }
 
