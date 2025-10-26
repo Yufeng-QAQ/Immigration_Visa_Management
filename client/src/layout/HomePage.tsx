@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Typography, Box, Container, Grid } from "@mui/material";
+import { Box, Container, Grid } from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
 
 import EmployeeTable from "../components/Employee/EmployeeTable";
@@ -31,14 +31,14 @@ export default function HomePage() {
     { field: "daysRemain", headerName: "Days Remain", width: 120 },
   ];
   return (
-    <Box sx={{ml: 7}}>
+    <Box sx={{ ml: 7 }}>
       <Container>
         <Box sx={{ mb: 2, mt: 2 }}>
           <TemporaryDrawer />
         </Box>
 
         <Grid container spacing={2} display={"flex"} justifyContent={"space-around"}>
-          <Grid size={{ xs: 12, lg: 8 }} sx={{mr: 5}}>
+          <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5 }}>
             <EmployeeTable
               title="Current Live Cases"
               url="employee/getEmployee"
@@ -52,16 +52,13 @@ export default function HomePage() {
           </Grid>
         </Grid>
       </Container>
-      
-      //     <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
-//       <DialogContent>
-//         <EmployeeForm onClose={handleCloseCreateDialog}/>
-//       </DialogContent>
-//     </Dialog>
     </Box>
+    // <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
+    //     <DialogContent>
+    //       <EmployeeForm onClose={handleCloseCreateDialog} />
+    //     </DialogContent>
+    //   </Dialog>
 
-
-       
   );
 }
 

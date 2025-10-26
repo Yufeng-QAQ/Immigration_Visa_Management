@@ -17,7 +17,7 @@ import {
   DialogActions,
   Card,
 } from "@mui/material";
-import UpdateEmployeeForm from "./Update";
+// import UpdateEmployeeForm from "./Update";
 
 interface EmployeeTableProps {
   url: string;
@@ -289,7 +289,7 @@ export default function EmployeeTable({ url, title, columns, reload }: EmployeeT
         </DialogActions>
       </Dialog>
 
-      <UpdateEmployeeForm
+      {/* <UpdateEmployeeForm
         open={editOpen}
         employeeId={selectedEmployee?._id || ""}
         onClose={() => setEditOpen(false)}
@@ -297,7 +297,7 @@ export default function EmployeeTable({ url, title, columns, reload }: EmployeeT
           setEditOpen(false);
           showEmployee();
         }}
-      />
+      /> */}
     </Card>
   );
 };

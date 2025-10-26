@@ -15,8 +15,6 @@ export default function ManageEmployee() {
   const [reload, setReload] = useState<number>(0);
   const triggerReload = () => {
     setReload(prev => prev + 1);
-    console.log("reloaded");
-    
   };
   const handleOpenCreateDialog = () => {
     setIsCreateDialogOpen(true);

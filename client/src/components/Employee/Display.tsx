@@ -1,38 +1,21 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  List,
-  ListItem,
-  ListItemText,
   Button,
   Container,
-  Typography,
   Box,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Card,
-  CardContent,
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
 } from "@mui/material";
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 import EmployeeList from "./EmployeeList";
-import EmployeeBasicInfo from "./EmployeeBasicInfo";
-import DepartmentInfo from "./DepartmentInfo";
-import VisaInfo from "./VisaInfo";
-import { VisaHistoryInfo } from "./VisaHistoryInfo";
+import EmployeeBasicInfo from "./employee_profile/EmployeeBasicInfo";
+import VisaInfo from "./employee_profile/VisaInfo";
+import DepartmentInfo from "./employee_profile/DepartmentInfo";
+import { VisaHistoryInfo } from "./employee_profile/VisaHistoryInfo";
 import { calculateDaysLeft } from "../../util";
-import type { EmployeeItem, ActiveVisaItem, AddressItem } from "../../api";
 import type { Department } from "../../api";
 
 // Types
