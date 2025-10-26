@@ -4,7 +4,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 
 import EmployeeForm from "../components/Employee/createEmployee";
-import Display from "../components/Employee/D";
+import Display from "../components/Employee/Display";
 import VisaStatsComponent from "../components/Reports/visaSummary";
 
 export default function HomePage() {
