@@ -24,8 +24,6 @@ export interface Department {
   admin?: string;
 }
 
-
-
 export interface EmployeeItem {
   _id: string;
   employeeId: string;
