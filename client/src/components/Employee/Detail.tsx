@@ -28,6 +28,13 @@ import dayjs, { Dayjs } from 'dayjs';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 
+import EmployeeList from "./EmployeeList";
+import EmployeeBasicInfo from "./employee_profile/EmployeeBasicInfo";
+import DepartmentInfo from "./employee_profile/DepartmentInfo";
+import VisaInfo from "./employee_profile/VisaInfo";
+import { VisaHistoryInfo } from "./employee_profile/VisaHistoryInfo";
+
+
 type VisaRecord = {
   _id?: string;
   visaType: string;
@@ -99,7 +106,6 @@ export default function EmpDetail({ empId, open, onClose, onValueChange }: Impor
   const [currentComments, setVisaComments] = useState<CommentType[]>([]);
   //const [historyVisaComments, setHistoryVisaComments] = useState<Record<string, CommentType[]>>({});
   const [historyVisaComments, setHistoryVisaComments] = useState<HistoryVisa[]>([]);
-
 
 
   const showEmployee = async () => {
@@ -443,482 +449,55 @@ export default function EmpDetail({ empId, open, onClose, onValueChange }: Impor
 
   return (
     <Container maxWidth="md">
-      <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
+      <Dialog open={open} onClose={() => {onClose(); setEditMode(false); }} fullWidth maxWidth="lg">
         <DialogTitle>Employee Details</DialogTitle>
         <DialogContent>
-          <Card elevation={2}>
-            <CardContent>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Basic Information
-              </Typography>
-
-              <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
-
-                {/* First Name */}
-                <Grid size={{ xs: 7 }}>
-                  <TextField
-                    label="First Name"
-                    name="firstName"
-                    fullWidth
-                    variant="standard"
-                    value={selectedEmployee?.firstName || ""}
-                    onChange={e => handleInputChange(e)}
-                    InputProps={{ readOnly: !editMode }}
-                  />
-                </Grid>
-
-                {/* MiddleName */}
-                <Grid size={{ xs: 4 }}>
-                  <TextField
-                    label="Middle Name"
-                    name="middleName"
-                    fullWidth
-                    variant="standard"
-                    value={selectedEmployee?.middleName || ""}
-                    onChange={handleInputChange}
-                    InputProps={{ readOnly: !editMode }}
-                  />
-                </Grid>
-
-                {/* LastName */}
-                <Grid size={{ xs: 7 }}>
-                  <TextField
-                    label="Last Name"
-                    name="lastName"
-                    fullWidth
-                    variant="standard"
-                    value={selectedEmployee?.lastName || ""}
-                    onChange={handleInputChange}
-                    InputProps={{ readOnly: !editMode }}
-                  />
-                </Grid>
-
-                {/* ID */}
-                <Grid size={{ xs: 6 }}>
-                  <TextField
-                    label="Employee ID"
-                    name="employeeId"
-                    fullWidth
-                    variant="standard"
-                    value={selectedEmployee?.employeeId || ""}
-                    onChange={handleInputChange}
-                    InputProps={{ readOnly: !editMode }}
-                  />
-                </Grid>
-
-                {/* Postion Title */}
-                <Grid size={{ xs: 6 }}>
-                  <TextField
-                    label="Postion Title"
-                    name="positionTitle"
-                    fullWidth
-                    variant="standard"
-                    value={selectedEmployee?.positionTitle || ""}
-                    onChange={handleInputChange}
-                    InputProps={{ readOnly: !editMode }}
-                  />
-                </Grid>
-
-                {/* Date of Birth */}
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-
-                  <Grid size={{ xs: 6 }}>
-                    <DatePicker
-                      label="Date of Birth"
-                      value={selectedEmployee?.dateOfBirth ? dayjs(selectedEmployee.dateOfBirth) : null}
-                      onChange={(newValue) => {
-                        if (editMode) handleInputChange({
-                          target: { name: "dateOfBirth", value: newValue?.toDate() || null }
-                        });
-                      }}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          variant: "standard",
-                          InputProps: { readOnly: !editMode }
-                        }
-                      }}
-                    />
-                  </Grid>
-                </LocalizationProvider>
-
-
-                <Grid size={{ xs: 18 }} container spacing={2} columns={18} alignItems="center" justifyContent="space-between">
-
-                  {/* Email */}
-                  <Grid size={{ xs: 6 }}>
-                    <TextField
-                      label="Email"
-                      name="email"
-                      fullWidth
-                      variant="standard"
-                      value={selectedEmployee?.email || ""}
-                      onChange={handleInputChange}
-                      InputProps={{ readOnly: !editMode }}
-                    />
-                  </Grid>
-
-                  <Grid size={{ xs: 6 }}>
-                    <TextField
-                      label="Country Of Birth"
-                      name="countryOfBirth"
-                      fullWidth
-                      variant="standard"
-                      value={selectedEmployee?.countryOfBirth || ""}
-                      onChange={handleInputChange}
-                      InputProps={{ readOnly: !editMode }}
-                    />
-                  </Grid>
-
-
-                  <Grid size={{ xs: 6 }} mb={2}>
-                    <FormControl fullWidth sx={{ m: 0 }}>
-                      <InputLabel>Highest Degree</InputLabel>
-                      <Select
-                        name="highestDegree"
-                        value={selectedEmployee?.highestDegree || ""}
-                        onChange={handleInputChange}
-                        variant="standard"
-                        disabled={!editMode}
-                      >
-                        <MenuItem value="Middle School or Lower">Middle School</MenuItem>
-                        <MenuItem value="High School or Equivalent">High School</MenuItem>
-                        <MenuItem value="Associate">Associate</MenuItem>
-                        <MenuItem value="Bachelor">Bachelor</MenuItem>
-                        <MenuItem value="Master">Master</MenuItem>
-                        <MenuItem value="PhD">PhD</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-
-                </Grid>
-
-                <Grid size={{ xs: 12 }}>
-                  {selectedEmployee?.addresses && selectedEmployee.addresses.length > 0 ? (
-                    selectedEmployee.addresses.map((addr: string | { address: string }, idx: number) => {
-                      const value = typeof addr === "string" ? addr : addr.address;
-
-                      return (
-                        <Box key={idx} sx={{ mb: 1, display: 'flex', gap: 1, alignItems: 'center' }}>
-                          <TextField
-                            label={`Address ${idx + 1}`}
-                            fullWidth
-                            variant="standard"
-                            value={value}
-                            onChange={e => handleAddressChange(e, idx)}
-                            InputProps={{ readOnly: !editMode }}
-                          />
-
-
-                          {idx > 0 && (
-                            <Button
-                              type="button"
-                              color="error"
-                              size="small"
-
-                              onClick={() => handleRemoveAddress(idx)}
-
-                            >
-                              <DeleteIcon />
-                            </Button>
-                          )}
-                        </Box>
-                      );
-                    })
-                  ) : (
-                    <Typography>No addresses</Typography>
-                  )}
-                </Grid>
-
-                <Grid size={{ xs: 4 }} mt={1}>
-                  {editMode && (
-                    <Button
-                      type="button"
-                      variant="contained"
-                      size="small"
-                      onClick={() => handleAddAddress()}
-                      sx={{ color: '#fdb515' }}
-                    >
-                      Add Address
-                    </Button>
-                  )}
-                </Grid>
-
-
-              </Grid>
-            </CardContent>
-          </Card>
-
-          <Card elevation={2} sx={{ mt: 2, mb: 2 }}>
-            <CardContent>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Department Information
-              </Typography>
-              <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
-                <Grid size={{ xs: 9 }}>
-                  <TextField
-                    label="College"
-                    name="department.collegeName"
-                    value={selectedEmployee?.department?.collegeName || ""}
-                    onChange={handleInputChange}
-                    fullWidth
-                    variant="standard"
-                    InputProps={{ readOnly: !editMode }}
-                  />
-
-                </Grid>
-
-                <Grid size={{ xs: 9 }}>
-                  <TextField
-                    label="Department"
-                    name="department.departmentName"
-                    value={selectedEmployee?.department?.departmentName || ""}
-                    onChange={handleInputChange}
-                    fullWidth
-                    variant="standard"
-                    InputProps={{ readOnly: !editMode }}
-                  />
-                </Grid>
-
-                <Grid size={{ xs: 9 }}>
-                  <TextField
-                    label="Supervisor"
-                    name="department.supervisor"
-                    value={selectedEmployee?.department?.supervisor || ""}
-                    onChange={handleInputChange}
-                    fullWidth
-                    variant="standard"
-                    InputProps={{ readOnly: !editMode }}
-                  />
-                </Grid>
-
-                <Grid size={{ xs: 9 }}>
-                  <TextField
-                    label="Admin"
-                    name="department.admin"
-                    value={selectedEmployee?.department?.admin || ""}
-                    onChange={handleInputChange}
-                    fullWidth
-                    variant="standard"
-                    InputProps={{ readOnly: !editMode }}
-                  />
-                </Grid>
-
-                <Grid size={{ xs: 7 }}>
-                  <TextField
-                    label="Salary"
-                    name="salary"
-                    fullWidth
-                    variant="standard"
-                    value={selectedEmployee?.salary || "0"}
-                    onChange={handleInputChange}
-                    InputProps={{ readOnly: !editMode }}
-                  />
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-
-          <Card elevation={2}>
-            <CardContent>
-
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                Current Visa
-              </Typography>
-
-              <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
-
-                <Grid size={{ xs: 7 }}>
-                  <FormControl fullWidth sx={{ m: 0 }}>
-                    <InputLabel>Visa Type</InputLabel>
-                    <Select
-                      name="VisaType"
-                      value={selectedEmployee?.visaHistory?.[0]?.visaType || ""}
-                      onChange={(e) => handleVisaHistoryChange(0, "visaType", e.target.value)}
-                      variant="standard"
-                      disabled={!editMode}
-                    >
-                      <MenuItem value="J-1">J-1</MenuItem>
-                      <MenuItem value="H-1B">H-1B</MenuItem>
-                      <MenuItem value="OPT - 1 Year">OPT - 1 Year</MenuItem>
-                      <MenuItem value="OPT - 3 Years">OPT - 3 Years</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <Grid size={{ xs: 7 }}>
-                    <DatePicker
-                      label="Issue Date"
-                      value={
-                        selectedEmployee?.visaHistory?.[0]?.validPeriod?.startDate
-                          ? dayjs(selectedEmployee.visaHistory[0].validPeriod.startDate)
-                          : null
-                      }
-                      onChange={(newValue) =>
-                        editMode &&
-                        handleVisaHistoryChange(0, "startDate", newValue?.toDate() || null)
-                      }
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          variant: "standard",
-                          InputProps: { readOnly: !editMode },
-                        },
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid size={{ xs: 7 }}>
-                    <DatePicker
-                      label="Expire Date"
-                      value={
-                        selectedEmployee?.visaHistory?.[0]?.validPeriod?.expireDate
-                          ? dayjs(selectedEmployee.visaHistory[0].validPeriod.expireDate)
-                          : null
-                      }
-                      onChange={(newValue) =>
-                        editMode &&
-                        handleVisaHistoryChange(0, "expireDate", newValue?.toDate() || null)
-                      }
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          variant: "standard",
-                          InputProps: { readOnly: !editMode },
-                        },
-                      }}
-                    />
-                  </Grid>
-                </LocalizationProvider>
-
-
-                <Grid size={{ xs: 18 }}>
-                  <Box mt={2}>
-                    <Typography variant="subtitle1">Comments</Typography>
-
-
-                    {currentComments.map((c, idx) => (
-                      <Box key={idx} sx={{ mb: 1, p: 1, border: "1px solid #ddd", borderRadius: 1 }}>
-                        <Typography variant="body2">{c.content}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {new Date(c.date).toLocaleString()}
-                        </Typography>
-                      </Box>
-                    ))}
-
-
-
-                    <TextField
-                      label="Add Comment"
-                      fullWidth
-                      multiline
-                      rows={3}
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      sx={{ mt: 1 }}
-                      disabled={!editMode}
-                    />
-                    <Button
-                      variant="contained"
-                      sx={{ mt: 1 }}
-                      disabled={!editMode || !newComment.trim()}
-                      onClick={handleAddComment}
-                    >
-                      Add Comment
-                    </Button>
-
-                  </Box>
-                </Grid>
-              </Grid>
-
-            </CardContent>
-
-          </Card>
-
-          <Card elevation={2} sx={{ mt: 2, mb: 2 }}>
-            <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
-              <Grid size={{ xs: 18 }}>
-                {historyVisaComments.map((h, idx) => (
-                  <Box key={idx} sx={{ mt: 3, p: 2, border: "1px solid #ccc", borderRadius: 2 }}>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {h.visaType} ({h.status})
-                    </Typography>
-
-                    {h.comments.map((c: any, cidx: number) => (
-                      <Box key={cidx} sx={{ mb: 1, p: 1, border: "1px solid #ddd", borderRadius: 1 }}>
-                        <Typography variant="body2">{c.content}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {new Date(c.date).toLocaleString()}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                ))}
-              </Grid>
-            </Grid>
-
-          </Card>
-
+          <EmployeeBasicInfo
+            selectedEmployee={selectedEmployee}
+            editMode={editMode}
+            handleInputChange={handleInputChange}
+            handleAddressChange={handleAddressChange}
+            handleRemoveAddress={handleRemoveAddress}
+            handleAddAddress={handleAddAddress}
+          />
+          <DepartmentInfo
+            department={selectedEmployee?.department}
+            salary={selectedEmployee?.salary}
+            editMode={editMode}
+            handleInputChange={handleInputChange}
+          />
+          <VisaInfo
+            visa={currentVisa}
+            comments={currentComments}
+            newComment={newComment}
+            editMode={editMode}
+            handleVisaHistoryChange={handleVisaHistoryChange}
+            setNewComment={setNewComment}
+            handleAddComment={handleAddComment}
+          />
+          <VisaHistoryInfo historyVisaComments={historyVisaComments || []} />
         </DialogContent>
 
         <DialogActions>
           <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-            {!editMode && (
+            {!editMode ? (
               <>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => setEditMode(true)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => {
-                    if (selectedEmployee?._id) {
-                      const confirmDelete = window.confirm(
-                        "Are you sure you want to delete this employee?"
-                      );
-                      if (confirmDelete) {
-                        deleteEmployee(selectedEmployee._id);
-                      }
-                    }
-                  }}
-                >
-                  Delete
-                </Button>
-
+                <Button variant="contained" color="primary" onClick={() => setEditMode(true)}>Edit</Button>
+                <Button variant="outlined" color="error" onClick={() => {
+                  if (selectedEmployee?._id && window.confirm("Are you sure you want to delete this employee?")) {
+                    deleteEmployee(selectedEmployee._id);
+                  }
+                }}>Delete</Button>
               </>
-            )}
-
-            {editMode && (
+            ) : (
               <>
-                <Button
-                  variant="contained"
-                  color="success"
-                  onClick={(e) => {
-                    handleSubmit(e);
-
-                  }}
-                >
-                  Save
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={handleCancel}
-                >
-                  Cancel
-                </Button>
+                <Button variant="contained" color="success" onClick={handleSubmit}>Save</Button>
+                <Button variant="outlined" onClick={handleCancel}>Cancel</Button>
               </>
             )}
           </Box>
-
         </DialogActions>
       </Dialog>
-
     </Container>
   );
 }
