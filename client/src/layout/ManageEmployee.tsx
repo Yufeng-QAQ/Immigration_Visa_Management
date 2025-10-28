@@ -9,8 +9,6 @@ import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Drawer";
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
-import Display from "../components/Employee/Display";
-
 export default function ManageEmployee() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
   const employeeColumns: GridColDef<EmployeeItem>[] = [
@@ -140,7 +138,6 @@ export default function ManageEmployee() {
           </DialogContent>
         </Dialog>
 
-        <Display></Display>
       </Container>
     </Box>
 

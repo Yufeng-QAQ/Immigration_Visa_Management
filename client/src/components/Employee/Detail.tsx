@@ -148,7 +148,6 @@ export default function EmpDetail({ empId, open, onClose, onValueChange }: Impor
 
       }));
 
-      //console.log(summary);
       setEmployeeList(summary);
     } catch (err: any) {
       console.error("Failed to fetch employees:", err);
@@ -204,7 +203,6 @@ export default function EmpDetail({ empId, open, onClose, onValueChange }: Impor
 
   const handleShowDetails = () => {
     const emp = employeeList.find((e) => e._id === empId);
-    console.log("Selected employee object:", emp);
     if (emp) {
       setSelectedEmployee(emp);
       setInitialEmployeeData(emp);
@@ -399,8 +397,6 @@ export default function EmpDetail({ empId, open, onClose, onValueChange }: Impor
     if (!selectedEmployee || !selectedEmployee.visaHistory?.length) return;
 
     const currentVisaId = selectedEmployee.visaHistory[selectedEmployee.visaHistory.length - 1]._id;
-    console.log("currentVisaId:", currentVisaId);
-    console.log("selectedEmployee.comments:", selectedEmployee.comment);
 
     try {
       const response = await axios.get(

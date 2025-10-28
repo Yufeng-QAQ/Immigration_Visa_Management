@@ -33,14 +33,12 @@ export const createEmployee = async (req: Request, res: Response) => {
       
 
       if (req.body.comment) {
-        console.log("Creating Comment for visa:", savedVisa._id, "with content:", req.body.comment);
         const newComment = new Comment({
           record: savedVisa._id, 
           content: req.body.comment,
           date: new Date()
         });
         const savedComment = await newComment.save();
-        console.log("Saved Comment:", savedComment);
         savedEmployee.comments.push(savedComment._id);
         await savedEmployee.save();
       } else {
@@ -217,11 +215,6 @@ export const getVisaComments = async (req: Request, res: Response) => {
   _id: { $in: employee.comments },
   record: visaId
 }).sort({ date: 1 });
-
-    console.log("employee.comments:", employee.comments); 
-    console.log("visaId:", visaId); 
-    console.log("found comments:", comments); 
-
     res.json({ comments });
   } catch (err: any) {
     console.error(err);
@@ -349,8 +342,6 @@ export const getEmployeeById = async (req: Request, res: Response) => {
       path: "comments",
       select: "content date"
       });
-      console.log("Populated comments:", employee?.comments);
-
 
     if (!employee) return res.status(404).json({ error: "Employee not found" });
 
