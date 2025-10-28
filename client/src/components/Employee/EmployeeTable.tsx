@@ -10,21 +10,21 @@ import {
   Box,
   Card,
 } from "@mui/material";
-// import UpdateEmployeeForm from "./Update";
 
 interface EmployeeTableProps {
   url: string;
   title: string;
   columns: GridColDef[];
-  initialSort: string
+  initialSort: string;
+  reload?: number;
 }
 
 import type { EmployeeItem } from "../../api";
 
 const BASE_URL = "http://localhost:8000/api/";
 
-export default function EmployeeTable({ url, title, columns, initialSort}: EmployeeTableProps) {
-  const [reload, setReload] = useState(false);
+export default function EmployeeTable({ url, title, columns, initialSort, reload}: EmployeeTableProps) {
+  const [load, setReload] = useState(false);
   const [rows, setRows] = useState<EmployeeItem[]>([]);
   const [isloading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +66,7 @@ export default function EmployeeTable({ url, title, columns, initialSort}: Emplo
     <Card>
       <Box p={2} lineHeight={1}>
         <Grid>
-          {title && <Typography variant="h2" mb={2}>{title}</Typography>}
+          {title && <Typography variant="h6" fontWeight={600} mb={2}>{title}</Typography>}
         </Grid>
 
         {error ? (
