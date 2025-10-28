@@ -11,6 +11,7 @@ import {
   Card,
 } from "@mui/material";
 // import UpdateEmployeeForm from "./Update";
+import { notify } from "../MUI/Notification/eventBus";
 
 interface EmployeeTableProps {
   url: string;
@@ -19,7 +20,7 @@ interface EmployeeTableProps {
   initialSort: string
 }
 
-import type { EmployeeItem, ActiveVisaItem } from "../../api";
+import type { EmployeeItem} from "../../api";
 
 const BASE_URL = "http://localhost:8000/api/";
 
@@ -62,6 +63,9 @@ export default function EmployeeTable({ url, title, columns, initialSort}: Emplo
   const handleValueChange = () => {
     setReload(prev => !prev);
   };
+  useEffect(()=>{
+    notify.success("Employee updated successfully!");
+  },[reload]);
   return (
     <Card>
       <Box p={2} lineHeight={1}>

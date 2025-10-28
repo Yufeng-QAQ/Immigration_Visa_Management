@@ -25,8 +25,8 @@ import type { EmployeeItem, ActiveVisaItem, AddressItem } from "../../api";
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-
 import DeleteIcon from '@mui/icons-material/Delete';
+import { notify } from "../MUI/Notification/eventBus";
 
 type VisaRecord = {
   _id?: string;
@@ -343,7 +343,6 @@ export default function EmpDetail ({empId, open, onClose, onValueChange}: Import
         dataToSubmit,
         { headers: { "Content-Type": "application/json" } }
         );
-
         setEditMode(false);
         onValueChange();
         
@@ -447,7 +446,7 @@ export default function EmpDetail ({empId, open, onClose, onValueChange}: Import
 
     return (
         <Container maxWidth="md">
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg" sx={{zIndex: 500}}>
             <DialogTitle>Employee Details</DialogTitle>
             <DialogContent>
                 <Card elevation={2}>
