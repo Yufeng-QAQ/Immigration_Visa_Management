@@ -8,6 +8,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Card,
+  CardContent,Grid,TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from "@mui/material";
 
 import EmployeeList from "./EmployeeList";
@@ -25,6 +31,13 @@ type VisaRecord = {
   validPeriod: { startDate: Date | null; expireDate: Date | null };
   status?: string; 
 };
+
+interface CommentType {
+  _id?: string;         
+  record: string;        
+  content: string;       
+  date: string;          
+}
 
 interface CommentType {
   _id?: string;         
@@ -128,6 +141,80 @@ export default function Display() {
       setLoading(false);
     }
   };
+}
+
+
+const handleInputChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | FlexibleInputEvent
+) => {
+  if (!selectedEmployee) return;
+  const { name, value } = e.target;
+
+  if (name.includes('.')) {
+    const keys = name.split('.');
+    setSelectedEmployee(prev => {
+      if (!prev) return prev;
+      const nested: any = { ...prev };
+      let current = nested;
+      for (let i = 0; i < keys.length - 1; i++) {
+        current[keys[i]] = { ...current[keys[i]] };
+        current = current[keys[i]];
+      }
+      current[keys[keys.length - 1]] = value; 
+      return nested as EmployeeSummary;
+    });
+  } else {
+    setSelectedEmployee(prev => {
+      if (!prev) return prev;
+      return { ...prev, [name]: value } as EmployeeSummary;
+    });
+  }
+};
+
+
+
+
+    useEffect(() => {
+        showEmployee();
+    }, []);
+
+    const handleShowDetails = (id: string) => {
+        const emp = employeeList.find((e) => e._id === id);
+        console.log("Selected employee object:", emp); 
+        if (emp) {
+          setSelectedEmployee(emp);
+          
+          setInitialEmployeeData(emp);
+          setOpen(true);
+        }
+      };
+      
+      const deleteEmployee = async (id: string) => {
+        try {
+          await axios.delete(`http://localhost:8000/api/employee/deleteEmployee/${id}`);
+          alert("Employee deleted successfully!");
+          showEmployee(); 
+          setOpen(false); 
+        } catch (error: any) {
+          console.error(error.response?.data || error.message);
+        }
+      };
+
+      const handleAddressChange = (
+            e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+            index: number
+        ) => {
+            const { value } = e.target;
+            setSelectedEmployee(prev => {
+                if (!prev) return prev;
+                const newAddresses = [...prev.addresses];
+                newAddresses[index] = value;
+                return { ...prev, addresses: newAddresses };
+            });
+        };
+
+       
+
 
   // Effects
   useEffect(() => { showEmployee(); }, []);
@@ -223,7 +310,11 @@ export default function Display() {
     }
   };
 
-  const deleteEmployee = async (id: string) => {
+
+useEffect(() => {
+  if (!selectedEmployee?._id) return;
+
+  const fetchHistoryComments = async () => {
     try {
       await axios.delete(`http://localhost:8000/api/employee/deleteEmployee/${id}`);
       alert("Employee deleted successfully!");
