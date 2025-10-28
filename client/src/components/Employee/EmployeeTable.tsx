@@ -99,7 +99,6 @@ export default function EmployeeTable({ url, title, columns, initialSort}: Emplo
           </Grid>
         )}
       </Box>
-
     </Card>
   );
 };

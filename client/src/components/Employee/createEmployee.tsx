@@ -186,7 +186,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                   />
                 </Grid>
                 <Grid size={{ xs: 18 }} container spacing={2} columns={18} alignItems="center" justifyContent="space-between">
-                  <Grid size={{ xs: 12 }}>
+                  <Grid size={{ xs: 6 }}>
                     <Controller
                       name="email"
                       control={control}
@@ -397,6 +397,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     )}
                   />
                 </Grid>
+
                 <Grid size={{ xs: 7 }}>
                   <Controller
                     control={control}
