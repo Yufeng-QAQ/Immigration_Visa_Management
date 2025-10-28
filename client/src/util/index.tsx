@@ -10,7 +10,7 @@ export const calculateDaysLeft = (expireDate: string | Date | null): string | nu
   const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   
-  if (daysLeft < 0) return `Expired ${Math.abs(daysLeft)} days ago`;
+  if (daysLeft < 0) return `Expired`;
   if (daysLeft === 0) return "Expires today";
-  return `${daysLeft} days left`;
+  return `${daysLeft}`;
 };
