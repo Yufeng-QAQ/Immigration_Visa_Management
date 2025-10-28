@@ -17,7 +17,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import dayjs, { Dayjs } from 'dayjs';
 import type { EmployeeItem } from "../../api";
-import {useState} from "react";
 import { notify } from "../MUI/Notification/eventBus";
 
 
@@ -25,14 +24,6 @@ interface EmployeeFormProps {
   onClose: () => void;
   onAddSuccess?: () => void;
 }
-
-interface CommentType {
-  _id?: string;         
-  record: string;        
-  content: string;       
-  date: string;          
-}
-
 
 export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProps) {
   const degrees = ["PhD", "Master", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower"];

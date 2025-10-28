@@ -1,30 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import {
-  List,
-  ListItem,
-  ListItemText,
   Button,
   Container,
-  Typography,
   Box,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Card,
-  CardContent,
-  Grid,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
 } from "@mui/material";
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 import EmployeeList from "./EmployeeList";
 import EmployeeBasicInfo from "./employee_profile/EmployeeBasicInfo";
@@ -32,7 +16,6 @@ import DepartmentInfo from "./employee_profile/DepartmentInfo";
 import VisaInfo from "./employee_profile/VisaInfo";
 import { VisaHistoryInfo } from "./employee_profile/VisaHistoryInfo";
 import { calculateDaysLeft } from "../../util";
-import type { EmployeeItem, ActiveVisaItem, AddressItem } from "../../api";
 import type { Department } from "../../api";
 
 
@@ -136,16 +119,33 @@ export default function Display() {
       }));
 
       setEmployeeList(summary);
-    } catch (err: any) {
-      console.error("Failed to fetch employees:", err);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error("Failed to fetch data:", err.message);
+      } else {
+        console.error("Failed to fetch data:", err);
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchVisaComments = useCallback(async () => {
+    if (!selectedEmployee?.visaHistory?.length) return;
+    const currentVisaId = selectedEmployee.visaHistory[selectedEmployee.visaHistory.length - 1]._id;
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/employee/${selectedEmployee._id}/comments/${currentVisaId}`
+      );
+      setVisaComments(response.data.comments || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [selectedEmployee]);
+
   // Effects
   useEffect(() => { showEmployee(); }, []);
-  useEffect(() => { fetchVisaComments(); }, [selectedEmployee]);
+  useEffect(() => { fetchVisaComments(); }, [fetchVisaComments]);
   useEffect(() => {
     if (!selectedEmployee?._id) return;
     const fetchHistoryComments = async () => {
@@ -243,8 +243,12 @@ export default function Display() {
       alert("Employee deleted successfully!");
       showEmployee();
       setOpen(false);
-    } catch (error: any) {
-      console.error(error.response?.data || error.message);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error("Failed to fetch data:", err.message);
+      } else {
+        console.error("Failed to fetch data:", err);
+      }
     }
   };
 
@@ -320,19 +324,6 @@ export default function Display() {
     } catch (err) {
       console.error(err);
       alert("Failed to add comment.");
-    }
-  };
-
-  const fetchVisaComments = async () => {
-    if (!selectedEmployee?.visaHistory?.length) return;
-    const currentVisaId = selectedEmployee.visaHistory[selectedEmployee.visaHistory.length - 1]._id;
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/employee/${selectedEmployee._id}/comments/${currentVisaId}`
-      );
-      setVisaComments(response.data.comments || []);
-    } catch (err) {
-      console.error(err);
     }
   };
 

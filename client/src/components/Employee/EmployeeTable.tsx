@@ -19,7 +19,7 @@ interface EmployeeTableProps {
   initialSort: string
 }
 
-import type { EmployeeItem, ActiveVisaItem } from "../../api";
+import type { EmployeeItem } from "../../api";
 
 const BASE_URL = "http://localhost:8000/api/";
 

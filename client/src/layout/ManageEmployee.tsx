@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {Box, Container, Grid, Button } from "@mui/material";
+import { Box, Container, Grid, Button } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import type { GridColDef } from "@mui/x-data-grid";
@@ -9,6 +9,7 @@ import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Drawer";
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
+import Display from "../components/Employee/Display";
 
 export default function ManageEmployee() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
@@ -44,32 +45,33 @@ export default function ManageEmployee() {
         return date ? new Date(date).toLocaleDateString("en-US") : "N/A";
       }
     },
-    { field: "daysRemain", headerName: "Days Remain", width: 120,
+    {
+      field: "daysRemain", headerName: "Days Remain", width: 120,
       valueGetter: (_, row) => {
         const days = row.visaHistory[0]?.expireDate
           ? calculateDaysLeft(row.visaHistory[0].expireDate)
           : "-";
-          return days ? days : "N/A";
-     },
+        return days ? days : "N/A";
+      },
       renderCell: (params) => {
         const days = params.value
 
-        let color =  "/img_src/status_red.png";
+        let color = "/img_src/status_red.png";
         if (days !== "N/A" && days < 30) color = "/img_src/status_red.png";
-        else if (days < 60) color =  "/img_src/status_orange.png";              
-        else if (days >= 90) color =  "/img_src/status_green.png";
+        else if (days < 60) color = "/img_src/status_orange.png";
+        else if (days >= 90) color = "/img_src/status_green.png";
 
         return (
           <Box
             sx={{
-            backgroundImage: `url(${color})`,
-            color: "white",
-            textAlign: "center",
-            width: 80,
-            height: 40,
-            backgroundSize: "contain",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
+              backgroundImage: `url(${color})`,
+              color: "white",
+              textAlign: "center",
+              width: 80,
+              height: 40,
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
             }}
           >
             {days}
@@ -85,7 +87,7 @@ export default function ManageEmployee() {
         <Button
           variant="contained"
           color="primary"
-          onClick={(event) => {event.stopPropagation();}}
+          onClick={(event) => { event.stopPropagation(); }}
         >
           Archive
         </Button>
@@ -106,12 +108,12 @@ export default function ManageEmployee() {
 
   return (
     <Box sx={{ ml: 7 }}>
-    <Container>
+      <Container>
         <Box sx={{ mb: 2, mt: 2 }}>
           <TemporaryDrawer />
         </Box>
-        <Box  sx={{position: "relative"}}>
-          <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer"}}>
+        <Box sx={{ position: "relative" }}>
+          <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer" }}>
             <EmployeeTable
               title="All Live Cases"
               url="employee/getEmployee"
@@ -119,25 +121,27 @@ export default function ManageEmployee() {
               initialSort="employeeID"
             />
           </Grid>
-          <Grid container     
+          <Grid container
             sx={{
               position: "absolute",
               top: 15,
               right: 90,
-              zIndex: 10,     
+              zIndex: 10,
             }}>
             <Button variant="contained" color="primary" onClick={handleOpenCreateDialog}>
               Create Employee
             </Button>
           </Grid>
-          </Box>
+        </Box>
 
-      <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
-        <DialogContent>
-          <EmployeeForm onClose={handleCloseCreateDialog} onAddSuccess={triggerReload} />
-        </DialogContent>
-      </Dialog>
-    </Container>
+        <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
+          <DialogContent>
+            <EmployeeForm onClose={handleCloseCreateDialog} onAddSuccess={triggerReload} />
+          </DialogContent>
+        </Dialog>
+
+        <Display></Display>
+      </Container>
     </Box>
 
 
