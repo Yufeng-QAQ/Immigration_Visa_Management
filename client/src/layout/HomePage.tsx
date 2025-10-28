@@ -27,39 +27,54 @@ export default function HomePage() {
         return date ? new Date(date).toLocaleDateString("en-US") : "N/A";
       }
     },
-    { field: "daysRemain", headerName: "Days Remain", width: 120,
+    {
+      field: "daysRemain",
+      headerName: "Days Remain",
+      width: 120,
       valueGetter: (_, row) => {
         const days = row.visaHistory[0]?.expireDate
           ? calculateDaysLeft(row.visaHistory[0].expireDate)
           : "-";
-          return days ? days : "N/A";
-     },
+        return days ? days : "N/A";
+      },
       renderCell: (params) => {
-        const days = params.value
+        const days = params.value;
 
-        let color =  "/img_src/status_red.png";
-        if (days !== "N/A" && days < 30) color = "/img_src/status_red.png";
-        else if (days < 60) color =  "/img_src/status_orange.png";              
-        else if (days >= 90) color =  "/img_src/status_green.png";
+        let bgColor = "gray";
+
+        if (days === "N/A" || days === "-") {
+          bgColor = "gray";
+        } else if (days < 30) {
+          bgColor = "#e53935";
+        } else if (days < 60) {
+          bgColor = "#fb8c00";
+        } else if (days >= 90) {
+          bgColor = "#43a047";
+        } else {
+          bgColor = "#e53935";
+        }
 
         return (
           <Box
             sx={{
-            backgroundImage: `url(${color})`,
-            color: "white",
-            textAlign: "center",
-            width: 80,
-            height: 40,
-            backgroundSize: "contain",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
+              mt: 0.7,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 80,
+              height: 40,
+              borderRadius: 2,
+              fontWeight: "bold",
+              color: "white",
+              backgroundColor: bgColor,
             }}
           >
             {days}
           </Box>
         );
       },
-    },
+    }
+
   ];
   return (
     <Box sx={{ ml: 7 }}>
