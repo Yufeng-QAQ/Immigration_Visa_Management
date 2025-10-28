@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, Typography, Grid, TextField } from "@mui/material";
-import type {Department} from "../../api";
+import type { Department } from "../../../api";
 
 interface DepartmentInfoProps {
   department?: Department | null;
