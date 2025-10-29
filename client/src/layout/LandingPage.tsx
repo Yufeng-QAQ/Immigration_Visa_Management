@@ -1,14 +1,29 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Grid, Box, Typography, Button, Container, TextField } from "@mui/material";
 import api from "../api/axios";
+import { notify } from "../components/MUI/Notification/eventBus";
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await api.get("/auth/getCurrUser");
+        if (res.data.username) {
+          navigate("/home");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    checkSession();
+  }, [navigate]);
 
   const handleLogin = async () => {
     try {
@@ -17,7 +32,7 @@ export default function LandingPage() {
         password,
       });
 
-      console.log(res);
+      notify.success(res.data?.message)
       navigate("/home");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -54,7 +69,7 @@ export default function LandingPage() {
           p: 3,
           boxShadow: 3,
           borderRadius: 3,
-          maxWidth: 500,
+          maxWidth: 350,
           mx: "auto",
           textAlign: "center",
           bgcolor: "Background"
@@ -94,7 +109,6 @@ export default function LandingPage() {
             <Button
               variant="contained"
               fullWidth
-              sx={{ mt: 1 }}
               onClick={handleLogin}
             >
               Login

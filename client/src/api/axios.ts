@@ -19,10 +19,4 @@ api.interceptors.response.use(
   }
 );
 
-api.interceptors.request.use((config) => {
-  console.log("Request URL:", config.url);
-  console.log("With credentials:", config.withCredentials);
-  return config;
-});
-
 export default api;

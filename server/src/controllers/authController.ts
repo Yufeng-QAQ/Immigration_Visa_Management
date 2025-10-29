@@ -49,4 +49,12 @@ export class AuthController {
       res.json({ message: "Logout successful" });
     });
   }
+
+  getCurrentUser = (req: Request, res: Response) => {
+    if ((req.session as any).username) {
+      res.json({ username: (req.session as any).username});
+    } else {
+      res.status(401).json({ message: "Not logged in" });
+    }
+  }
 }
