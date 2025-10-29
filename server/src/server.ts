@@ -3,6 +3,7 @@ import session from "express-session"
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import MongoStore from "connect-mongo"
 
 import { userAuthenticate } from "./middlewares/authMiddleware";
 import authRouter from "./routes/authRoutes";
@@ -24,9 +25,12 @@ app.use(cors({
   origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
+
 app.use(express.json());
+
 app.use(
   session({
+    name: "connect.sid",
     secret: process.env.SESSION_SECRET_KEY || "defaultSecretKey",
     resave: false,
     saveUninitialized: false,
@@ -35,7 +39,13 @@ app.use(
       httpOnly: true,
       secure: false,
       sameSite: "lax"
-    }
+    },
+    store: MongoStore.create({
+      mongoUrl: uri,
+      collectionName: "sessions",
+      ttl: 24 * 60 * 60,
+      autoRemove: "native",
+    }),
   })
 )
 

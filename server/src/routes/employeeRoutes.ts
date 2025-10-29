@@ -10,7 +10,6 @@ import {
   getVisaComments,
   getHistoryVisaComments
 } from "../services/employeeService";
-import { userAuthenticate } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 router.post("/createEmployee", createEmployee);
@@ -23,7 +22,4 @@ router.post("/:id/comments", addComment);
 router.get("/:id/comments/:visaId", getVisaComments);
 router.get("/:id/history-comments", getHistoryVisaComments);
 
-router.get("/testAuth", userAuthenticate, (req, res) => {
-  res.json({ message: `Hello, ${req.session}, you're authenticated!` });
-});
 export default router;
