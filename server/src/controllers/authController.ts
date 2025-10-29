@@ -34,8 +34,19 @@ export class AuthController {
   }
 
   logout = async (req: Request, res: Response) => {
-    req.session.destroy(() => {
-      res.json({ message: "User logged out" });
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Failed to destroy session:", err);
+        return res.status(500).json({ message: "Logout failed" });
+      }
+
+      res.clearCookie("connect.sid", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+      });
+
+      res.json({ message: "Logout successful" });
     });
   }
 }

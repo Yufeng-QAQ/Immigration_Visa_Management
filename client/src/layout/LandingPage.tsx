@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import { Grid, Box, Typography, Button, Container, TextField } from "@mui/material";
-
+import api from "../api/axios";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -12,12 +12,12 @@ export default function LandingPage() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:8000/api/auth/login", {
+      const res = await api.post("/auth/login", {
         username,
         password,
-      }, { withCredentials: true });
+      });
 
-      console.log(res.data);
+      console.log(res);
       navigate("/home");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

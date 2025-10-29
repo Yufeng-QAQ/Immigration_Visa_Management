@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 
+import { userAuthenticate } from "./middlewares/authMiddleware";
 import authRouter from "./routes/authRoutes";
 import employeeRouter from "./routes/employeeRoutes";
 
@@ -20,7 +21,7 @@ if (!uri || !dbName) {
 
 const app = express();
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
 app.use(express.json());
@@ -32,6 +33,7 @@ app.use(
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, 
       httpOnly: true,
+      secure: false,
       sameSite: "lax"
     }
   })
@@ -44,7 +46,7 @@ mongoose.connect(uri)
 
 // Routers
 app.use("/api/auth", authRouter);
-app.use("/api/employee", employeeRouter);
+app.use("/api/employee", userAuthenticate, employeeRouter);
 
 
 const PORT = process.env.PORT || 8000;

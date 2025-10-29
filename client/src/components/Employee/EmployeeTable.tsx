@@ -18,6 +18,7 @@ import {
   Card,
 } from "@mui/material";
 // import UpdateEmployeeForm from "./Update";
+import api from "../../api/axios";
 
 interface EmployeeTableProps {
   url: string;
@@ -61,8 +62,6 @@ interface EmployeeSummary {
 
 import type { EmployeeItem, ActiveVisaItem } from "../../api";
 
-const BASE_URL = "http://localhost:8000/api/";
-
 export default function EmployeeTable({ url, title, columns, reload }: EmployeeTableProps) {
   const [rows, setRows] = useState<EmployeeItem[]>([]);
   const [isloading, setIsLoading] = useState(false);
@@ -77,7 +76,7 @@ export default function EmployeeTable({ url, title, columns, reload }: EmployeeT
     try {
       setIsLoading(true);
       setError(null);
-      const res = await axios.get("http://localhost:8000/api/employee/getEmployee");
+      const res = await api.get("/employee/getEmployee");
       const data = Array.isArray(res.data) ? res.data : res.data.data || [];
 
       const summary: EmployeeSummary[] = data.map((emp: EmployeeItem) => ({
@@ -157,14 +156,14 @@ export default function EmployeeTable({ url, title, columns, reload }: EmployeeT
         setIsLoading(true);
         setError(null);
 
-        const res = await axios.get(`${BASE_URL}${url}`);
+        const res = await api.get(url);
         const raw = Array.isArray(res.data) ? res.data : res.data.data || [];
 
         setRows(raw);
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
-          console.error("Failed to fetch data:", err.message);
-          setError(err.response?.data?.error || err.message);
+          console.error("Failed to fetch data:", err.response?.data.message);
+          setError(err.response?.data.message || err.message);
         } else {
           console.error("Failed to fetch data:", err);
           setError("Failed to fetch data");
