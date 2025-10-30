@@ -31,7 +31,7 @@ export class AuthController {
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
-  }
+  };
 
   logout = async (req: Request, res: Response) => {
     req.session.destroy((err) => {
@@ -48,7 +48,7 @@ export class AuthController {
 
       res.json({ message: "Logout successful" });
     });
-  }
+  };
 
   getCurrentUser = (req: Request, res: Response) => {
     if ((req.session as any).username) {
@@ -56,5 +56,5 @@ export class AuthController {
     } else {
       res.status(401).json({ message: "Not logged in" });
     }
-  }
+  };
 }
