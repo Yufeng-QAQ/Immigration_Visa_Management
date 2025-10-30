@@ -32,7 +32,7 @@ export default function HomePage() {
       headerName: "Days Remain",
       width: 120,
       valueGetter: (_, row) => {
-        let days = row.visaHistory[0]?.expireDate
+        const days = row.visaHistory[0]?.expireDate
           ? calculateDaysLeft(row.visaHistory[0].expireDate)
           : NaN;
         return days;
