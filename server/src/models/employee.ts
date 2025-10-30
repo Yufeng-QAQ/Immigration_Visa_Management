@@ -14,6 +14,7 @@ export interface IEmployee extends Document {
   middleName?: string;
   dateOfBirth: Date;
   email: string;
+  countryOfBirth: string;
   addresses: string[];
   salary: number;
   positionTitle: string;
@@ -21,6 +22,7 @@ export interface IEmployee extends Document {
   departmentInfo: IDepartmentInfoItem;
   visaHistory: mongoose.Types.ObjectId[];
   activateStatus: boolean;
+  comments: mongoose.Types.ObjectId[];
 }
 
 const EmployeeSchema: Schema = new Schema({
@@ -28,6 +30,7 @@ const EmployeeSchema: Schema = new Schema({
   firstName: { type: String, required: true },
   middleName: String,
   lastName: { type: String, required: true },
+  countryOfBirth: {type: String},
   dateOfBirth: { type: Date, required: true },
   email: { type: String, required: true },
   addresses: [{ type: String }],
@@ -42,6 +45,7 @@ const EmployeeSchema: Schema = new Schema({
   },
   visaHistory: [{ type: Schema.Types.ObjectId, ref: "VisaRecord" }],
   activateStatus: { type: Boolean, default: true },
+  comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
 });
 
 export default mongoose.model<IEmployee>("Employee", EmployeeSchema);

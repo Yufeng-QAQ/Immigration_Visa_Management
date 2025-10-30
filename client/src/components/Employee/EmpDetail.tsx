@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
+import api from "../../api/axios";
 import axios from "axios";
 import {
   Button,
@@ -9,29 +10,37 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
+import { notify } from "../MUI/Notification/eventBus";
 
-import EmployeeList from "./EmployeeList";
 import EmployeeBasicInfo from "./employee_profile/EmployeeBasicInfo";
 import DepartmentInfo from "./employee_profile/DepartmentInfo";
 import VisaInfo from "./employee_profile/VisaInfo";
 import { VisaHistoryInfo } from "./employee_profile/VisaHistoryInfo";
-import { calculateDaysLeft } from "../../util";
-import type { Department } from "../../api";
 
 
-// Types
 type VisaRecord = {
   _id?: string;
   visaType: string;
-  validPeriod: { startDate: Date | null; expireDate: Date | null };
-  status?: string; 
+  validPeriod: {
+    startDate: Date | null;
+    expireDate: Date | null;
+  };
+  status?: string;
 };
 
+interface Department {
+  _id: string;
+  collegeName: string;
+  departmentName: string;
+  supervisor?: string;
+  admin?: string;
+}
+
 interface CommentType {
-  _id?: string;         
-  record: string;        
-  content: string;       
-  date: string;          
+  _id?: string;
+  record: string;
+  content: string;
+  date: string;
 }
 
 interface EmployeeSummary {
@@ -60,113 +69,103 @@ interface HistoryVisa {
   comments: CommentType[];
 }
 
-type InputValue = string | Date | null;
-
-interface FlexibleInputEvent {
-  target: { name: string; value: InputValue };
+interface ImportEmp {
+  empId: string | null;
+  open: boolean;
+  onClose: () => void;
+  onValueChange: () => void;
+  change: boolean;
 }
 
-// Component
-export default function Display() {
-  // State
+export default function EmpDetail({ empId, open, onClose, onValueChange, change }: ImportEmp) {
   const [employeeList, setEmployeeList] = useState<EmployeeSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeSummary | null>(null);
-  const [open, setOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [initialEmployeeData, setInitialEmployeeData] = useState<EmployeeSummary | null>(null);
   const [newComment, setNewComment] = useState("");
   const [currentComments, setVisaComments] = useState<CommentType[]>([]);
+  //const [historyVisaComments, setHistoryVisaComments] = useState<Record<string, CommentType[]>>({});
   const [historyVisaComments, setHistoryVisaComments] = useState<HistoryVisa[]>([]);
 
-  // Fetch employee list
+
   const showEmployee = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8000/api/employee/getEmployee");
+      const res = await api.get("/employee/getEmployee");
       const data = Array.isArray(res.data) ? res.data : res.data.data || [];
 
       const summary: EmployeeSummary[] = data.map((emp: any) => ({
         _id: emp._id || emp.employeeId,
         employeeId: emp.employeeId,
         firstName: emp.firstName,
+        countryOfBirth: emp.countryOfBirth,
         middleName: emp.middleName || "",
         lastName: emp.lastName,
         dateOfBirth: emp.dateOfBirth || "",
         email: emp.email,
-        countryOfBirth: emp.countryOfBirth,
         addresses: emp.addresses || [],
         salary: emp.salary || 0,
         positionTitle: emp.positionTitle || "",
         highestDegree: emp.highestDegree || "",
         department: emp.departmentInfo
           ? {
-              _id: "", 
-              collegeName: emp.departmentInfo.college,
-              departmentName: emp.departmentInfo.department,
-              supervisor: emp.departmentInfo.supervisor,
-              admin: emp.departmentInfo.admin
-            }
+            _id: "",
+            collegeName: emp.departmentInfo.college,
+            departmentName: emp.departmentInfo.department,
+            supervisor: emp.departmentInfo.supervisor,
+            admin: emp.departmentInfo.admin
+          }
           : null,
         visaHistory: emp.visaHistory.map((visa: any) => ({
           _id: visa._id,
           visaType: visa.visaType,
-          validPeriod: { startDate: visa.issueDate, expireDate: visa.expireDate },
+          validPeriod: {
+            startDate: visa.issueDate,
+            expireDate: visa.expireDate
+          },
           status: visa.status || undefined
         })),
         activateStatus: emp.activateStatus || false,
-        comment: emp.comments?.map((c: any) => ({ content: c.content, date: c.date })) || []
+
+        comment: emp.comments?.map((c: any) => ({
+          content: c.content,
+          date: c.date
+        })) || []
+
       }));
 
       setEmployeeList(summary);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        console.error("Failed to fetch data:", err.message);
+        console.error("Failed to fetch employee list:", err.message);
+        notify.error(err.response?.data?.error || err.message);
       } else {
-        console.error("Failed to fetch data:", err);
+        console.error("Failed to fetch employee list:", err);
+        notify.error("Failed to fetch employee list");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchVisaComments = useCallback(async () => {
-    if (!selectedEmployee?.visaHistory?.length) return;
-    const currentVisaId = selectedEmployee.visaHistory[selectedEmployee.visaHistory.length - 1]._id;
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/employee/${selectedEmployee._id}/comments/${currentVisaId}`
-      );
-      setVisaComments(response.data.comments || []);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [selectedEmployee]);
+  type InputValue = string | Date | null;
 
-  // Effects
-  useEffect(() => { showEmployee(); }, []);
-  useEffect(() => { fetchVisaComments(); }, [fetchVisaComments]);
-  useEffect(() => {
-    if (!selectedEmployee?._id) return;
-    const fetchHistoryComments = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:8000/api/employee/${selectedEmployee._id}/history-comments`
-        );
-        setHistoryVisaComments(res.data.history || []);
-      } catch (err) {
-        console.error("Failed to fetch history comments:", err);
-      }
+
+  interface FlexibleInputEvent {
+    target: {
+      name: string;
+      value: InputValue;
     };
-    fetchHistoryComments();
-  }, [selectedEmployee]);
+  }
 
-  // Handlers
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | FlexibleInputEvent
   ) => {
     if (!selectedEmployee) return;
     const { name, value } = e.target;
+
     if (name.includes('.')) {
       const keys = name.split('.');
       setSelectedEmployee(prev => {
@@ -177,33 +176,60 @@ export default function Display() {
           current[keys[i]] = { ...current[keys[i]] };
           current = current[keys[i]];
         }
-        current[keys[keys.length - 1]] = value; 
+        current[keys[keys.length - 1]] = value;
         return nested as EmployeeSummary;
       });
     } else {
-      setSelectedEmployee(prev => prev ? { ...prev, [name]: value } as EmployeeSummary : prev);
+      setSelectedEmployee(prev => {
+        if (!prev) return prev;
+        return { ...prev, [name]: value } as EmployeeSummary;
+      });
     }
   };
 
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  useEffect(() => {
+    showEmployee();
+  }, []);
+
+  useEffect(() => {
+    showEmployee();
+  }, [change]);
+
+  const handleShowDetails = () => {
+    const emp = employeeList.find((e) => e._id === empId);
+    if (emp) {
+      setSelectedEmployee(emp);
+      setInitialEmployeeData(emp);
+    }
+  };
+
+  const deleteEmployee = async (id: string) => {
+    try {
+      await api.delete(`/employee/deleteEmployee/${id}`);
+      notify.success("Employee deleted successfully!")
+      showEmployee();
+      onValueChange();
+      onClose();
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error("Failed to delete employee:", err.message);
+        notify.error(err.response?.data?.error || err.message);
+      } else {
+        console.error("Failed to delete employee:", err);
+        notify.error("Failed to delete employee");
+      }
+    }
+  };
+
+  const handleAddressChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    index: number
+  ) => {
     const { value } = e.target;
     setSelectedEmployee(prev => {
       if (!prev) return prev;
       const newAddresses = [...prev.addresses];
       newAddresses[index] = value;
-      return { ...prev, addresses: newAddresses };
-    });
-  };
-
-  const handleAddAddress = () => {
-    setSelectedEmployee(prev => prev ? { ...prev, addresses: [...(prev.addresses || []), ""] } : prev);
-  };
-
-  const handleRemoveAddress = (index: number) => {
-    setSelectedEmployee(prev => {
-      if (!prev) return prev;
-      const newAddresses = [...(prev.addresses || [])];
-      newAddresses.splice(index, 1);
       return { ...prev, addresses: newAddresses };
     });
   };
@@ -215,91 +241,111 @@ export default function Display() {
   ) => {
     setSelectedEmployee(prev => {
       if (!prev) return prev;
+
       const newVisaHistory = [...prev.visaHistory];
+
       if (field === "startDate" || field === "expireDate") {
         newVisaHistory[index] = {
           ...newVisaHistory[index],
-          validPeriod: { ...newVisaHistory[index].validPeriod, [field]: value },
+          validPeriod: {
+            ...newVisaHistory[index].validPeriod,
+            [field]: value,
+          },
         };
       } else {
-        newVisaHistory[index] = { ...newVisaHistory[index], visaType: value ? String(value) : "" };
+        newVisaHistory[index] = {
+          ...newVisaHistory[index],
+          visaType: value ? String(value) : "",
+        };
       }
-      return { ...prev, visaHistory: newVisaHistory };
+
+      return {
+        ...prev,
+        visaHistory: newVisaHistory,
+      };
     });
   };
 
-  const handleShowDetails = (id: string) => {
-    const emp = employeeList.find(e => e._id === id);
-    if (emp) {
-      setSelectedEmployee(emp);
-      setInitialEmployeeData(emp);
-      setOpen(true);
-    }
+  const handleAddAddress = () => {
+    setSelectedEmployee((prev) => {
+      if (!prev) return prev;
+      const newAddresses = [...(prev.addresses || []), ""];
+      return { ...prev, addresses: newAddresses };
+    });
   };
 
-  const deleteEmployee = async (id: string) => {
-    try {
-      await axios.delete(`http://localhost:8000/api/employee/deleteEmployee/${id}`);
-      alert("Employee deleted successfully!");
-      showEmployee();
-      setOpen(false);
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.error("Failed to fetch data:", err.message);
-      } else {
-        console.error("Failed to fetch data:", err);
-      }
-    }
+  const handleRemoveAddress = (index: number) => {
+    setSelectedEmployee((prev) => {
+      if (!prev) return prev;
+      const newAddresses = [...(prev.addresses || [])];
+      newAddresses.splice(index, 1);
+      return { ...prev, addresses: newAddresses };
+    });
   };
 
   const handleCancel = () => {
-    if (initialEmployeeData) setSelectedEmployee(initialEmployeeData);
+    if (initialEmployeeData) {
+      setSelectedEmployee(initialEmployeeData);
+    }
     setEditMode(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEmployee) return;
+
     try {
       setLoading(true);
+
 
       const dataToSubmit = {
         _id: selectedEmployee._id,
         employeeId: selectedEmployee.employeeId,
         firstName: selectedEmployee.firstName,
+        countryOfBirth: selectedEmployee.countryOfBirth,
         middleName: selectedEmployee.middleName || "",
         lastName: selectedEmployee.lastName,
         dateOfBirth: selectedEmployee.dateOfBirth || "",
         email: selectedEmployee.email,
-        countryOfBirth: selectedEmployee.countryOfBirth,
         addresses: selectedEmployee.addresses || [],
         salary: selectedEmployee.salary || 0,
         positionTitle: selectedEmployee.positionTitle || "",
         highestDegree: selectedEmployee.highestDegree || "",
-        departmentInfo: selectedEmployee.department ? {
-          college: selectedEmployee.department.collegeName,
-          department: selectedEmployee.department.departmentName,
-          supervisor: selectedEmployee.department.supervisor,
-          admin: selectedEmployee.department.admin
-        } : null,
-        activeVisa: selectedEmployee.visaHistory?.[0] ? {
-          visaType: selectedEmployee.visaHistory[0].visaType,
-          issueDate: selectedEmployee.visaHistory[0].validPeriod?.startDate || null,
-          expireDate: selectedEmployee.visaHistory[0].validPeriod?.expireDate || null,
-          status: "Active"
-        } : null,
+        departmentInfo: selectedEmployee.department
+          ? {
+            college: selectedEmployee.department.collegeName,
+            department: selectedEmployee.department.departmentName,
+            supervisor: selectedEmployee.department.supervisor,
+            admin: selectedEmployee.department.admin
+          }
+          : null,
+
+        activeVisa: selectedEmployee.visaHistory?.[0]
+          ? {
+            visaType: selectedEmployee.visaHistory[0].visaType,
+            issueDate: selectedEmployee.visaHistory[0].validPeriod?.startDate
+              ? new Date(selectedEmployee.visaHistory[0].validPeriod.startDate)
+              : null,
+            expireDate: selectedEmployee.visaHistory[0].validPeriod?.expireDate
+              ? new Date(selectedEmployee.visaHistory[0].validPeriod.expireDate)
+              : null,
+            status: "Active"
+          }
+          : null,
         activateStatus: selectedEmployee.activateStatus || false,
         comment: selectedEmployee.comment || "",
       };
 
-      await axios.put(
-        `http://localhost:8000/api/employee/updateEmployee/${selectedEmployee._id}`,
-        dataToSubmit,
-        { headers: { "Content-Type": "application/json" } }
-      );
+      console.log("Submitting employee data:", dataToSubmit);
 
+      await api.put(
+        `/employee/updateEmployee/${selectedEmployee._id}`,
+        dataToSubmit,
+      );
+      notify.success("Employee updated successfully!")
       setEditMode(false);
-      showEmployee();
+      onValueChange();
+
     } catch (err) {
       console.error("Failed to update employee:", err);
     } finally {
@@ -308,42 +354,95 @@ export default function Display() {
   };
 
   const handleAddComment = async () => {
-    if (!selectedEmployee || !newComment.trim()) return;
+    if (!selectedEmployee) return;
+    if (!newComment.trim()) return;
+
     const lastVisaIndex = selectedEmployee.visaHistory.length - 1;
-    if (lastVisaIndex < 0) return alert("No visa found for this employee.");
+    if (lastVisaIndex < 0) {
+      alert("No visa found for this employee.");
+      return;
+    }
+
     const visaId = selectedEmployee.visaHistory[lastVisaIndex]._id;
-    if (!visaId) return alert("Visa ID is missing.");
+    if (!visaId) {
+      alert("Visa ID is missing.");
+      return;
+    }
 
     try {
-      const response = await axios.post(
-        `http://localhost:8000/api/employee/${selectedEmployee._id}/comments`,
-        { visaId, content: newComment }
+      const response = await api.post(
+        `/employee/${selectedEmployee._id}/comments`,
+        {
+          visaId,
+          content: newComment
+        }
       );
-      setSelectedEmployee(prev => prev ? { ...prev, comment: [...prev.comment, response.data.comment] } : prev);
+
+      setSelectedEmployee(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          comment: [...prev.comment, response.data.comment]
+        };
+      });
+
       setNewComment("");
     } catch (err) {
       console.error(err);
-      alert("Failed to add comment.");
+      alert("Failed to add comment. See console for details.");
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  const currentVisa = selectedEmployee?.visaHistory?.find(v => v.status === "Active");
+  const fetchVisaComments = async () => {
+    if (!selectedEmployee || !selectedEmployee.visaHistory?.length) return;
 
-  // Render
+    const currentVisaId = selectedEmployee.visaHistory[selectedEmployee.visaHistory.length - 1]._id;
+
+    try {
+      const response = await api.get(
+        `/employee/${selectedEmployee._id}/comments/${currentVisaId}`
+      );
+
+      setVisaComments(response.data.comments || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchVisaComments();
+  }, [selectedEmployee]);
+
+  useEffect(() => {
+    if (!selectedEmployee?._id) return;
+
+    const fetchHistoryComments = async () => {
+      try {
+        const res = await api.get(
+          `/employee/${selectedEmployee._id}/history-comments`
+        );
+        setHistoryVisaComments(res.data.history || []);
+      } catch (err) {
+        console.error("Failed to fetch history comments:", err);
+      }
+    };
+
+    fetchHistoryComments();
+  }, [selectedEmployee]);
+
+  useEffect(() => {
+    if (empId != null) {
+      handleShowDetails();
+    }
+  }, [empId]);
+
+  if (!open) return null;
+  const currentVisa = selectedEmployee?.visaHistory?.find(v => v.status === "Active");
+  if (loading) return <div>Loading...</div>;
+
   return (
     <Container maxWidth="md">
-      <EmployeeList
-        employeeList={employeeList}
-        handleShowDetails={handleShowDetails}
-        calculateDaysLeft={calculateDaysLeft}
-      />
-
-      <Button variant="contained" onClick={showEmployee} sx={{ mt: 2 }}>
-        Refresh Data
-      </Button>
-
-      <Dialog open={open} onClose={() => { setOpen(false); setEditMode(false); }} fullWidth maxWidth="lg">
+      <Dialog open={open} onClose={() => {onClose(); setEditMode(false); }} fullWidth maxWidth="lg" sx= {{zIndex: 500}} >
         <DialogTitle>Employee Details</DialogTitle>
         <DialogContent>
           <EmployeeBasicInfo

@@ -1,5 +1,5 @@
-import { useState } from "react";
 import axios from "axios";
+import api from "../../api/axios";
 import { AxiosError } from "axios";
 import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -42,19 +42,21 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
       salary: 0,
       positionTitle: "",
       highestDegree: "",
+      countryOfBirth:"",
       departmentInfo: {
         college: "",
         department: "",
         supervisor: "",
         admin: ""
       },
-      activeVisa: {
+      visaHistory: [{
         visaType: "",
         issueDate: null,
         expireDate: null,
         status: "Active"
-      },
-      activateStatus: true
+      }],
+      activateStatus: true,
+      comment: "", 
     }
   });
 
@@ -66,6 +68,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
 
   const onSubmit = async (data: EmployeeItem) => {
     try {
+      console.log(data);
       await addEmployee(data);
       if (onAddSuccess) onAddSuccess(); // Refreash table data
       onClose();
@@ -76,12 +79,10 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
 
   const addEmployee = async (data: EmployeeItem) => {
     try {
-      await axios.post(
-        "http://localhost:8000/api/employee/createEmployee",
+      await api.post(
+        "/employee/createEmployee",
         data,
-        { headers: { "Content-Type": "application/json" } }
       );
-      // alert("Employee created successfully!");
       notify.success("Employee created successfully!");
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
@@ -107,6 +108,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Basic Information
               </Typography>
+              
               <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
                 <Grid size={{ xs: 7 }}>
                   <Controller
@@ -118,6 +120,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     )}
                   />
                 </Grid>
+
                 <Grid size={{ xs: 4 }}>
                   <Controller
                     name="middleName"
@@ -157,6 +160,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     )}
                   />
                 </Grid>
+
                 <Grid size={{ xs: 6 }}>
                   <Controller
                     control={control}
@@ -172,7 +176,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                   />
                 </Grid>
                 <Grid size={{ xs: 18 }} container spacing={2} columns={18} alignItems="center" justifyContent="space-between">
-                  <Grid size={{ xs: 12 }}>
+                  <Grid size={{ xs: 6 }}>
                     <Controller
                       name="email"
                       control={control}
@@ -182,6 +186,18 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                       )}
                     />
                   </Grid>
+
+                  <Grid size={{xs: 6}}>
+                    <Controller
+                      name="countryOfBirth"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <TextField {...field} required label="Country Of Birth" fullWidth variant="standard" />
+                      )}
+                    />
+                  </Grid>
+
                   <Grid size={{ xs: 6 }} mb={2}>
                     <Controller
                       name="highestDegree"
@@ -207,6 +223,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     />
                   </Grid>
                 </Grid>
+                
                 <Grid size={{ xs: 12 }}>
                   {fields.map((field, index) => (
                     <Grid key={field.id}>
@@ -334,7 +351,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                 <Grid size={{ xs: 18 }}>
                   <Grid size={{ xs: 7 }}>
                     <Controller
-                      name="activeVisa.visaType"
+                      name={`visaHistory.0.visaType`}
                       control={control}
                       rules={{ required: "Please select a degree" }}
                       render={({ field }) => (
@@ -359,7 +376,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                 <Grid size={{ xs: 7 }} ml={1}>
                   <Controller
                     control={control}
-                    name="activeVisa.issueDate"
+                    name={`visaHistory.0.issueDate`}
                     render={({ field }) => (
                       <DatePicker
                         label="Issue Date"
@@ -370,10 +387,11 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     )}
                   />
                 </Grid>
+
                 <Grid size={{ xs: 7 }}>
                   <Controller
                     control={control}
-                    name="activeVisa.expireDate"
+                    name={`visaHistory.0.expireDate`}
                     render={({ field }) => (
                       <DatePicker
                         label="Exp Date"
@@ -384,7 +402,27 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     )}
                   />
                 </Grid>
+
+                <Grid size={{ xs: 18 }}>
+                  <Controller
+                    name="comment"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Add Comment"
+                        fullWidth
+                        multiline
+                        rows={5}
+                      />
+                    )}
+                  />
+                </Grid>
+
+
+
               </Grid>
+
             </CardContent>
           </Card>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>

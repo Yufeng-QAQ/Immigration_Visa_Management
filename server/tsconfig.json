@@ -3,7 +3,9 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "*": ["*"]
+      "*": ["*"],
+      "controllers/*": ["controllers/*"],
+      "routes/*": ["routes/*"]
     },
     // File Layout
     "rootDir": "./src",
@@ -16,7 +18,11 @@
     "target": "ES2020",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "types": [],
+    "types": [
+      "node",
+      "express",
+      "express-session"
+    ],
     // For nodejs:                      
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -47,8 +53,11 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+
+    "typeRoots": ["./node_modules/@types", "./src/types"],
   },
   "include": [
-    "src"
+    "src/**/*",
+    "types/**/*"
   ]
 }

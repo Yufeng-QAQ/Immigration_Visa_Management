@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../../api/axios";
 import { Grid } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -7,7 +7,7 @@ interface VisaStats {
   urgent: {
     red: number;
     yellow: number;
-    blue: number;
+    green: number;
   };
 }
 
@@ -17,7 +17,7 @@ export default function VisaStatsComponent() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/employee/visaStats");
+        const res = await api.get("/employee/visaStats");
         setStats(res.data);
       } catch (err) {
         console.error(err);
@@ -42,7 +42,7 @@ export default function VisaStatsComponent() {
       <ul>
         <li>Red (30 days): {stats.urgent.red}</li>
         <li>Yellow (31-60 days): {stats.urgent.yellow}</li>
-        <li>Blue (61-90 days): {stats.urgent.blue}</li>
+        <li>Green (61-90 days): {stats.urgent.green}</li>
       </ul>
     </Grid>
   );

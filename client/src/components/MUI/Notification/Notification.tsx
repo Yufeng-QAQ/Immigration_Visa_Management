@@ -30,7 +30,7 @@ export const GlobalNotification: React.FC = () => {
   return (
     <Snackbar
       open={open}
-      autoHideDuration={4000}
+      autoHideDuration={1000}
       onClose={handleClose}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
       sx={{ zIndex: 1300 }}
@@ -40,7 +40,7 @@ export const GlobalNotification: React.FC = () => {
         variant="filled"
         sx={{
           width: "100%",
-          fontSize: "1.3rem",
+          fontSize: "1.1 rem",
           minHeight: "70px",
           padding: "12px 24px",
           backgroundColor: colors[type].bg,

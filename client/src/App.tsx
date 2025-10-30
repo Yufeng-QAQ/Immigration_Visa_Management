@@ -1,45 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { AppBar, Toolbar, Typography, Button, Box, Container } from "@mui/material";
-import LandingPage from "./layout/LandingPage";
-import HomePage from "./layout/HomePage";
-import { GlobalNotification } from "./components/MUI/Notification/Notification";
-import logo from "/umbc_logo.png";
+import { BrowserRouter as Router} from "react-router-dom";
+import AppContent from "./layout/AppContent";
 
-
-function App() {
+export default function App() {
   return (
     <Router>
-      {/* Navigation Bar */}
-      <AppBar position="static">
-        <Toolbar>
-          <Box>
-            <img src= {logo} width={ 30} />
-          </Box>
-          <Typography color="secondary" variant="h6" sx={{ flexGrow: 1 , ml : 1}}>
-            Visa Management System
-          </Typography>
-          <Button color="secondary" component={Link} to="/">
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
-
-      {/* Page Content */}
-      <Container sx={{ mt: 4 }}>
-        <GlobalNotification />
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/home" element={<HomePage />} />
-        </Routes>
-      </Container>
+      <AppContent />
     </Router>
-
-
-
-
-
-
   );
 }
-
-export default App;

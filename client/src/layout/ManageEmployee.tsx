@@ -1,18 +1,34 @@
-import { Box, Container, Grid } from "@mui/material";
+import { useState } from "react";
+import { Box, Container, Grid, Button } from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
 import type { GridColDef } from "@mui/x-data-grid";
 
+import EmployeeForm from "../components/Employee/createEmployee";
 import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Sidebar";
-import VisaStatsComponent from "../components/Reports/visaSummary";
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
-
-export default function HomePage() {
-
+export default function ManageEmployee() {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
   const employeeColumns: GridColDef<EmployeeItem>[] = [
     { field: "employeeId", headerName: "Employee ID", width: 130 },
     { field: "firstName", headerName: "First Name", width: 150 },
     { field: "lastName", headerName: "Last Name", width: 150 },
+    {
+      field: "college", headerName: "college", width: 150,
+      valueGetter: (_, row) => {
+        const college = row.departmentInfo?.college;
+        return college ? college : "N/A";
+      }
+    },
+    {
+      field: "department", headerName: "department", width: 150,
+      valueGetter: (_, row) => {
+        const department = row.departmentInfo?.department;
+        return department ? department : "N/A";
+      }
+    },
     {
       field: "visaType", headerName: "Visa Type", width: 150,
       valueGetter: (_, row) => {
@@ -84,33 +100,79 @@ export default function HomePage() {
           </Box>
         );
       },
-    }
-
+    },
+    {
+      field: "archive",
+      headerName: "",
+      width: 120,
+      renderCell: () => (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={(event) => { event.stopPropagation(); }}
+        >
+          Archive
+        </Button>
+      ),
+    },
   ];
+  const [reload, setReload] = useState(false);
+  const triggerReload = () => {
+    setReload(prev => !prev);
+  };
+  const handleOpenCreateDialog = () => {
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleCloseCreateDialog = () => {
+    setIsCreateDialogOpen(false);
+  };
+
   return (
     <Box sx={{ ml: 7 }}>
       <Container>
         <Box sx={{ mb: 2, mt: 2 }}>
           <TemporaryDrawer />
         </Box>
-
-        <Grid container spacing={2} display={"flex"} justifyContent={"space-around"}>
+        <Box sx={{ position: "relative" }}>
           <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer" }}>
             <EmployeeTable
-              title="Current Live Cases"
+              title="All Live Cases"
               url="employee/getEmployee"
               columns={employeeColumns}
-              initialSort="daysRemain"
-              change={false}
+              initialSort="employeeID"
+              change={reload}
             />
           </Grid>
-
-          <Grid size={{ xs: 12, lg: 3 }}>
-            <VisaStatsComponent />
+          <Grid container
+            sx={{
+              position: "absolute",
+              top: 15,
+              right: 90,
+              zIndex: 10,
+            }}>
+            <Button variant="contained" color="primary" onClick={handleOpenCreateDialog}>
+              Create Employee
+            </Button>
           </Grid>
-        </Grid>
+        </Box>
+
+        <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="md" fullWidth>
+          <DialogContent>
+            <EmployeeForm onClose={handleCloseCreateDialog} onAddSuccess={triggerReload} />
+          </DialogContent>
+        </Dialog>
+
       </Container>
     </Box>
+
+
+
+
+
+
+
+
+
   );
 }
-
