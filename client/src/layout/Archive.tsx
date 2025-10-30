@@ -83,6 +83,7 @@ export default function Archive() {
               url="employee/getEmployee"
               columns={employeeColumns}
               initialSort="employeeId"
+              change={false}
             />
           </Grid>
 

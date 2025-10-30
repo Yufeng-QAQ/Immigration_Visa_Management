@@ -94,9 +94,10 @@ interface ImportEmp {
   open: boolean;
   onClose: () => void;
   onValueChange: () => void;
+  change: boolean;
 }
 
-export default function EmpDetail({ empId, open, onClose, onValueChange }: ImportEmp) {
+export default function EmpDetail({ empId, open, onClose, onValueChange, change }: ImportEmp) {
   const [employeeList, setEmployeeList] = useState<EmployeeSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeSummary | null>(null);
@@ -207,6 +208,10 @@ export default function EmpDetail({ empId, open, onClose, onValueChange }: Impor
     showEmployee();
   }, []);
 
+  useEffect(() => {
+    showEmployee();
+  }, [change]);
+
   const handleShowDetails = () => {
     const emp = employeeList.find((e) => e._id === empId);
     if (emp) {
@@ -218,8 +223,9 @@ export default function EmpDetail({ empId, open, onClose, onValueChange }: Impor
   const deleteEmployee = async (id: string) => {
     try {
       await axios.delete(`http://localhost:8000/api/employee/deleteEmployee/${id}`);
-      alert("Employee deleted successfully!");
       showEmployee();
+      onValueChange();
+      onClose();
     } catch (error: any) {
       console.error(error.response?.data || error.message);
     }
@@ -449,7 +455,7 @@ export default function EmpDetail({ empId, open, onClose, onValueChange }: Impor
 
   return (
     <Container maxWidth="md">
-      <Dialog open={open} onClose={() => {onClose(); setEditMode(false); }} fullWidth maxWidth="lg">
+      <Dialog open={open} onClose={() => {onClose(); setEditMode(false); }} fullWidth maxWidth="lg" sx= {{zIndex: 500}} >
         <DialogTitle>Employee Details</DialogTitle>
         <DialogContent>
           <EmployeeBasicInfo

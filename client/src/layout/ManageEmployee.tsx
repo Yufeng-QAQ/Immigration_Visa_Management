@@ -105,9 +105,9 @@ export default function ManageEmployee() {
       ),
     },
   ];
-
+  const [reload, setReload] = useState(false);
   const triggerReload = () => {
-    console.log("reloaded");
+    setReload(prev => !prev);
   };
   const handleOpenCreateDialog = () => {
     setIsCreateDialogOpen(true);
@@ -130,6 +130,7 @@ export default function ManageEmployee() {
               url="employee/getEmployee"
               columns={employeeColumns}
               initialSort="employeeID"
+              change={reload}
             />
           </Grid>
           <Grid container

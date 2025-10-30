@@ -16,24 +16,23 @@ interface EmployeeTableProps {
   title: string;
   columns: GridColDef[];
   initialSort: string;
-  reload?: number;
+  change: boolean;
 }
 
 import type { EmployeeItem } from "../../api";
+import { notify } from "../MUI/Notification/eventBus";
 
 const BASE_URL = "http://localhost:8000/api/";
 
-export default function EmployeeTable({ url, title, columns, initialSort, reload}: EmployeeTableProps) {
-  const [load, setReload] = useState(false);
+export default function EmployeeTable({ url, title, columns, initialSort, change}: EmployeeTableProps) {
+  const [reload, setReload] = useState(false);
   const [rows, setRows] = useState<EmployeeItem[]>([]);
   const [isloading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const handleDetail = (id: string) => {
-    setSelectedEmpId(id);
-    setOpen(true);
-  };
+  const [notifyMsg, setnotifyMsg] = useState("");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -58,10 +57,24 @@ export default function EmployeeTable({ url, title, columns, initialSort, reload
     };
 
     fetchData();
-  }, [url, reload]);
+  }, [url, reload, change]);
+
+  const handleDetail = (id: string) => {
+    setSelectedEmpId(id);
+    setOpen(true);
+  };
+
   const handleValueChange = () => {
     setReload(prev => !prev);
+    setnotifyMsg("Employee updated successfully!");
   };
+  const handleClose = () => {
+    setOpen(false);
+    setnotifyMsg("Employee deleted successfully!");
+  };
+  useEffect(() => {
+    if(selectedEmpId != null) notify.success(notifyMsg);
+  }, [reload]);
   return (
     <Card>
       <Box p={2} lineHeight={1}>
@@ -92,8 +105,9 @@ export default function EmployeeTable({ url, title, columns, initialSort, reload
               <EmpDetail 
                 empId={selectedEmpId}
                 open={open}
-                onClose={() => setOpen(false)}
+                onClose={handleClose}
                 onValueChange={handleValueChange}
+                change={change}
                  />
             </Grid>
           </Grid>

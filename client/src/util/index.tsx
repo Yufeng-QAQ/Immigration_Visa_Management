@@ -1,16 +1,13 @@
-export const calculateDaysLeft = (expireDate: string | Date | null): string | number => {
-  if (!expireDate) return "-";
+export const calculateDaysLeft = (expireDate: string | Date | null): number => {
+  if (!expireDate) return 9999;
 
   const exp = typeof expireDate === "string" ? new Date(expireDate) : expireDate;
-  if (isNaN(exp.getTime())) return "-";
+  if (isNaN(exp.getTime())) return 9999;
 
   const today = new Date();
   
   const diffTime = exp.setHours(0,0,0,0) - today.setHours(0,0,0,0);
   const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  
-  if (daysLeft < 0) return `Expired`;
-  if (daysLeft === 0) return "Expires today";
-  return `${daysLeft}`;
+  return daysLeft;
 };

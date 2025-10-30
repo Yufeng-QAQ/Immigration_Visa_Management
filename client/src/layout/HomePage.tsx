@@ -32,25 +32,36 @@ export default function HomePage() {
       headerName: "Days Remain",
       width: 120,
       valueGetter: (_, row) => {
-        const days = row.visaHistory[0]?.expireDate
+        let days = row.visaHistory[0]?.expireDate
           ? calculateDaysLeft(row.visaHistory[0].expireDate)
-          : "-";
-        return days ? days : "N/A";
+          : NaN;
+        return days;
       },
       renderCell: (params) => {
         const days = params.value;
-
         let bgColor = "gray";
+        let text = "";
 
-        if (days === "N/A" || days === "-") {
+        if (days === 999 || isNaN(days)) {
+          text = "-";
           bgColor = "gray";
+        } else if (days < 0) {
+          text = "Expired";
+          bgColor = "#a61d1bff";
+        } else if (days === 0) {
+          text = "Today";
+          bgColor = "#e53935";
         } else if (days < 30) {
+          text = days.toString();
           bgColor = "#e53935";
         } else if (days < 60) {
+          text = days.toString();
           bgColor = "#fb8c00";
         } else if (days >= 90) {
+          text = days.toString();
           bgColor = "#43a047";
         } else {
+          text = days.toString();
           bgColor = "#e53935";
         }
 
@@ -69,7 +80,7 @@ export default function HomePage() {
               backgroundColor: bgColor,
             }}
           >
-            {days}
+            {text}
           </Box>
         );
       },
@@ -90,6 +101,7 @@ export default function HomePage() {
               url="employee/getEmployee"
               columns={employeeColumns}
               initialSort="daysRemain"
+              change= {false}
             />
           </Grid>
 
