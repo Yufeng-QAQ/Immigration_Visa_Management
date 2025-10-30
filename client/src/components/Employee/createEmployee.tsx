@@ -70,7 +70,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
     try {
       console.log(data);
       await addEmployee(data);
-      if (onAddSuccess) onAddSuccess(); // Refreash table data
+      if (onAddSuccess) onAddSuccess(); 
       onClose();
     } catch (error) {
       console.error(error);

@@ -5,9 +5,10 @@ import type { GridColDef } from "@mui/x-data-grid";
 import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Sidebar";
 import type { EmployeeItem } from "../api";
+import api from "../api/axios";
 
 export default function Archive() {
-  const [reload, setReload] = useState<number>(0);
+  
   const employeeColumns: GridColDef<EmployeeItem>[] = [
     { field: "employeeId", headerName: "Employee ID", width: 130 },
     { field: "firstName", headerName: "First Name", width: 150 },
@@ -44,11 +45,14 @@ export default function Archive() {
       field: "restore",
       headerName: "",
       width: 120,
-      renderCell: () => (
+      renderCell: (params) => (
         <Button
           variant="contained"
           color="success"
-          onClick={(event) => { event.stopPropagation(); }}
+          onClick={(event) => {
+            event.stopPropagation();
+            handleRestore(params.row._id); 
+          }}
         >
           Restore
         </Button>
@@ -58,17 +62,51 @@ export default function Archive() {
       field: "delete",
       headerName: "",
       width: 120,
-      renderCell: () => (
+      renderCell: (params) => (
         <Button
           variant="contained"
           color="error"
-          onClick={(event) => { event.stopPropagation(); }}
+          onClick={(event) => {
+            event.stopPropagation();
+            if (window.confirm("Are you sure you want to delete this employee?")) {
+              deleteEmployee(params.row._id);
+            }
+          }}
         >
           Delete
         </Button>
       ),
     },
   ];
+
+  const [reload, setReload] = useState(false);
+
+   const triggerReload = () => {
+    setReload(prev => !prev);
+  };
+
+  const handleRestore = async (id: string) => {
+  try {
+    await api.post(`/employee/restore/${id}`);
+    alert("Employee restored successfully!");
+    triggerReload();
+  } catch (err) {
+    console.error("Failed to restore employee:", err);
+    alert("Failed to restore employee.");
+  }
+};
+
+
+const deleteEmployee = async (id: string) => {
+  try {
+    await api.delete(`/employee/deleteEmployee/${id}`);
+    alert("Employee deleted successfully!");
+    triggerReload();
+  } catch (err: unknown) {
+    console.error("Failed to delete employee:", err);
+    alert("Failed to delete employee.");
+  }
+};
 
   return (
     <Box sx={{ ml: 7 }}>
@@ -80,10 +118,10 @@ export default function Archive() {
         <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5 }}>
           <EmployeeTable
             title="Archived Cases"
-            url="employee/getEmployee"
+            url="employee/getEmployeeArchive"
             columns={employeeColumns}
             initialSort="employeeId"
-            change={false}
+            change={reload}
           />
         </Grid>
 

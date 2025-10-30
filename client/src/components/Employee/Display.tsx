@@ -17,6 +17,7 @@ import VisaInfo from "./employee_profile/VisaInfo";
 import { VisaHistoryInfo } from "./employee_profile/VisaHistoryInfo";
 import { calculateDaysLeft } from "../../util";
 import type { Department } from "../../api";
+import api from "../../api/axios";
 
 
 // Types
@@ -83,7 +84,7 @@ export default function Display() {
   const showEmployee = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8000/api/employee/getEmployee");
+      const res = await api.get("/employee/getEmployee");
       const data = Array.isArray(res.data) ? res.data : res.data.data || [];
 
       const summary: EmployeeSummary[] = data.map((emp: any) => ({
@@ -134,8 +135,8 @@ export default function Display() {
     if (!selectedEmployee?.visaHistory?.length) return;
     const currentVisaId = selectedEmployee.visaHistory[selectedEmployee.visaHistory.length - 1]._id;
     try {
-      const response = await axios.get(
-        `http://localhost:8000/api/employee/${selectedEmployee._id}/comments/${currentVisaId}`
+      const response = await api.get(
+        `/employee/${selectedEmployee._id}/comments/${currentVisaId}`
       );
       setVisaComments(response.data.comments || []);
     } catch (err) {
