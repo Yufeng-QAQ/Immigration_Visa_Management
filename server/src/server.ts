@@ -1,9 +1,12 @@
 import express from "express";
+import session from "express-session"
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import MongoStore from "connect-mongo"
 
-import userRouter from "./routes/userRoutes";
+import { userAuthenticate } from "./middlewares/authMiddleware";
+import authRouter from "./routes/authRoutes";
 import employeeRouter from "./routes/employeeRoutes";
 
 dotenv.config();
@@ -18,8 +21,33 @@ if (!uri || !dbName) {
 }
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+}));
+
 app.use(express.json());
+
+app.use(
+  session({
+    name: "connect.sid",
+    secret: process.env.SESSION_SECRET_KEY || "defaultSecretKey",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, 
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax"
+    },
+    store: MongoStore.create({
+      mongoUrl: uri,
+      collectionName: "sessions",
+      ttl: 24 * 60 * 60,
+      autoRemove: "native",
+    }),
+  })
+)
 
 // Connect to MongoDB
 mongoose.connect(uri)
@@ -27,8 +55,8 @@ mongoose.connect(uri)
   .catch(err => console.error(err));
 
 // Routers
-app.use("/api/users", userRouter);
-app.use("/api/employee", employeeRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/employee", userAuthenticate, employeeRouter);
 
 
 const PORT = process.env.PORT || 8000;

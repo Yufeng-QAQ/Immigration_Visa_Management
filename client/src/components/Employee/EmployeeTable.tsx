@@ -10,6 +10,7 @@ import {
   Box,
   Card,
 } from "@mui/material";
+import api from "../../api/axios";
 
 interface EmployeeTableProps {
   url: string;
@@ -39,14 +40,14 @@ export default function EmployeeTable({ url, title, columns, initialSort, change
         setIsLoading(true);
         setError(null);
 
-        const res = await axios.get(`${BASE_URL}${url}`);
+        const res = await api.get(url);
         const raw = Array.isArray(res.data) ? res.data : res.data.data || [];
 
         setRows(raw);
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
-          console.error("Failed to fetch data:", err.message);
-          setError(err.response?.data?.error || err.message);
+          console.error("Failed to fetch data:", err.response?.data.message);
+          setError(err.response?.data.message || err.message);
         } else {
           console.error("Failed to fetch data:", err);
           setError("Failed to fetch data");
