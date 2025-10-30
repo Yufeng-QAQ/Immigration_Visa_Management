@@ -63,7 +63,7 @@ export const createEmployee = async (req: Request, res: Response) => {
 
 export const getEmployee = async (req: Request, res: Response) => {
   try {
-    const employees = await Employee.find()
+    const employees = await Employee.find({ activateStatus: true })
       .populate({
         path: "visaHistory",
         match: { status: "Active" },
@@ -74,13 +74,13 @@ export const getEmployee = async (req: Request, res: Response) => {
         select: 'content date',
       });
       
-
     res.json(employees);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
+
 
 
 
@@ -427,3 +427,73 @@ export const deleteEmployee = async (req: Request, res: Response) => {
 
 
 
+export const updateArchive = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    
+    const updatedEmployee = await Employee.findByIdAndUpdate(
+      id,
+      { activateStatus: false },   
+      { new: true }               
+    );
+
+
+    if (!updatedEmployee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.status(200).json({
+      message: "Employee archived successfully",
+      employee: updatedEmployee,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to archive employee" });
+  }
+};
+
+
+export const restoreEmployee = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const updatedEmployee = await Employee.findByIdAndUpdate(
+      id,
+      { activateStatus: true },   
+      { new: true }               
+    );
+
+    if (!updatedEmployee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.status(200).json({
+      message: "Employee restored successfully",
+      employee: updatedEmployee,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to restore employee" });
+  }
+};
+
+export const getEmployeeArchive = async (req: Request, res: Response) => {
+  try {
+    const employees = await Employee.find({ activateStatus: false })
+      .populate({
+        path: "visaHistory",
+        match: { status: "Active" },
+        options: { sort: { issueDate: -1 }, limit: 1 }
+      })
+      .populate({
+        path: 'comments',
+        select: 'content date',
+      });
+    
+    res.json(employees);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};

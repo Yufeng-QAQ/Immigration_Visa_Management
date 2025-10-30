@@ -463,7 +463,7 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
             visa={currentVisa}
             comments={currentComments}
             newComment={newComment}
-            editMode={editMode}
+            editMode={true}
             handleVisaHistoryChange={handleVisaHistoryChange}
             setNewComment={setNewComment}
             handleAddComment={handleAddComment}
@@ -476,11 +476,11 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
             {!editMode ? (
               <>
                 <Button variant="contained" color="primary" onClick={() => setEditMode(true)}>Edit</Button>
-                <Button variant="outlined" color="error" onClick={() => {
+                {/* <Button variant="outlined" color="error" onClick={() => {
                   if (selectedEmployee?._id && window.confirm("Are you sure you want to delete this employee?")) {
                     deleteEmployee(selectedEmployee._id);
                   }
-                }}>Delete</Button>
+                }}>Delete</Button> */}
               </>
             ) : (
               <>
