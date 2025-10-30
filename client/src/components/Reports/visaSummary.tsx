@@ -7,7 +7,7 @@ interface VisaStats {
   urgent: {
     red: number;
     yellow: number;
-    blue: number;
+    green: number;
   };
 }
 
@@ -42,7 +42,7 @@ export default function VisaStatsComponent() {
       <ul>
         <li>Red (30 days): {stats.urgent.red}</li>
         <li>Yellow (31-60 days): {stats.urgent.yellow}</li>
-        <li>Blue (61-90 days): {stats.urgent.blue}</li>
+        <li>Green (61-90 days): {stats.urgent.green}</li>
       </ul>
     </Grid>
   );
