@@ -6,7 +6,7 @@ import type { GridColDef } from "@mui/x-data-grid";
 
 import EmployeeForm from "../components/Employee/createEmployee";
 import EmployeeTable from "../components/Employee/EmployeeTable";
-import TemporaryDrawer from "../components/Employee/Drawer";
+import TemporaryDrawer from "../components/Employee/Sidebar";
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
 export default function ManageEmployee() {

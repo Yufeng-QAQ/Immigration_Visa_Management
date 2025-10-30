@@ -1,34 +1,17 @@
 import { useEffect, useState } from "react";
+import api from "../../api/axios";
 import axios from "axios";
 import {
-  List,
-  ListItem,
-  ListItemText,
   Button,
   Container,
-  Typography,
   Box,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Card,
-  CardContent, Grid, TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
 } from "@mui/material";
-import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
-import { calculateDaysLeft } from "../../util";
-import type { EmployeeItem, ActiveVisaItem, AddressItem } from "../../api";
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs, { Dayjs } from 'dayjs';
+import { notify } from "../MUI/Notification/eventBus";
 
-import DeleteIcon from '@mui/icons-material/Delete';
-
-import EmployeeList from "./EmployeeList";
 import EmployeeBasicInfo from "./employee_profile/EmployeeBasicInfo";
 import DepartmentInfo from "./employee_profile/DepartmentInfo";
 import VisaInfo from "./employee_profile/VisaInfo";
@@ -44,9 +27,6 @@ type VisaRecord = {
   };
   status?: string;
 };
-
-
-
 
 interface Department {
   _id: string;
@@ -112,7 +92,7 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
   const showEmployee = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8000/api/employee/getEmployee");
+      const res = await api.get("/employee/getEmployee");
       const data = Array.isArray(res.data) ? res.data : res.data.data || [];
 
       const summary: EmployeeSummary[] = data.map((emp: any) => ({
@@ -156,8 +136,14 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
       }));
 
       setEmployeeList(summary);
-    } catch (err: any) {
-      console.error("Failed to fetch employees:", err);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error("Failed to fetch employee list:", err.message);
+        notify.error(err.response?.data?.error || err.message);
+      } else {
+        console.error("Failed to fetch employee list:", err);
+        notify.error("Failed to fetch employee list");
+      }
     } finally {
       setLoading(false);
     }
@@ -201,9 +187,6 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
     }
   };
 
-
-
-
   useEffect(() => {
     showEmployee();
   }, []);
@@ -222,12 +205,19 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
 
   const deleteEmployee = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:8000/api/employee/deleteEmployee/${id}`);
+      await api.delete(`/employee/deleteEmployee/${id}`);
+      notify.success("Employee deleted successfully!")
       showEmployee();
       onValueChange();
       onClose();
-    } catch (error: any) {
-      console.error(error.response?.data || error.message);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error("Failed to delete employee:", err.message);
+        notify.error(err.response?.data?.error || err.message);
+      } else {
+        console.error("Failed to delete employee:", err);
+        notify.error("Failed to delete employee");
+      }
     }
   };
 
@@ -348,12 +338,11 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
 
       console.log("Submitting employee data:", dataToSubmit);
 
-      await axios.put(
-        `http://localhost:8000/api/employee/updateEmployee/${selectedEmployee._id}`,
+      await api.put(
+        `/employee/updateEmployee/${selectedEmployee._id}`,
         dataToSubmit,
-        { headers: { "Content-Type": "application/json" } }
       );
-
+      notify.success("Employee updated successfully!")
       setEditMode(false);
       onValueChange();
 
@@ -381,14 +370,13 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
     }
 
     try {
-      const response = await axios.post(
-        `http://localhost:8000/api/employee/${selectedEmployee._id}/comments`,
+      const response = await api.post(
+        `/employee/${selectedEmployee._id}/comments`,
         {
           visaId,
           content: newComment
         }
       );
-
 
       setSelectedEmployee(prev => {
         if (!prev) return prev;
@@ -411,8 +399,8 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
     const currentVisaId = selectedEmployee.visaHistory[selectedEmployee.visaHistory.length - 1]._id;
 
     try {
-      const response = await axios.get(
-        `http://localhost:8000/api/employee/${selectedEmployee._id}/comments/${currentVisaId}`
+      const response = await api.get(
+        `/employee/${selectedEmployee._id}/comments/${currentVisaId}`
       );
 
       setVisaComments(response.data.comments || []);
@@ -430,10 +418,9 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
 
     const fetchHistoryComments = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8000/api/employee/${selectedEmployee._id}/history-comments`
+        const res = await api.get(
+          `/employee/${selectedEmployee._id}/history-comments`
         );
-        console.log("Fetched history:", res.data.history);
         setHistoryVisaComments(res.data.history || []);
       } catch (err) {
         console.error("Failed to fetch history comments:", err);

@@ -1,15 +1,14 @@
-import { useState } from "react";
 import { Box, Container, Grid } from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
 
 import EmployeeTable from "../components/Employee/EmployeeTable";
-import TemporaryDrawer from "../components/Employee/Drawer";
+import TemporaryDrawer from "../components/Employee/Sidebar";
 import VisaStatsComponent from "../components/Reports/visaSummary";
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
 
 export default function HomePage() {
-  
+
   const employeeColumns: GridColDef<EmployeeItem>[] = [
     { field: "employeeId", headerName: "Employee ID", width: 130 },
     { field: "firstName", headerName: "First Name", width: 150 },
@@ -96,13 +95,13 @@ export default function HomePage() {
         </Box>
 
         <Grid container spacing={2} display={"flex"} justifyContent={"space-around"}>
-          <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer"}}>
+          <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer" }}>
             <EmployeeTable
               title="Current Live Cases"
               url="employee/getEmployee"
               columns={employeeColumns}
               initialSort="daysRemain"
-              change= {false}
+              change={false}
             />
           </Grid>
 

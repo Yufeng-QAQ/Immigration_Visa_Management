@@ -1,9 +1,9 @@
 import { useState } from "react";
-import {Box, Container, Grid, Button } from "@mui/material";
+import { Box, Container, Grid, Button } from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
 
 import EmployeeTable from "../components/Employee/EmployeeTable";
-import TemporaryDrawer from "../components/Employee/Drawer";
+import TemporaryDrawer from "../components/Employee/Sidebar";
 import type { EmployeeItem } from "../api";
 
 export default function Archive() {
@@ -48,7 +48,7 @@ export default function Archive() {
         <Button
           variant="contained"
           color="success"
-          onClick={(event) => {event.stopPropagation();}}
+          onClick={(event) => { event.stopPropagation(); }}
         >
           Restore
         </Button>
@@ -62,7 +62,7 @@ export default function Archive() {
         <Button
           variant="contained"
           color="error"
-          onClick={(event) => {event.stopPropagation();}}
+          onClick={(event) => { event.stopPropagation(); }}
         >
           Delete
         </Button>
@@ -72,22 +72,22 @@ export default function Archive() {
 
   return (
     <Box sx={{ ml: 7 }}>
-    <Container>
-      {/*Left sidebar */}
+      <Container>
+        {/*Left sidebar */}
         <Box sx={{ mb: 2, mt: 2 }}>
           <TemporaryDrawer />
         </Box>
-          <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5 }}>
-            <EmployeeTable
-              title="Archived Cases"
-              url="employee/getEmployee"
-              columns={employeeColumns}
-              initialSort="employeeId"
-              change={false}
-            />
-          </Grid>
+        <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5 }}>
+          <EmployeeTable
+            title="Archived Cases"
+            url="employee/getEmployee"
+            columns={employeeColumns}
+            initialSort="employeeId"
+            change={false}
+          />
+        </Grid>
 
-    </Container>
+      </Container>
     </Box>
 
 
