@@ -5,6 +5,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import { Model } from "mongoose";
 import {Comment} from "../models/comment";
 import {IComment} from "../models/comment"
+import { Department } from "models/department";
 
 export const createEmployee = async (req: Request, res: Response) => {
   try {
@@ -273,54 +274,51 @@ res.json({ history });
 
 export const getVisaStats = async (req: Request, res: Response) => {
   try {
-    const result = await VisaRecord.aggregate([
-      { $match: { status: "Active" } }, 
-      {
-        $addFields: {
-          daysToExpire: {
-            $ceil: {
-              $divide: [
-                { $subtract: ["$expireDate", "$$NOW"] },
-                1000 * 60 * 60 * 24
-              ]
-            }
-          }
-        }
-      },
-      {
-        $group: {
-          _id: "$visaType",
-          total: { $sum: 1 },
-          urgentRed: {
-            $sum: { $cond: [{ $lte: ["$daysToExpire", 30] }, 1, 0] }
-          },
-          urgentYellow: {
-            $sum: { $cond: [{ $and: [{ $gt: ["$daysToExpire", 30] }, { $lte: ["$daysToExpire", 60] }] }, 1, 0] }
-          },
-          urgentBlue: {
-            $sum: { $cond: [{ $and: [{ $gt: ["$daysToExpire", 60] }, { $lte: ["$daysToExpire", 90] }] }, 1, 0] }
-          }
-        }
+    const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
+    const result = await VisaModel.aggregate([
+    { $match: { status: "Active" } },
+    {
+      $lookup: {
+        from: "employees",
+        localField: "employee",
+        foreignField: "_id",
+        as: "employeeData"
       }
+    },
+    { $unwind: "$employeeData" },
+    {
+    $facet: {
+      visaCount: [
+        { $group: { _id: "$visaType", total: { $sum: 1 } } }
+      ],
+      deptCount: [
+        { $group: { _id: "$employeeData.departmentInfo.department", total: { $sum: 1 } } }
+      ],
+      collCount:[
+        { $group: { _id: "$employeeData.departmentInfo.college", total: { $sum: 1 } } }
+      ],
+      counCount: [
+        { $group: { _id: "$employeeData.countryOfBirth", total: { $sum: 1 } } }
+      ],
+    }
+    }
     ]);
 
     const visaCount: Record<string, number> = {};
-    let urgentRed = 0, urgentYellow = 0, urgentBlue = 0;
+    result[0].visaCount.forEach((r:any) => visaCount[r._id] = r.total);
+    const deptCount: Record<string, number> = {};
+    result[0].deptCount.forEach((r:any) => deptCount[r._id] = r.total);
+    const collCount: Record<string, number> = {};
+    result[0].collCount.forEach((r:any) => collCount[r._id] = r.total);
+    const counCount: Record<string, number> = {};
+    result[0].counCount.forEach((r:any) => counCount[r._id] = r.total);
 
-    result.forEach((r: any) => {
-      visaCount[r._id] = r.total;
-      urgentRed += r.urgentRed;
-      urgentYellow += r.urgentYellow;
-      urgentBlue += r.urgentBlue;
-    });
-
+    console.log(JSON.stringify(result, null, 2));
     res.json({
       visaCount,
-      urgent: {
-        red: urgentRed,
-        yellow: urgentYellow,
-        blue: urgentBlue
-      }
+      deptCount,
+      counCount,
+      collCount
     });
 
   } catch (err: any) {
