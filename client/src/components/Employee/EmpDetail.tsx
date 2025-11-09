@@ -36,8 +36,8 @@ interface Department {
   admin?: string;
 }
 
-interface CommentType {
-  _id?: string;
+export interface CommentType {
+  _id: string;
   record: string;
   content: string;
   date: string;
@@ -63,6 +63,7 @@ interface EmployeeSummary {
 }
 
 interface HistoryVisa {
+  _id: string;
   visaId: string;
   visaType: string;
   status: string;
@@ -87,6 +88,7 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
   const [currentComments, setVisaComments] = useState<CommentType[]>([]);
   //const [historyVisaComments, setHistoryVisaComments] = useState<Record<string, CommentType[]>>({});
   const [historyVisaComments, setHistoryVisaComments] = useState<HistoryVisa[]>([]);
+  const [comments, setComments] = useState<CommentType[]>([]);
 
 
   const showEmployee = async () => {
@@ -409,6 +411,70 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
     }
   };
 
+
+
+const handleEditComment = (id: string, value: string) => {
+  setVisaComments(prev =>
+    prev.map(c => (c._id === id ? { ...c, content: value } : c))
+  );
+};
+
+ const handleDeleteComment = async (id: string) => {
+  try {
+    await api.delete(`/employee/comments/${id}`);
+    
+  } catch (err) {
+    console.error("Failed to delete comment:", err);
+  }
+};
+
+
+
+
+const handleSaveComment = async (id: string) => {
+  const commentToSave = currentComments.find(c => c._id === id);
+  if (!commentToSave) return;
+
+  try {
+    
+    await api.post(`/employee/comments/${id}`, { content: commentToSave.content });
+  } catch (err) {
+    console.error("Failed to save comment", err);
+  }
+};
+
+
+const handleEditHistoryComment = (id: string, value: string) => {
+  setHistoryVisaComments(prev =>
+    prev.map(v =>
+      ({
+        ...v,
+        comments: v.comments.map(c => c._id === id ? { ...c, content: value } : c)
+      })
+    )
+  );
+};
+
+
+const handleSaveHistoryComment = async (id: string) => {
+  const commentToSave = historyVisaComments
+    .flatMap(v => v.comments)
+    .find(c => c._id === id);
+
+  if (!commentToSave) return;
+
+  try {
+    await api.post(`/employee/comments/${id}`, { content: commentToSave.content });
+    console.log("Saved successfully", commentToSave.content);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+
+
+
   useEffect(() => {
     fetchVisaComments();
   }, [selectedEmployee]);
@@ -463,12 +529,23 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
             visa={currentVisa}
             comments={currentComments}
             newComment={newComment}
-            editMode={true}
+            editMode={editMode}
             handleVisaHistoryChange={handleVisaHistoryChange}
             setNewComment={setNewComment}
             handleAddComment={handleAddComment}
+            handleDeleteComment={handleDeleteComment}
+            handleEditComment={handleEditComment}
+            handleSaveComment = {handleSaveComment}
           />
-          <VisaHistoryInfo historyVisaComments={historyVisaComments || []} />
+
+          <VisaHistoryInfo
+            historyVisaComments={historyVisaComments || []}
+            editMode={editMode} 
+            handleEditHistoryComment={handleEditHistoryComment} 
+            handleSaveHistoryComment={handleSaveHistoryComment} 
+            handleDeleteComment = {handleDeleteComment}
+          />
+
         </DialogContent>
 
         <DialogActions>

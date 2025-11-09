@@ -11,7 +11,9 @@ import {
   getHistoryVisaComments,
   updateArchive,
   restoreEmployee,
-  getEmployeeArchive
+  getEmployeeArchive,
+  editComment,
+  deleteComment
 } from "../services/employeeService";
 
 const router = express.Router();
@@ -23,10 +25,13 @@ router.delete("/deleteEmployee/:id", deleteEmployee);
 router.get("/visaStats", getVisaStats);
 router.post("/:id/comments", addComment);
 router.get("/:id/comments/:visaId", getVisaComments);
+
 router.get("/:id/history-comments", getHistoryVisaComments);
 router.post('/archive/:id',updateArchive);
 router.post('/restore/:id', restoreEmployee);
 router.get("/getEmployeeArchive", getEmployeeArchive);
 
+router.post("/comments/:id", editComment)
+router.delete("/comments/:id", deleteComment);
 
 export default router;

@@ -215,12 +215,15 @@ export const getVisaComments = async (req: Request, res: Response) => {
   _id: { $in: employee.comments },
   record: visaId
 }).sort({ date: 1 });
+
+console.log("Fetched comments:", comments);
+
     res.json({ comments });
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: err.message || "Server error" });
   }
-};
+};  
 
 export const getHistoryVisaComments = async (req: Request, res: Response) => {
   try {
@@ -495,5 +498,49 @@ export const getEmployeeArchive = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const editComment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;        // URL 里的 comment id
+    const { content } = req.body;     // POST 请求 body 里的新内容
+
+    const CommentModel = Comment as mongoose.Model<IComment>;
+    
+
+    // 更新数据库
+    const updatedComment = await CommentModel.findByIdAndUpdate(
+      id,
+      { content },
+      { new: true } 
+    );
+
+    if (!updatedComment) return res.status(404).json({ error: "Comment not found" });
+
+    res.json({ comment: updatedComment });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Server error" });
+  }
+};
+
+
+export const deleteComment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const CommentModel = Comment as mongoose.Model<IComment>;
+
+    const deletedComment = await CommentModel.findByIdAndDelete(id);
+
+    if (!deletedComment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    res.json({ message: "Comment deleted successfully", comment: deletedComment });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Server error" });
   }
 };
