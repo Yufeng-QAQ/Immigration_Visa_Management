@@ -123,12 +123,12 @@ const VisaInfo: React.FC<VisaInfoProps> = ({
           {/* Comments */}
           <Grid size={{ xs: 18 }}>
             <Box mt={2}>
-              <Typography variant="subtitle1">Comments</Typography>
+              <Typography variant="subtitle1" fontWeight={500}>Comments</Typography>
 
               {comments.map((c) => (
                 <Box
                   key={c._id}
-                  sx={{ mb: 2, p: 1, border: "1px solid #ddd", borderRadius: 1 }}
+                  sx={{ mb: 2, border: "0px solid #ddd", borderRadius: 1 }}
                 >
                   <TextField
                     fullWidth
@@ -138,29 +138,31 @@ const VisaInfo: React.FC<VisaInfoProps> = ({
                     InputProps={{ readOnly: !editMode }}
                     onChange={(e) => editMode && handleEditComment(c._id, e.target.value)}
                   />
-                  <Typography variant="caption" color="text.secondary">
-                    {new Date(c.date).toLocaleString()}
-                  </Typography>
+                  <Grid>
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(c.date).toLocaleString()}
+                    </Typography>
 
-                  {!editMode && (
-                    <Button
-                      size="small"
-                      color="error"
-                      sx={{ mt: 1 }}
-                      onClick={() => handleDeleteComment(c._id)}
-                    >
-                      Delete
-                    </Button>
-                  )}
-                  {editMode && (
-                    <Button
-                      size="small"
-                      sx={{ mt:1 }}
-                      onClick={()=>handleSaveComment(c._id)}
-                    >
-                      Save
-                    </Button>
-                  )}
+                    {!editMode && (
+                      <Button
+                        size="small"
+                        color="error"
+                        sx={{ p: 0 }}
+                        onClick={() => handleDeleteComment(c._id)}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                    {editMode && (
+                      <Button
+                        size="small"
+                        sx={{ p: 0 }}
+                        onClick={() => handleSaveComment(c._id)}
+                      >
+                        Save
+                      </Button>
+                    )}
+                  </Grid>
                 </Box>
               ))}
 
