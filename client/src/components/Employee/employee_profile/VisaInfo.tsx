@@ -15,13 +15,16 @@ import {
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import  { useState } from "react";
 // import type{ CommentType } from "../EmpDetail";
 interface Visa {
+  _id?: string;
   visaType: string;
   validPeriod: {
     startDate: Date | null;
     expireDate: Date | null;
   };
+  status?: string;
 }
 
 interface CommentType {
@@ -34,15 +37,13 @@ interface CommentType {
 interface VisaInfoProps {
   visa: Visa | undefined;
   comments: CommentType[];
-  newComment: string;
   editMode: boolean;
   handleVisaHistoryChange: (
     index: number,
     field: "startDate" | "expireDate" | "visaType",
     value: string | Date | null
   ) => void;
-  setNewComment: (value: string) => void;
-  handleAddComment: () => void;
+  handleAddComment: (visaId: string, content: string) => void;
   handleDeleteComment: (id: string) => void;
   handleEditComment: (id: string, value: string) => void;
   handleSaveComment: (id: string) => void;
@@ -51,15 +52,15 @@ interface VisaInfoProps {
 const VisaInfo: React.FC<VisaInfoProps> = ({
   visa,
   comments,
-  newComment,
   editMode,
   handleVisaHistoryChange,
-  setNewComment,
   handleAddComment,
   handleDeleteComment,
   handleEditComment,
   handleSaveComment,
 }) => {
+  const [newComment, setNewComment] = useState("");
+
   return (
     <Card elevation={2} sx={{ mt: 2 }}>
       <CardContent>
@@ -147,12 +148,18 @@ const VisaInfo: React.FC<VisaInfoProps> = ({
                       <Button
                         size="small"
                         color="error"
-                        sx={{ p: 0 }}
-                        onClick={() => handleDeleteComment(c._id)}
+                        sx={{ mt: 1 }}
+                        onClick={() => {
+                          if (window.confirm("Are you sure you want to delete this comment?")) {
+                            handleDeleteComment(c._id!);
+                          }
+                        }}
                       >
                         Delete
                       </Button>
                     )}
+
+
                     {editMode && (
                       <Button
                         size="small"
@@ -179,11 +186,16 @@ const VisaInfo: React.FC<VisaInfoProps> = ({
                   <Button
                     variant="contained"
                     sx={{ mt: 1 }}
-                    disabled={!newComment.trim()}
-                    onClick={handleAddComment}
+                    disabled={!newComment.trim() || !visa?._id}
+                    onClick={() => {
+                      if (!visa?._id) return;
+                      handleAddComment(visa._id, newComment);
+                      setNewComment(""); 
+                    }}
                   >
                     Add Comment
                   </Button>
+
                 </Box>
               )}
             </Box>

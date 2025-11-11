@@ -355,45 +355,73 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
     }
   };
 
-  const handleAddComment = async () => {
-    if (!selectedEmployee) return;
-    if (!newComment.trim()) return;
+  // const handleAddComment = async () => {
+  //   if (!selectedEmployee) return;
+  //   if (!newComment.trim()) return;
 
-    const lastVisaIndex = selectedEmployee.visaHistory.length - 1;
-    if (lastVisaIndex < 0) {
-      alert("No visa found for this employee.");
-      return;
-    }
+  //   const lastVisaIndex = selectedEmployee.visaHistory.length - 1;
+  //   if (lastVisaIndex < 0) {
+  //     alert("No visa found for this employee.");
+  //     return;
+  //   }
 
-    const visaId = selectedEmployee.visaHistory[lastVisaIndex]._id;
-    if (!visaId) {
-      alert("Visa ID is missing.");
-      return;
-    }
+  //   const visaId = selectedEmployee.visaHistory[lastVisaIndex]._id;
+  //   if (!visaId) {
+  //     alert("Visa ID is missing.");
+  //     return;
+  //   }
 
-    try {
-      const response = await api.post(
-        `/employee/${selectedEmployee._id}/comments`,
-        {
-          visaId,
-          content: newComment
-        }
-      );
+  //   try {
+  //     const response = await api.post(
+  //       `/employee/${selectedEmployee._id}/comments`,
+  //       {
+  //         visaId,
+  //         content: newComment
+  //       }
+  //     );
 
-      setSelectedEmployee(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          comment: [...prev.comment, response.data.comment]
-        };
-      });
+  //     setSelectedEmployee(prev => {
+  //       if (!prev) return prev;
+  //       return {
+  //         ...prev,
+  //         comment: [...prev.comment, response.data.comment]
+  //       };
+  //     });
 
-      setNewComment("");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to add comment. See console for details.");
-    }
-  };
+  //     setNewComment("");
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Failed to add comment. See console for details.");
+  //   }
+  // };
+
+  const handleAddComment = async (visaId: string, content: string) => {
+  if (!selectedEmployee) return;
+  if (!content.trim()) return;
+
+  try {
+    const response = await api.post(
+      `/employee/${selectedEmployee._id}/comments`,
+      {
+        visaId,
+        content
+      }
+    );
+
+    setSelectedEmployee(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        comment: [...prev.comment, response.data.comment]
+      };
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Failed to add comment. See console for details.");
+  }
+};
+
+
 
   const fetchVisaComments = async () => {
     if (!selectedEmployee || !selectedEmployee.visaHistory?.length) return;
@@ -422,13 +450,15 @@ const handleEditComment = (id: string, value: string) => {
  const handleDeleteComment = async (id: string) => {
   try {
     await api.delete(`/employee/comments/${id}`);
-    
+    alert("Comment deleted successfully!");
+    await fetchVisaComments();
+    await fetchHistoryComments();
+
+
   } catch (err) {
     console.error("Failed to delete comment:", err);
   }
 };
-
-
 
 
 const handleSaveComment = async (id: string) => {
@@ -438,6 +468,8 @@ const handleSaveComment = async (id: string) => {
   try {
     
     await api.post(`/employee/comments/${id}`, { content: commentToSave.content });
+    fetchVisaComments()
+
   } catch (err) {
     console.error("Failed to save comment", err);
   }
@@ -462,6 +494,7 @@ const handleSaveHistoryComment = async (id: string) => {
     .find(c => c._id === id);
 
   if (!commentToSave) return;
+  fetchVisaComments()
 
   try {
     await api.post(`/employee/comments/${id}`, { content: commentToSave.content });
@@ -479,22 +512,21 @@ const handleSaveHistoryComment = async (id: string) => {
     fetchVisaComments();
   }, [selectedEmployee]);
 
-  useEffect(() => {
-    if (!selectedEmployee?._id) return;
+const fetchHistoryComments = async () => {
+  if (!selectedEmployee?._id) return;
+  try {
+    const res = await api.get(`/employee/${selectedEmployee._id}/history-comments`);
+    setHistoryVisaComments(res.data.history || []);
+  } catch (err) {
+    console.error("Failed to fetch history comments:", err);
+  }
+};
 
-    const fetchHistoryComments = async () => {
-      try {
-        const res = await api.get(
-          `/employee/${selectedEmployee._id}/history-comments`
-        );
-        setHistoryVisaComments(res.data.history || []);
-      } catch (err) {
-        console.error("Failed to fetch history comments:", err);
-      }
-    };
+useEffect(() => {
+  fetchHistoryComments();
+}, [selectedEmployee]);
 
-    fetchHistoryComments();
-  }, [selectedEmployee]);
+
 
   useEffect(() => {
     if (empId != null) {
@@ -528,10 +560,8 @@ const handleSaveHistoryComment = async (id: string) => {
           <VisaInfo
             visa={currentVisa}
             comments={currentComments}
-            newComment={newComment}
             editMode={editMode}
             handleVisaHistoryChange={handleVisaHistoryChange}
-            setNewComment={setNewComment}
             handleAddComment={handleAddComment}
             handleDeleteComment={handleDeleteComment}
             handleEditComment={handleEditComment}
@@ -541,10 +571,12 @@ const handleSaveHistoryComment = async (id: string) => {
           <VisaHistoryInfo
             historyVisaComments={historyVisaComments || []}
             editMode={editMode} 
+            handleAddComment={handleAddComment}
             handleEditHistoryComment={handleEditHistoryComment} 
             handleSaveHistoryComment={handleSaveHistoryComment} 
             handleDeleteComment = {handleDeleteComment}
           />
+
 
         </DialogContent>
 
