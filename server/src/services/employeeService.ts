@@ -6,6 +6,8 @@ import { Model } from "mongoose";
 import {Comment} from "../models/comment";
 import {IComment} from "../models/comment"
 import { Department } from "models/department";
+import multer from "multer";
+import xlsx from "xlsx";
 
 export const createEmployee = async (req: Request, res: Response) => {
   try {
@@ -64,7 +66,7 @@ export const createEmployee = async (req: Request, res: Response) => {
 
 export const getEmployee = async (req: Request, res: Response) => {
   try {
-    const employees = await Employee.find()
+    const employees = await Employee.find({ activateStatus: true })
       .populate({
         path: "visaHistory",
         match: { status: "Active" },
@@ -75,13 +77,13 @@ export const getEmployee = async (req: Request, res: Response) => {
         select: 'content date',
       });
       
-
     res.json(employees);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
+
 
 
 
@@ -216,12 +218,15 @@ export const getVisaComments = async (req: Request, res: Response) => {
   _id: { $in: employee.comments },
   record: visaId
 }).sort({ date: 1 });
+
+console.log("Fetched comments:", comments);
+
     res.json({ comments });
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: err.message || "Server error" });
   }
-};
+};  
 
 export const getHistoryVisaComments = async (req: Request, res: Response) => {
   try {
@@ -425,3 +430,158 @@ export const deleteEmployee = async (req: Request, res: Response) => {
 
 
 
+export const updateArchive = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    
+    const updatedEmployee = await Employee.findByIdAndUpdate(
+      id,
+      { activateStatus: false },   
+      { new: true }               
+    );
+
+
+    if (!updatedEmployee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.status(200).json({
+      message: "Employee archived successfully",
+      employee: updatedEmployee,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to archive employee" });
+  }
+};
+
+
+export const restoreEmployee = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const updatedEmployee = await Employee.findByIdAndUpdate(
+      id,
+      { activateStatus: true },   
+      { new: true }               
+    );
+
+    if (!updatedEmployee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.status(200).json({
+      message: "Employee restored successfully",
+      employee: updatedEmployee,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to restore employee" });
+  }
+};
+
+export const getEmployeeArchive = async (req: Request, res: Response) => {
+  try {
+    const employees = await Employee.find({ activateStatus: false })
+      .populate({
+        path: "visaHistory",
+        match: { status: "Active" },
+        options: { sort: { issueDate: -1 }, limit: 1 }
+      })
+      .populate({
+        path: 'comments',
+        select: 'content date',
+      });
+    
+    res.json(employees);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+export const editComment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;        // URL 里的 comment id
+    const { content } = req.body;     // POST 请求 body 里的新内容
+
+    const CommentModel = Comment as mongoose.Model<IComment>;
+    
+
+    // 更新数据库
+    const updatedComment = await CommentModel.findByIdAndUpdate(
+      id,
+      { content },
+      { new: true } 
+    );
+
+    if (!updatedComment) return res.status(404).json({ error: "Comment not found" });
+
+    res.json({ comment: updatedComment });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Server error" });
+  }
+};
+
+
+export const deleteComment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const CommentModel = Comment as mongoose.Model<IComment>;
+
+    const deletedComment = await CommentModel.findByIdAndDelete(id);
+
+    if (!deletedComment) {
+      return res.status(404).json({ error: "Comment not found" });
+    }
+
+    res.json({ message: "Comment deleted successfully", comment: deletedComment });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Server error" });
+  }
+};
+
+const upload = multer({ dest: "uploads/" });
+export const employeeUpload = async (req:Request, res:Response) => {
+  const file = req.file;
+
+  if (!file) {
+    return res.status(400).send("No file uploaded.");
+  }
+  console.log("Uploaded file info:", file);
+  res.send("File uploaded successfully!");
+
+   try {
+    // 1️⃣ 读取上传的 Excel 文件
+    const workbook = xlsx.readFile(file.path);
+
+    // 2️⃣ 获取第一个 Sheet
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName!];
+  if (!sheet) {
+    return res.status(400).send("Sheet not found in Excel file.");
+  }
+
+
+    // 3️⃣ 将 Sheet 转为 JSON 数组
+    const rows = xlsx.utils.sheet_to_json(sheet);
+
+    if (rows.length === 0) {
+      return res.status(400).send("Excel is empty.");
+    }
+
+    // 4️⃣ 取第一行数据
+    const firstRow = rows[0];
+    console.log("First row:", firstRow);
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error reading Excel file.");
+  }
+
+
+};

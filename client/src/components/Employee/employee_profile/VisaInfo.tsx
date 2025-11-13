@@ -15,43 +15,52 @@ import {
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-
+import  { useState } from "react";
+// import type{ CommentType } from "../EmpDetail";
 interface Visa {
+  _id?: string;
   visaType: string;
   validPeriod: {
     startDate: Date | null;
     expireDate: Date | null;
   };
+  status?: string;
 }
 
-interface Comment {
+interface CommentType {
+  _id: string;   
+  record: string;
   content: string;
-  date: string | Date;
+  date: string;
 }
 
 interface VisaInfoProps {
   visa: Visa | undefined;
-  comments: Comment[];
-  newComment: string;
+  comments: CommentType[];
   editMode: boolean;
   handleVisaHistoryChange: (
     index: number,
     field: "startDate" | "expireDate" | "visaType",
     value: string | Date | null
   ) => void;
-  setNewComment: (value: string) => void;
-  handleAddComment: () => void;
+  handleAddComment: (visaId: string, content: string) => void;
+  handleDeleteComment: (id: string) => void;
+  handleEditComment: (id: string, value: string) => void;
+  handleSaveComment: (id: string) => void;
 }
 
 const VisaInfo: React.FC<VisaInfoProps> = ({
   visa,
   comments,
-  newComment,
   editMode,
   handleVisaHistoryChange,
-  setNewComment,
   handleAddComment,
+  handleDeleteComment,
+  handleEditComment,
+  handleSaveComment,
 }) => {
+  const [newComment, setNewComment] = useState("");
+
   return (
     <Card elevation={2} sx={{ mt: 2 }}>
       <CardContent>
@@ -115,35 +124,80 @@ const VisaInfo: React.FC<VisaInfoProps> = ({
           {/* Comments */}
           <Grid size={{ xs: 18 }}>
             <Box mt={2}>
-              <Typography variant="subtitle1">Comments</Typography>
+              <Typography variant="subtitle1" fontWeight={500}>Comments</Typography>
 
-              {comments.map((c, idx) => (
-                <Box key={idx} sx={{ mb: 1, p: 1, border: "1px solid #ddd", borderRadius: 1 }}>
-                  <Typography variant="body2">{c.content}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {new Date(c.date).toLocaleString()}
-                  </Typography>
+              {comments.map((c) => (
+                <Box
+                  key={c._id}
+                  sx={{ mb: 2, border: "0px solid #ddd", borderRadius: 1 }}
+                >
+                  <TextField
+                    fullWidth
+                    multiline
+                    size="small"
+                    value={c.content}
+                    InputProps={{ readOnly: !editMode }}
+                    onChange={(e) => editMode && handleEditComment(c._id, e.target.value)}
+                  />
+                  <Grid>
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(c.date).toLocaleString()}
+                    </Typography>
+
+                    {!editMode && (
+                      <Button
+                        size="small"
+                        color="error"
+                        sx={{ mt: 1 }}
+                        onClick={() => {
+                          if (window.confirm("Are you sure you want to delete this comment?")) {
+                            handleDeleteComment(c._id!);
+                          }
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    )}
+
+
+                    {editMode && (
+                      <Button
+                        size="small"
+                        sx={{ p: 0 }}
+                        onClick={() => handleSaveComment(c._id)}
+                      >
+                        Save
+                      </Button>
+                    )}
+                  </Grid>
                 </Box>
               ))}
 
-              <TextField
-                label="Add Comment"
-                fullWidth
-                multiline
-                rows={3}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                sx={{ mt: 1 }}
-                disabled={!editMode}
-              />
-              <Button
-                variant="contained"
-                sx={{ mt: 1 }}
-                disabled={!editMode || !newComment.trim()}
-                onClick={handleAddComment}
-              >
-                Add Comment
-              </Button>
+              {editMode && (
+                <Box sx={{ mt: 2 }}>
+                  <TextField
+                    label="Add Comment"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                  />
+                  <Button
+                    variant="contained"
+                    sx={{ mt: 1 }}
+                    disabled={!newComment.trim() || !visa?._id}
+                    onClick={() => {
+                      if (!visa?._id) return;
+                      handleAddComment(visa._id, newComment);
+                      setNewComment(""); 
+                    }}
+                  >
+                    Add Comment
+                  </Button>
+
+                </Box>
+              )}
             </Box>
           </Grid>
         </Grid>

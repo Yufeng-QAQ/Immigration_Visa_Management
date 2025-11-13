@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef } from "@mui/x-data-grid";
-import EmpDetail from "./Detail";
+import EmpDetail from "./EmpDetail";
 import {
   Alert,
   Grid,
@@ -10,6 +10,7 @@ import {
   Box,
   Card,
 } from "@mui/material";
+import api from "../../api/axios";
 
 interface EmployeeTableProps {
   url: string;
@@ -20,9 +21,6 @@ interface EmployeeTableProps {
 }
 
 import type { EmployeeItem } from "../../api";
-import { notify } from "../MUI/Notification/eventBus";
-
-const BASE_URL = "http://localhost:8000/api/";
 
 export default function EmployeeTable({ url, title, columns, initialSort, change}: EmployeeTableProps) {
   const [reload, setReload] = useState(false);
@@ -31,7 +29,7 @@ export default function EmployeeTable({ url, title, columns, initialSort, change
   const [error, setError] = useState<string | null>(null);
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [notifyMsg, setnotifyMsg] = useState("");
+  // const [notifyMsg, setnotifyMsg] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,14 +37,14 @@ export default function EmployeeTable({ url, title, columns, initialSort, change
         setIsLoading(true);
         setError(null);
 
-        const res = await axios.get(`${BASE_URL}${url}`);
+        const res = await api.get(url);
         const raw = Array.isArray(res.data) ? res.data : res.data.data || [];
 
         setRows(raw);
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
-          console.error("Failed to fetch data:", err.message);
-          setError(err.response?.data?.error || err.message);
+          console.error("Failed to fetch data:", err.response?.data.message);
+          setError(err.response?.data.message || err.message);
         } else {
           console.error("Failed to fetch data:", err);
           setError("Failed to fetch data");
@@ -66,15 +64,16 @@ export default function EmployeeTable({ url, title, columns, initialSort, change
 
   const handleValueChange = () => {
     setReload(prev => !prev);
-    setnotifyMsg("Employee updated successfully!");
+    // setnotifyMsg("Employee updated successfully!");
   };
   const handleClose = () => {
     setOpen(false);
-    setnotifyMsg("Employee deleted successfully!");
+    // setnotifyMsg("Employee deleted successfully!");
   };
-  useEffect(() => {
-    if(selectedEmpId != null) notify.success(notifyMsg);
-  }, [reload]);
+  // useEffect(() => {
+  //   // if(selectedEmpId != null) notify.success(notifyMsg);
+  // }, [reload]);
+
   return (
     <Card>
       <Box p={2} lineHeight={1}>

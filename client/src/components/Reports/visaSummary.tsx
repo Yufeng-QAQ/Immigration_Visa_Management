@@ -18,7 +18,7 @@ export default function VisaStatsComponent() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/employee/visaStats");
+        const res = await api.get("/employee/visaStats");
         setStats(res.data);
       } catch (err) {
         console.error(err);

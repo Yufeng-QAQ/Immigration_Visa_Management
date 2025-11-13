@@ -1,4 +1,5 @@
 import axios from "axios";
+import api from "../../api/axios";
 import { AxiosError } from "axios";
 import { useForm, useFieldArray, Controller, FormProvider } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -69,7 +70,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
     try {
       console.log(data);
       await addEmployee(data);
-      if (onAddSuccess) onAddSuccess(); // Refreash table data
+      if (onAddSuccess) onAddSuccess(); 
       onClose();
     } catch (error) {
       console.error(error);
@@ -78,12 +79,10 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
 
   const addEmployee = async (data: EmployeeItem) => {
     try {
-      await axios.post(
-        "http://localhost:8000/api/employee/createEmployee",
+      await api.post(
+        "/employee/createEmployee",
         data,
-        { headers: { "Content-Type": "application/json" } }
       );
-      // alert("Employee created successfully!");
       notify.success("Employee created successfully!");
     } catch (error: unknown) {
       if (error instanceof AxiosError) {

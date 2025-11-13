@@ -3,10 +3,10 @@ import { Box, Container, Grid, Button } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import type { GridColDef } from "@mui/x-data-grid";
-
+import api from "../api/axios";
 import EmployeeForm from "../components/Employee/createEmployee";
 import EmployeeTable from "../components/Employee/EmployeeTable";
-import TemporaryDrawer from "../components/Employee/Drawer";
+import TemporaryDrawer from "../components/Employee/Sidebar";
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
 export default function ManageEmployee() {
@@ -105,11 +105,15 @@ export default function ManageEmployee() {
       field: "archive",
       headerName: "",
       width: 120,
-      renderCell: () => (
+      renderCell: (params) => (
         <Button
           variant="contained"
           color="primary"
-          onClick={(event) => { event.stopPropagation(); }}
+          onClick={(event) => {
+            event.stopPropagation();
+            const employeeId = params.row._id || params.row.employeeId; 
+            handleArchive(employeeId);
+          }}
         >
           Archive
         </Button>
@@ -127,6 +131,20 @@ export default function ManageEmployee() {
   const handleCloseCreateDialog = () => {
     setIsCreateDialogOpen(false);
   };
+
+   const handleArchive = async (id: string) => {
+    try {
+      await api.post(`/employee/archive/${id}`);
+      alert("Employee archived successfully!");
+      triggerReload(); 
+    } catch (err) {
+      console.error("Failed to archive employee:", err);
+      alert("Failed to archive employee.");
+    }
+  };
+
+  
+
 
   return (
     <Box sx={{ ml: 7 }}>
