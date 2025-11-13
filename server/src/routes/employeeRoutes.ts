@@ -13,8 +13,11 @@ import {
   restoreEmployee,
   getEmployeeArchive,
   editComment,
-  deleteComment
+  deleteComment,
+  employeeUpload
 } from "../services/employeeService";
+import multer from "multer";
+const upload = multer({ dest: "uploads/" });
 
 const router = express.Router();
 router.post("/createEmployee", createEmployee);
@@ -33,5 +36,7 @@ router.get("/getEmployeeArchive", getEmployeeArchive);
 
 router.post("/comments/:id", editComment)
 router.delete("/comments/:id", deleteComment);
+
+router.post("/upload", upload.single("file"), employeeUpload);
 
 export default router;

@@ -6,7 +6,7 @@ import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Sidebar";
 import type { EmployeeItem } from "../api";
 import api from "../api/axios";
-
+import UploadEmployee from "../components/Employee/import"
 export default function Archive() {
   
   const employeeColumns: GridColDef<EmployeeItem>[] = [
@@ -126,6 +126,10 @@ const deleteEmployee = async (id: string) => {
         </Grid>
 
       </Container>
+
+      <UploadEmployee>
+        
+      </UploadEmployee>
     </Box>
 
 

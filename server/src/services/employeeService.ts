@@ -5,6 +5,8 @@ import mongoose, { Schema, Document } from "mongoose";
 import { Model } from "mongoose";
 import {Comment} from "../models/comment";
 import {IComment} from "../models/comment"
+import multer from "multer";
+import xlsx from "xlsx";
 
 export const createEmployee = async (req: Request, res: Response) => {
   try {
@@ -543,4 +545,45 @@ export const deleteComment = async (req: Request, res: Response) => {
     console.error(err);
     res.status(500).json({ error: err.message || "Server error" });
   }
+};
+
+const upload = multer({ dest: "uploads/" });
+export const employeeUpload = async (req:Request, res:Response) => {
+  const file = req.file;
+
+  if (!file) {
+    return res.status(400).send("No file uploaded.");
+  }
+  console.log("Uploaded file info:", file);
+  res.send("File uploaded successfully!");
+
+   try {
+    // 1️⃣ 读取上传的 Excel 文件
+    const workbook = xlsx.readFile(file.path);
+
+    // 2️⃣ 获取第一个 Sheet
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName!];
+  if (!sheet) {
+    return res.status(400).send("Sheet not found in Excel file.");
+  }
+
+
+    // 3️⃣ 将 Sheet 转为 JSON 数组
+    const rows = xlsx.utils.sheet_to_json(sheet);
+
+    if (rows.length === 0) {
+      return res.status(400).send("Excel is empty.");
+    }
+
+    // 4️⃣ 取第一行数据
+    const firstRow = rows[0];
+    console.log("First row:", firstRow);
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error reading Excel file.");
+  }
+
+
 };
