@@ -90,7 +90,7 @@ export default function Archive() {
   const handleRestore = async (id: string) => {
   try {
     const result = await confirm({
-      content: "Are you sure to restore this employer?",
+      content: "Are you sure to restore this employee?",
       confirmText: "Yes",
       cancelText: "No",
     });
