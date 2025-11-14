@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Grid, Box, Typography, Button, Container, TextField } from "@mui/material";
 import api from "../api/axios";
-import { notify } from "../components/MUI/Notification/eventBus";
+import { notify } from "../components/Common/Notification/eventBus";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -24,14 +24,6 @@ export default function LandingPage() {
     }
     checkSession();
   }, [navigate]);
-  // useEffect(() => {
-  //   const handleUnload = () => {
-  //     navigator.sendBeacon("http://localhost:8000/api/auth/logout");
-  //   };
-  //   window.addEventListener("beforeunload", handleUnload);
-
-  //   return () => window.removeEventListener("beforeunload", handleUnload);
-  // }, []);
 
   const handleLogin = async () => {
     try {

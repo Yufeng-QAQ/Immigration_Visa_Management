@@ -7,8 +7,8 @@ import HomePage from "./HomePage";
 import ManageEmp from "./ManageEmployee";
 import Archive from "./Archive";
 
-import { GlobalNotification } from "../components/MUI/Notification/Notification";
-import { notify } from "../components/MUI/Notification/eventBus";
+import { GlobalNotification } from "../components/Common/Notification/Notification";
+import { notify } from "../components/Common/Notification/eventBus";
 import api from "../api/axios";
 
 export default function AppContent() {

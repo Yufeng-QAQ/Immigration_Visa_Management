@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Snackbar, Alert } from "@mui/material";
-import { notificationEmitter } from "./eventBus";
+import { notificationEmitter } from "../../Common/Notification/eventBus";
 
 const colors: Record<string, { bg: string; text: string }> = {
   success: { bg: "#359a38ff", text: "#ffffff" },

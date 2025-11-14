@@ -1,14 +1,18 @@
 import { useState } from "react";
+import { useConfirm } from "../components/Common/Confirm";
 import { Box, Container, Grid, Button } from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
 
-import EmployeeTable from "../components/Employee/EmployeeTable";
-import TemporaryDrawer from "../components/Employee/Sidebar";
 import type { EmployeeItem } from "../api";
 import api from "../api/axios";
+import { notify } from "../components/Common/Notification/eventBus";
+
+import EmployeeTable from "../components/Employee/EmployeeTable";
+import TemporaryDrawer from "../components/Employee/Sidebar";
 import UploadEmployee from "../components/Employee/import"
+
 export default function Archive() {
-  
+  const confirm = useConfirm();
   const employeeColumns: GridColDef<EmployeeItem>[] = [
     { field: "employeeId", headerName: "Employee ID", width: 130 },
     { field: "firstName", headerName: "First Name", width: 150 },
@@ -68,9 +72,7 @@ export default function Archive() {
           color="error"
           onClick={(event) => {
             event.stopPropagation();
-            if (window.confirm("Are you sure you want to delete this employee?")) {
-              deleteEmployee(params.row._id);
-            }
+            deleteEmployee(params.row._id);
           }}
         >
           Delete
@@ -87,9 +89,18 @@ export default function Archive() {
 
   const handleRestore = async (id: string) => {
   try {
-    await api.post(`/employee/restore/${id}`);
-    alert("Employee restored successfully!");
-    triggerReload();
+    const result = await confirm({
+      content: "Are you sure to restore this employer?",
+      confirmText: "Yes",
+      cancelText: "No",
+    });
+
+    if (result) {
+      await api.post(`/employee/restore/${id}`);
+      notify.success("Employee restored successfully!");
+      triggerReload();
+    }
+    
   } catch (err) {
     console.error("Failed to restore employee:", err);
     alert("Failed to restore employee.");
@@ -99,9 +110,20 @@ export default function Archive() {
 
 const deleteEmployee = async (id: string) => {
   try {
-    await api.delete(`/employee/deleteEmployee/${id}`);
-    alert("Employee deleted successfully!");
-    triggerReload();
+    const result = await confirm({
+      title: "Warning!",
+      content: "Are you sure you want to delete this employee?",
+      confirmText: "Delete",
+      cancelText: "No",
+      isDelete: true
+    });
+
+    if (result) {
+      await api.delete(`/employee/deleteEmployee/${id}`);
+      notify.success("Employee restored successfully!");
+      triggerReload();
+    }
+
   } catch (err: unknown) {
     console.error("Failed to delete employee:", err);
     alert("Failed to delete employee.");
@@ -124,7 +146,6 @@ const deleteEmployee = async (id: string) => {
             change={reload}
           />
         </Grid>
-
       </Container>
 
       <UploadEmployee>

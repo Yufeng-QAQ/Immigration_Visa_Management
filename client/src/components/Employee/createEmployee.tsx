@@ -18,7 +18,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import dayjs, { Dayjs } from 'dayjs';
 import type { EmployeeItem } from "../../api";
-import { notify } from "../MUI/Notification/eventBus";
+import { notify } from "../Common/Notification/eventBus";
 
 
 interface EmployeeFormProps {
@@ -42,7 +42,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
       salary: 0,
       positionTitle: "",
       highestDegree: "",
-      countryOfBirth:"",
+      countryOfBirth: "",
       departmentInfo: {
         college: "",
         department: "",
@@ -56,7 +56,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
         status: "Active"
       }],
       activateStatus: true,
-      comment: "", 
+      comment: "",
     }
   });
 
@@ -70,7 +70,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
     try {
       console.log(data);
       await addEmployee(data);
-      if (onAddSuccess) onAddSuccess(); 
+      if (onAddSuccess) onAddSuccess();
       onClose();
     } catch (error) {
       console.error(error);
@@ -108,7 +108,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
                 Basic Information
               </Typography>
-              
+
               <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
                 <Grid size={{ xs: 7 }}>
                   <Controller
@@ -187,7 +187,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     />
                   </Grid>
 
-                  <Grid size={{xs: 6}}>
+                  <Grid size={{ xs: 6 }}>
                     <Controller
                       name="countryOfBirth"
                       control={control}
@@ -223,7 +223,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     />
                   </Grid>
                 </Grid>
-                
+
                 <Grid size={{ xs: 12 }}>
                   {fields.map((field, index) => (
                     <Grid key={field.id}>

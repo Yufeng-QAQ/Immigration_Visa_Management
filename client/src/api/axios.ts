@@ -1,5 +1,4 @@
 import axios from "axios";
-import { notify } from "../components/MUI/Notification/eventBus";
 
 const api = axios.create({
   baseURL: "http://localhost:8000/api",

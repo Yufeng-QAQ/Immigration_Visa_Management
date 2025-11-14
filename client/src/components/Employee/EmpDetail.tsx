@@ -10,13 +10,13 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import { notify } from "../MUI/Notification/eventBus";
+import { notify } from "../Common/Notification/eventBus";
 
 import EmployeeBasicInfo from "./employee_profile/EmployeeBasicInfo";
 import DepartmentInfo from "./employee_profile/DepartmentInfo";
 import VisaInfo from "./employee_profile/VisaInfo";
 import { VisaHistoryInfo } from "./employee_profile/VisaHistoryInfo";
-import type {Department, CommentType } from "../../api";
+import type { Department, CommentType } from "../../api";
 
 type VisaRecord = {
   _id?: string;
@@ -379,30 +379,30 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
   // };
 
   const handleAddComment = async (visaId: string, content: string) => {
-  if (!selectedEmployee) return;
-  if (!content.trim()) return;
+    if (!selectedEmployee) return;
+    if (!content.trim()) return;
 
-  try {
-    const response = await api.post(
-      `/employee/${selectedEmployee._id}/comments`,
-      {
-        visaId,
-        content
-      }
-    );
+    try {
+      const response = await api.post(
+        `/employee/${selectedEmployee._id}/comments`,
+        {
+          visaId,
+          content
+        }
+      );
 
-    setSelectedEmployee(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        comment: [...prev.comment, response.data.comment]
-      };
-    });
-  } catch (err) {
-    console.error(err);
-    alert("Failed to add comment. See console for details.");
-  }
-};
+      setSelectedEmployee(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          comment: [...prev.comment, response.data.comment]
+        };
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add comment. See console for details.");
+    }
+  };
 
 
 
@@ -424,68 +424,68 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
 
 
 
-const handleEditComment = (id: string, value: string) => {
-  setVisaComments(prev =>
-    prev.map(c => (c._id === id ? { ...c, content: value } : c))
-  );
-};
+  const handleEditComment = (id: string, value: string) => {
+    setVisaComments(prev =>
+      prev.map(c => (c._id === id ? { ...c, content: value } : c))
+    );
+  };
 
- const handleDeleteComment = async (id: string) => {
-  try {
-    await api.delete(`/employee/comments/${id}`);
-    alert("Comment deleted successfully!");
-    await fetchVisaComments();
-    await fetchHistoryComments();
-
-
-  } catch (err) {
-    console.error("Failed to delete comment:", err);
-  }
-};
+  const handleDeleteComment = async (id: string) => {
+    try {
+      await api.delete(`/employee/comments/${id}`);
+      alert("Comment deleted successfully!");
+      await fetchVisaComments();
+      await fetchHistoryComments();
 
 
-const handleSaveComment = async (id: string) => {
-  const commentToSave = currentComments.find(c => c._id === id);
-  if (!commentToSave) return;
-
-  try {
-    
-    await api.post(`/employee/comments/${id}`, { content: commentToSave.content });
-    fetchVisaComments()
-
-  } catch (err) {
-    console.error("Failed to save comment", err);
-  }
-};
+    } catch (err) {
+      console.error("Failed to delete comment:", err);
+    }
+  };
 
 
-const handleEditHistoryComment = (id: string, value: string) => {
-  setHistoryVisaComments(prev =>
-    prev.map(v =>
+  const handleSaveComment = async (id: string) => {
+    const commentToSave = currentComments.find(c => c._id === id);
+    if (!commentToSave) return;
+
+    try {
+
+      await api.post(`/employee/comments/${id}`, { content: commentToSave.content });
+      fetchVisaComments()
+
+    } catch (err) {
+      console.error("Failed to save comment", err);
+    }
+  };
+
+
+  const handleEditHistoryComment = (id: string, value: string) => {
+    setHistoryVisaComments(prev =>
+      prev.map(v =>
       ({
         ...v,
         comments: v.comments.map(c => c._id === id ? { ...c, content: value } : c)
       })
-    )
-  );
-};
+      )
+    );
+  };
 
 
-const handleSaveHistoryComment = async (id: string) => {
-  const commentToSave = historyVisaComments
-    .flatMap(v => v.comments)
-    .find(c => c._id === id);
+  const handleSaveHistoryComment = async (id: string) => {
+    const commentToSave = historyVisaComments
+      .flatMap(v => v.comments)
+      .find(c => c._id === id);
 
-  if (!commentToSave) return;
-  fetchVisaComments()
+    if (!commentToSave) return;
+    fetchVisaComments()
 
-  try {
-    await api.post(`/employee/comments/${id}`, { content: commentToSave.content });
-    console.log("Saved successfully", commentToSave.content);
-  } catch (err) {
-    console.error(err);
-  }
-};
+    try {
+      await api.post(`/employee/comments/${id}`, { content: commentToSave.content });
+      console.log("Saved successfully", commentToSave.content);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
 
 
@@ -495,19 +495,19 @@ const handleSaveHistoryComment = async (id: string) => {
     fetchVisaComments();
   }, [selectedEmployee]);
 
-const fetchHistoryComments = async () => {
-  if (!selectedEmployee?._id) return;
-  try {
-    const res = await api.get(`/employee/${selectedEmployee._id}/history-comments`);
-    setHistoryVisaComments(res.data.history || []);
-  } catch (err) {
-    console.error("Failed to fetch history comments:", err);
-  }
-};
+  const fetchHistoryComments = async () => {
+    if (!selectedEmployee?._id) return;
+    try {
+      const res = await api.get(`/employee/${selectedEmployee._id}/history-comments`);
+      setHistoryVisaComments(res.data.history || []);
+    } catch (err) {
+      console.error("Failed to fetch history comments:", err);
+    }
+  };
 
-useEffect(() => {
-  fetchHistoryComments();
-}, [selectedEmployee]);
+  useEffect(() => {
+    fetchHistoryComments();
+  }, [selectedEmployee]);
 
 
 
@@ -523,7 +523,7 @@ useEffect(() => {
 
   return (
     <Container maxWidth="md">
-      <Dialog open={open} onClose={() => {onClose(); setEditMode(false); }} fullWidth maxWidth="lg" sx= {{zIndex: 500}} >
+      <Dialog open={open} onClose={() => { onClose(); setEditMode(false); }} fullWidth maxWidth="lg" sx={{ zIndex: 500 }} >
         <DialogTitle>Employee Details</DialogTitle>
         <DialogContent>
           <EmployeeBasicInfo
@@ -548,16 +548,16 @@ useEffect(() => {
             handleAddComment={handleAddComment}
             handleDeleteComment={handleDeleteComment}
             handleEditComment={handleEditComment}
-            handleSaveComment = {handleSaveComment}
+            handleSaveComment={handleSaveComment}
           />
 
           <VisaHistoryInfo
             historyVisaComments={historyVisaComments || []}
-            editMode={editMode} 
+            editMode={editMode}
             handleAddComment={handleAddComment}
-            handleEditHistoryComment={handleEditHistoryComment} 
-            handleSaveHistoryComment={handleSaveHistoryComment} 
-            handleDeleteComment = {handleDeleteComment}
+            handleEditHistoryComment={handleEditHistoryComment}
+            handleSaveHistoryComment={handleSaveHistoryComment}
+            handleDeleteComment={handleDeleteComment}
           />
 
 
