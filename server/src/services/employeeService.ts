@@ -3,8 +3,8 @@ import { VisaRecord } from "../models/visaRecord";
 import Employee from "../models/employee";
 import mongoose, { Schema, Document } from "mongoose";
 import { Model } from "mongoose";
-import {Comment} from "../models/comment";
-import {IComment} from "../models/comment"
+import { Comment } from "../models/comment";
+import { IComment } from "../models/comment"
 import { Department } from "models/department";
 import multer from "multer";
 import xlsx from "xlsx";
@@ -33,11 +33,11 @@ export const createEmployee = async (req: Request, res: Response) => {
       const savedVisa = await newVisa.save();
       savedEmployee.visaHistory.push(savedVisa._id);
       await savedEmployee.save();
-      
+
 
       if (req.body.comment) {
         const newComment = new Comment({
-          record: savedVisa._id, 
+          record: savedVisa._id,
           content: req.body.comment,
           date: new Date()
         });
@@ -76,7 +76,7 @@ export const getEmployee = async (req: Request, res: Response) => {
         path: 'comments',
         select: 'content date',
       });
-      
+
     res.json(employees);
   } catch (err) {
     console.error(err);
@@ -92,12 +92,12 @@ export const updateEmployee = async (req: Request, res: Response) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    
+
     if (updateData.dateOfBirth) {
       updateData.dateOfBirth = new Date(updateData.dateOfBirth);
     }
 
-    
+
     if (Array.isArray(updateData.addresses)) {
       updateData.addresses = updateData.addresses.map(
         (item: any) => (typeof item === "string" ? item : item.address)
@@ -107,7 +107,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
     const employee = await Employee.findById(id);
     if (!employee) return res.status(404).json({ error: "Employee not found" });
 
-    
+
     Object.assign(employee, updateData);
 
     const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
@@ -115,23 +115,23 @@ export const updateEmployee = async (req: Request, res: Response) => {
     if (updateData.activeVisa) {
       const { visaType, issueDate, expireDate } = updateData.activeVisa;
 
-      
+
       const currentActiveVisa = await VisaModel.findOne({
         _id: { $in: employee.visaHistory },
         status: "Active"
       });
 
-      
+
       const visaTypeChanged = !currentActiveVisa || currentActiveVisa.visaType !== visaType;
 
       if (visaTypeChanged) {
-        
+
         if (currentActiveVisa) {
           currentActiveVisa.status = "Expired";
           await currentActiveVisa.save();
         }
 
-       
+
         const newVisa = new VisaRecord({
           recordId: `VR-${Date.now()}`,
           employee: employee._id,
@@ -144,7 +144,7 @@ export const updateEmployee = async (req: Request, res: Response) => {
         const savedVisa = await newVisa.save();
         employee.visaHistory.push(savedVisa._id);
 
-        
+
         if (updateData.newComment && updateData.newComment.trim()) {
           const newComment = new Comment({
             record: savedVisa._id,
@@ -155,13 +155,13 @@ export const updateEmployee = async (req: Request, res: Response) => {
           employee.comments.push(savedComment._id);
         }
       } else {
-        
+
         if (currentActiveVisa) {
           currentActiveVisa.set({
-          issueDate: new Date(issueDate),
-          expireDate: new Date(expireDate)
-        });
-        await currentActiveVisa.save();
+            issueDate: new Date(issueDate),
+            expireDate: new Date(expireDate)
+          });
+          await currentActiveVisa.save();
         }
       }
     }
@@ -208,25 +208,23 @@ export const getVisaComments = async (req: Request, res: Response) => {
   try {
     const { id, visaId } = req.params;
 
-    
+
     const employee = await Employee.findById(id);
     const CommentModel = Comment as mongoose.Model<IComment>;
     if (!employee) return res.status(404).json({ error: "Employee not found" });
 
-    
-    const comments = await CommentModel.find({
-  _id: { $in: employee.comments },
-  record: visaId
-}).sort({ date: 1 });
 
-console.log("Fetched comments:", comments);
+    const comments = await CommentModel.find({
+      _id: { $in: employee.comments },
+      record: visaId
+    }).sort({ date: 1 });
 
     res.json({ comments });
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: err.message || "Server error" });
   }
-};  
+};
 
 export const getHistoryVisaComments = async (req: Request, res: Response) => {
   try {
@@ -234,7 +232,7 @@ export const getHistoryVisaComments = async (req: Request, res: Response) => {
     const CommentModel = Comment as mongoose.Model<IComment>;
     const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
 
-    
+
     const expiredVisas = await VisaModel.find({
       employee: id,
       status: { $ne: "Active" },
@@ -242,30 +240,30 @@ export const getHistoryVisaComments = async (req: Request, res: Response) => {
 
     const visaIds = expiredVisas.map(v => v._id);
 
-    
+
     const comments = await CommentModel.find({
       record: { $in: visaIds },
     })
       .sort({ date: 1 })
       .lean();
 
-    
-const groupedComments: Record<string, IComment[]> = {};
-expiredVisas.forEach(v => {
-  groupedComments[v._id.toString()] = comments.filter(
-    c => c.record.toString() === v._id.toString()
-  );
-});
+
+    const groupedComments: Record<string, IComment[]> = {};
+    expiredVisas.forEach(v => {
+      groupedComments[v._id.toString()] = comments.filter(
+        c => c.record.toString() === v._id.toString()
+      );
+    });
 
 
-const history = expiredVisas.map(v => ({
-  visaId: v._id.toString(),
-  visaType: v.visaType,
-  status: v.status,
-  comments: groupedComments[v._id.toString()] || []
-}));
+    const history = expiredVisas.map(v => ({
+      visaId: v._id.toString(),
+      visaType: v.visaType,
+      status: v.status,
+      comments: groupedComments[v._id.toString()] || []
+    }));
 
-res.json({ history });
+    res.json({ history });
 
   } catch (err: any) {
     console.error(err);
@@ -281,44 +279,43 @@ export const getVisaStats = async (req: Request, res: Response) => {
   try {
     const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
     const result = await VisaModel.aggregate([
-    { $match: { status: "Active" } },
-    {
-      $lookup: {
-        from: "employees",
-        localField: "employee",
-        foreignField: "_id",
-        as: "employeeData"
+      { $match: { status: "Active" } },
+      {
+        $lookup: {
+          from: "employees",
+          localField: "employee",
+          foreignField: "_id",
+          as: "employeeData"
+        }
+      },
+      { $unwind: "$employeeData" },
+      {
+        $facet: {
+          visaCount: [
+            { $group: { _id: "$visaType", total: { $sum: 1 } } }
+          ],
+          deptCount: [
+            { $group: { _id: "$employeeData.departmentInfo.department", total: { $sum: 1 } } }
+          ],
+          collCount: [
+            { $group: { _id: "$employeeData.departmentInfo.college", total: { $sum: 1 } } }
+          ],
+          counCount: [
+            { $group: { _id: "$employeeData.countryOfBirth", total: { $sum: 1 } } }
+          ],
+        }
       }
-    },
-    { $unwind: "$employeeData" },
-    {
-    $facet: {
-      visaCount: [
-        { $group: { _id: "$visaType", total: { $sum: 1 } } }
-      ],
-      deptCount: [
-        { $group: { _id: "$employeeData.departmentInfo.department", total: { $sum: 1 } } }
-      ],
-      collCount:[
-        { $group: { _id: "$employeeData.departmentInfo.college", total: { $sum: 1 } } }
-      ],
-      counCount: [
-        { $group: { _id: "$employeeData.countryOfBirth", total: { $sum: 1 } } }
-      ],
-    }
-    }
     ]);
 
     const visaCount: Record<string, number> = {};
-    result[0].visaCount.forEach((r:any) => visaCount[r._id] = r.total);
+    result[0].visaCount.forEach((r: any) => visaCount[r._id] = r.total);
     const deptCount: Record<string, number> = {};
-    result[0].deptCount.forEach((r:any) => deptCount[r._id] = r.total);
+    result[0].deptCount.forEach((r: any) => deptCount[r._id] = r.total);
     const collCount: Record<string, number> = {};
-    result[0].collCount.forEach((r:any) => collCount[r._id] = r.total);
+    result[0].collCount.forEach((r: any) => collCount[r._id] = r.total);
     const counCount: Record<string, number> = {};
-    result[0].counCount.forEach((r:any) => counCount[r._id] = r.total);
+    result[0].counCount.forEach((r: any) => counCount[r._id] = r.total);
 
-    console.log(JSON.stringify(result, null, 2));
     res.json({
       visaCount,
       deptCount,
@@ -342,8 +339,8 @@ export const getEmployeeById = async (req: Request, res: Response) => {
         options: { sort: { issueDate: -1 }, limit: 1 }
       })
       .populate({
-      path: "comments",
-      select: "content date"
+        path: "comments",
+        select: "content date"
       });
 
     if (!employee) return res.status(404).json({ error: "Employee not found" });
@@ -434,11 +431,11 @@ export const updateArchive = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    
+
     const updatedEmployee = await Employee.findByIdAndUpdate(
       id,
-      { activateStatus: false },   
-      { new: true }               
+      { activateStatus: false },
+      { new: true }
     );
 
 
@@ -463,8 +460,8 @@ export const restoreEmployee = async (req: Request, res: Response) => {
 
     const updatedEmployee = await Employee.findByIdAndUpdate(
       id,
-      { activateStatus: true },   
-      { new: true }               
+      { activateStatus: true },
+      { new: true }
     );
 
     if (!updatedEmployee) {
@@ -493,7 +490,7 @@ export const getEmployeeArchive = async (req: Request, res: Response) => {
         path: 'comments',
         select: 'content date',
       });
-    
+
     res.json(employees);
   } catch (err) {
     console.error(err);
@@ -507,13 +504,13 @@ export const editComment = async (req: Request, res: Response) => {
     const { content } = req.body;     // POST 请求 body 里的新内容
 
     const CommentModel = Comment as mongoose.Model<IComment>;
-    
+
 
     // 更新数据库
     const updatedComment = await CommentModel.findByIdAndUpdate(
       id,
       { content },
-      { new: true } 
+      { new: true }
     );
 
     if (!updatedComment) return res.status(404).json({ error: "Comment not found" });
@@ -546,7 +543,7 @@ export const deleteComment = async (req: Request, res: Response) => {
 };
 
 const upload = multer({ dest: "uploads/" });
-export const employeeUpload = async (req:Request, res:Response) => {
+export const employeeUpload = async (req: Request, res: Response) => {
   const file = req.file;
 
   if (!file) {
@@ -555,16 +552,16 @@ export const employeeUpload = async (req:Request, res:Response) => {
   console.log("Uploaded file info:", file);
   res.send("File uploaded successfully!");
 
-   try {
+  try {
     // 1️⃣ 读取上传的 Excel 文件
     const workbook = xlsx.readFile(file.path);
 
     // 2️⃣ 获取第一个 Sheet
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName!];
-  if (!sheet) {
-    return res.status(400).send("Sheet not found in Excel file.");
-  }
+    if (!sheet) {
+      return res.status(400).send("Sheet not found in Excel file.");
+    }
 
 
     // 3️⃣ 将 Sheet 转为 JSON 数组
@@ -577,7 +574,7 @@ export const employeeUpload = async (req:Request, res:Response) => {
     // 4️⃣ 取第一行数据
     const firstRow = rows[0];
     console.log("First row:", firstRow);
-    
+
   } catch (err) {
     console.error(err);
     res.status(500).send("Error reading Excel file.");

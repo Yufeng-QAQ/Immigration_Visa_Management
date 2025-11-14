@@ -41,6 +41,7 @@ export class AuthController {
       }
 
       res.clearCookie("connect.sid", {
+        path: "/",
         httpOnly: true,
         secure: false,
         sameSite: "lax",

@@ -3,6 +3,7 @@ export interface AddressItem {
 }
 
 export interface ActiveVisaItem {
+  _id?: string;
   visaType: string;
   issueDate: Date | null;
   expireDate: Date | null;

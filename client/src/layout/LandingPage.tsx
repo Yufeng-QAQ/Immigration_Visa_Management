@@ -24,6 +24,14 @@ export default function LandingPage() {
     }
     checkSession();
   }, [navigate]);
+  // useEffect(() => {
+  //   const handleUnload = () => {
+  //     navigator.sendBeacon("http://localhost:8000/api/auth/logout");
+  //   };
+  //   window.addEventListener("beforeunload", handleUnload);
+
+  //   return () => window.removeEventListener("beforeunload", handleUnload);
+  // }, []);
 
   const handleLogin = async () => {
     try {

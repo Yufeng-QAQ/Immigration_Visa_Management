@@ -16,7 +16,7 @@ import EmployeeBasicInfo from "./employee_profile/EmployeeBasicInfo";
 import DepartmentInfo from "./employee_profile/DepartmentInfo";
 import VisaInfo from "./employee_profile/VisaInfo";
 import { VisaHistoryInfo } from "./employee_profile/VisaHistoryInfo";
-
+import type {Department, CommentType } from "../../api";
 
 type VisaRecord = {
   _id?: string;
@@ -28,20 +28,6 @@ type VisaRecord = {
   status?: string;
 };
 
-interface Department {
-  _id: string;
-  collegeName: string;
-  departmentName: string;
-  supervisor?: string;
-  admin?: string;
-}
-
-export interface CommentType {
-  _id: string;
-  record: string;
-  content: string;
-  date: string;
-}
 
 interface EmployeeSummary {
   _id: string;
@@ -84,11 +70,8 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeSummary | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [initialEmployeeData, setInitialEmployeeData] = useState<EmployeeSummary | null>(null);
-  const [newComment, setNewComment] = useState("");
   const [currentComments, setVisaComments] = useState<CommentType[]>([]);
-  //const [historyVisaComments, setHistoryVisaComments] = useState<Record<string, CommentType[]>>({});
   const [historyVisaComments, setHistoryVisaComments] = useState<HistoryVisa[]>([]);
-  const [comments, setComments] = useState<CommentType[]>([]);
 
 
   const showEmployee = async () => {

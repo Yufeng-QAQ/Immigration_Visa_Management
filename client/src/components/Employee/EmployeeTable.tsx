@@ -29,7 +29,6 @@ export default function EmployeeTable({ url, title, columns, initialSort, change
   const [error, setError] = useState<string | null>(null);
   const [selectedEmpId, setSelectedEmpId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  // const [notifyMsg, setnotifyMsg] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {

@@ -1,5 +1,5 @@
-import axios from "axios";
-import { Grid, Collapse, FormGroup, FormControlLabel, Checkbox, Button } from "@mui/material";
+import api from "../../api/axios";
+import { Grid, Collapse, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface VisaStats {
@@ -29,9 +29,6 @@ export default function VisaStatsComponent() {
   }, []);
 
   if (!stats) return <div>Loading...</div>;
-
-
-
 
   return (
     <Grid >

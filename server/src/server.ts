@@ -30,20 +30,19 @@ app.use(express.json());
 
 app.use(
   session({
-    name: "connect.sid",
     secret: process.env.SESSION_SECRET_KEY || "defaultSecretKey",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000, 
       httpOnly: true,
       secure: false,
-      sameSite: "lax"
+      sameSite: "lax",
+      maxAge: undefined,
     },
     store: MongoStore.create({
       mongoUrl: uri,
       collectionName: "sessions",
-      ttl: 24 * 60 * 60,
+      ttl: 6 * 60 * 60,
       autoRemove: "native",
     }),
   })
