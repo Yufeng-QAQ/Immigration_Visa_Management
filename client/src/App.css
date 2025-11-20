@@ -40,3 +40,9 @@
 .read-the-docs {
   color: #888;
 }
+
+.my-drawer .MuiDrawer-paper {
+  width: 200px;
+  background-color: #242424;
+  padding: 16px;
+}
