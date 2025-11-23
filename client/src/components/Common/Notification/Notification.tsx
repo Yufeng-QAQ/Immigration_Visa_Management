@@ -30,7 +30,7 @@ export const GlobalNotification: React.FC = () => {
   return (
     <Snackbar
       open={open}
-      autoHideDuration={1000}
+      autoHideDuration={3000}
       onClose={handleClose}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
       sx={{ zIndex: 1300 }}
@@ -38,6 +38,7 @@ export const GlobalNotification: React.FC = () => {
       <Alert
         onClose={handleClose}
         variant="filled"
+        severity={type}
         sx={{
           width: "100%",
           fontSize: "1.1 rem",

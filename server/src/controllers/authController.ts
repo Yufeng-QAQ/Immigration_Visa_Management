@@ -22,7 +22,7 @@ export class AuthController {
     try {
       const { username, password } = req.body;
       const user = await this.authService.validateUser(username, password);
-      if (!user) return res.status(401).json({ message: "Invalid credentials" });
+      if (!user) return res.status(401).json({ message: "Invalid username or password" });
 
       (req.session as any).userId = user._id;
       (req.session as any).username = user.username;
