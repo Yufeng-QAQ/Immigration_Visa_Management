@@ -13,8 +13,8 @@ const VisaRecordSchema = new Schema<IVisaRecord>({
   recordId: { type: String, required: true, unique: true },
   employee: { type: Schema.Types.ObjectId, ref: "Employee", required: true },
   visaType: {type: String, required: true},
-  issueDate: { type: Date, required: true },
-  expireDate: { type: Date, required: true },
+  issueDate: { type: Date, required: false },
+  expireDate: { type: Date, required: false },
   status: { type: String, enum: ["Active", "Expired", "Pending"], default: "Pending" }
 });
 

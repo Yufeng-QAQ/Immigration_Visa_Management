@@ -20,12 +20,15 @@ export interface IEmployee extends Document {
   gender:boolean;
   dependents: number;
   initialH1BStart : Date;
+  startDate: Date;
+  expirationDate: Date;
   prepExtensionDate: Date;
   maxHPeriod: Date;
   documentExpiryI94: Date;
   socCode:string;
   socCodeDescription: string;
   employeeEducationalField:string;
+  permanentResidencyNotes:string;
 
   countryOfBirth: string;
   addresses: string[];
@@ -44,10 +47,10 @@ const EmployeeSchema: Schema = new Schema({
   employeeId: { type: String, require: true, unique: true },
   firstName: { type: String, required: true },
   middleName: String,
-  lastName: { type: String, required: true },
+  lastName: { type: String, required: false },
   countryOfBirth: {type: String},
-  dateOfBirth: { type: Date, required: true },
-  email: { type: String, required: true },
+  dateOfBirth: { type: Date, required: false },
+  email: { type: String, required: false },
 
   personalEmail: String,
   allCitizenship: [{ type: String }],
@@ -56,6 +59,8 @@ const EmployeeSchema: Schema = new Schema({
   initialH1BStart : Date,
   prepExtensionDate: Date,
   maxHPeriod: Date,
+  startDate: Date,
+  expirationDate: Date,
   documentExpiryI94: Date,
   socCode: String,
   socCodeDescription: String,
@@ -64,11 +69,13 @@ const EmployeeSchema: Schema = new Schema({
   salary: Number,
   positionTitle: String,
   highestDegree: String,
-  
+  permanentResidencyNotes: String,
+
+
   departmentInfo: {
-    college: { type: String, required: true },
-    department: { type: String, required: true },
-    supervisor: { type: String, required: true },
+    college: { type: String, required: false },
+    department: { type: String, required: false },
+    supervisor: { type: String, required: false },
     admin: { type: String },
   },
   visaHistory: [{ type: Schema.Types.ObjectId, ref: "VisaRecord" }],
