@@ -6,6 +6,7 @@ import LandingPage from "./LandingPage";
 import HomePage from "./HomePage";
 import ManageEmp from "./ManageEmployee";
 import Archive from "./Archive";
+import AccountAdmin from "./AccountAdmin";
 
 import { GlobalNotification } from "../components/Common/Notification/Notification";
 import { notify } from "../components/Common/Notification/eventBus";
@@ -69,6 +70,7 @@ export default function AppContent() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/manage" element={<ManageEmp />} />
           <Route path="/archive" element={<Archive />} />
+          <Route path="/account" element={<AccountAdmin />} />
         </Routes>
       </Container>
     </>

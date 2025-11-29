@@ -1,21 +1,24 @@
-import User from "../models/user";
-import type { Request, Response } from "express";
+import User, { IUser } from "../models/user";
 
-export const getUsers = async (req: Request, res: Response) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
+export class UserService {
+  async getAllUsers(): Promise<IUser[]> {
+    return User.find();
   }
-};
 
-export const createUser = async (req: Request, res: Response) => {
-  try {
-    const newUser = new User(req.body);
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
-  } catch (err) {
-    res.status(400).json({ error: "Invalid data" });
+  async getUserById(id: string): Promise<IUser | null> {
+    return User.findById(id);
   }
-};
+
+  async createUser(data: Partial<IUser>): Promise<IUser> {
+    const newUser = new User(data);
+    return newUser.save();
+  }
+
+  async updateUser(id: string, data: Partial<IUser>): Promise<IUser | null> {
+    return User.findByIdAndUpdate(id, data, { new: true });
+  }
+
+  async deleteUser(id: string): Promise<IUser | null> {
+    return User.findByIdAndDelete(id);
+  }
+}
