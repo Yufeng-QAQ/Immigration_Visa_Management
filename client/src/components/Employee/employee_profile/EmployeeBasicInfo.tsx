@@ -148,7 +148,7 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
           >
             <Grid size={{ xs: 6 }}>
               <TextField
-                label="Email"
+                label="School Email"
                 name="email"
                 fullWidth
                 variant="standard"
@@ -160,15 +160,18 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
 
             <Grid size={{ xs: 6 }}>
               <TextField
-                label="Country Of Birth"
-                name="countryOfBirth"
+                label="Personal Email"
+                name="personalEmail"
                 fullWidth
                 variant="standard"
-                value={selectedEmployee?.countryOfBirth || ""}
+                value={selectedEmployee?.personalEmail || ""}
                 onChange={handleInputChange}
                 InputProps={{ readOnly: !editMode }}
               />
             </Grid>
+
+
+            
 
             <Grid size={{ xs: 6 }} mb={2}>
               <FormControl fullWidth sx={{ m: 0 }}>
@@ -193,6 +196,68 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
                 </Select>
               </FormControl>
             </Grid>
+
+            <Grid size={{ xs: 3 }} mb={2}>
+              <TextField
+                label="Country Of Birth"
+                name="countryOfBirth"
+                fullWidth
+                variant="standard"
+                value={selectedEmployee?.countryOfBirth || ""}
+                onChange={handleInputChange}
+                InputProps={{ readOnly: !editMode }}
+              />
+            </Grid>
+
+
+            <Grid size={{ xs: 6 }} mb={2}>
+              <TextField
+                label="All Citizenship"
+                name="allCitizenship"
+                fullWidth
+                variant="standard"
+                value={selectedEmployee?.allCitizenship || ""}
+                onChange={handleInputChange}
+                InputProps={{ readOnly: !editMode }}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 3 }} mb={2}>
+              <TextField
+                label="Filed By"
+                name="filedBy"
+                fullWidth
+                variant="standard"
+                value={selectedEmployee?.filedBy || ""}
+                onChange={handleInputChange}
+                InputProps={{ readOnly: !editMode }}
+              />
+            </Grid>
+
+
+            <Grid size={{ xs: 6 }} mb={4}>
+              <FormControl fullWidth>
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  name="gender"
+                  value={selectedEmployee?.gender || ""}
+                  onChange={handleInputChange}
+                  variant="standard"
+                  disabled={!editMode}
+                >
+                  <MenuItem value="Male">
+                    Male
+                  </MenuItem>
+                  <MenuItem value="Female">
+                    Female
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+          
+
+
           </Grid>
 
           {/* Addresses */}

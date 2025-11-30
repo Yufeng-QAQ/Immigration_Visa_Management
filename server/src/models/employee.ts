@@ -17,7 +17,7 @@ export interface IEmployee extends Document {
   
   personalEmail: string;
   allCitizenship: string[];
-  gender:boolean;
+  gender:string;
   dependents: number;
   initialH1BStart : Date;
   prepExtensionDate: Date;
@@ -26,6 +26,7 @@ export interface IEmployee extends Document {
   socCode:string;
   socCodeDescription: string;
   employeeEducationalField:string;
+  filedBy:string;
 
   countryOfBirth: string;
   addresses: string[];
@@ -51,7 +52,7 @@ const EmployeeSchema: Schema = new Schema({
 
   personalEmail: String,
   allCitizenship: [{ type: String }],
-  gender: Boolean,
+  gender: String,
   dependents: Number,
   initialH1BStart : Date,
   prepExtensionDate: Date,
@@ -64,6 +65,7 @@ const EmployeeSchema: Schema = new Schema({
   salary: Number,
   positionTitle: String,
   highestDegree: String,
+  filedBy: String,
   
   departmentInfo: {
     college: { type: String, required: true },
