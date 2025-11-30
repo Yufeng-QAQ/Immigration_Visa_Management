@@ -1,4 +1,5 @@
 import {
+  Button,
   Box,
   Card,
   CardContent,
@@ -9,11 +10,11 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import type { User } from "../../api";
+import type { UserItem } from "../../api";
 
 interface UserListProps {
-  users: User[];
-  onEdit: (user: User) => void;
+  users: UserItem[];
+  onEdit: (user: UserItem) => void;
   onDelete: (id: string) => void;
 }
 
@@ -41,30 +42,26 @@ export default function UserList({ users, onEdit, onDelete }: UserListProps) {
                   {user.username}
                 </Typography>
 
-                <Stack direction="row" spacing={2}>
-                  <Stack
-                    direction="row"
-                    spacing={0.5}
-                    sx={{ color: "red", cursor: "pointer" }}
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    sx={{ color: "red", p: 1}}
                     onClick={() => onDelete(user._id)}
                   >
                     <DeleteIcon fontSize="small" />
                     <Typography fontSize={14}>Delete</Typography>
-                  </Stack>
+                  </Button>
 
-                  <Stack
-                    direction="row"
-                    spacing={0.5}
+                  <Button
                     sx={{ cursor: "pointer" }}
                     onClick={() => onEdit(user)}
                   >
                     <EditIcon fontSize="small" />
                     <Typography fontSize={14}>Edit</Typography>
-                  </Stack>
+                  </Button>
                 </Stack>
               </Stack>
 
-              <Divider sx={{ my: 2 }} />
+              <Divider sx={{ my: 1 }} />
 
               <Grid display={"flex"} mb={1}>
                 <Typography color="gray" fontSize={14}>

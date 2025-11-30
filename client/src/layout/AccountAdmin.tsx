@@ -11,9 +11,10 @@ import {
   Grid,
 } from "@mui/material";
 import api from "../api/axios";
-import UserList from "../components/Account/UserList";
 
 import TemporaryDrawer from "../components/Employee/Sidebar";
+import UserList from "../components/Account/UserList";
+import CreateUser from "../components/Account/CreateUser";
 
 export default function AccountAdmin() {
   const [users, setUsers] = useState([]);
@@ -47,6 +48,11 @@ export default function AccountAdmin() {
           <TemporaryDrawer />
         </Box>
 
+        <Grid container mb={1}>
+          <Grid size={{ xs: 12, md: 7 }}>
+            <CreateUser></CreateUser>
+          </Grid>
+        </Grid>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 7 }}>
             <UserList users={users} onDelete={handleDelete} onEdit={handleEdit} />
