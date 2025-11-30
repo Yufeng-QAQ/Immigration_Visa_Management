@@ -417,6 +417,12 @@ export const deleteEmployee = async (req: Request, res: Response) => {
       });
     }
 
+    const comment = Comment as mongoose.Model<IComment>;
+
+    await comment.deleteMany({
+      _id: {$in: employee.comments}
+    }) 
+
     const deleted = await Employee.findByIdAndDelete(id);
 
     res.json({
@@ -549,6 +555,243 @@ export const deleteComment = async (req: Request, res: Response) => {
 
 const upload = multer({ dest: "uploads/" });
 
+// const parseExcelDate = (value: any): Date | null => {
+//   if (!value) return null;
+
+//   // 1) 清理掉 "done8/22/2022" 这种格式
+//   if (typeof value === "string") {
+//     const trimmed = value.trim();
+
+//     // 忽略无效字符
+//     if (trimmed === "" || ["?", "-", "N/A", "n/a", "na"].includes(trimmed)) {
+//       return null;
+//     }
+
+//     // 提取真正的 MM/DD/YYYY
+//     const match = trimmed.match(/\d{1,2}\/\d{1,2}\/\d{2,4}/);
+//     if (match) {
+//       const dateStr = match[0];
+//       const d = new Date(dateStr);
+//       return isNaN(d.getTime()) ? null : d;
+//     }
+
+//     // 如果是纯字符串但不是日期，不解析
+//     return null;
+//   }
+
+//   // 2) 如果是数字 → Excel 日期序列号
+//   if (typeof value === "number" && !isNaN(value)) {
+//     return new Date((value - 25569) * 86400 * 1000);
+//   }
+
+//   return null;
+// };
+
+
+// function isValidValue(v: any) {
+//   if (v === null || v === undefined) return false;
+//   if (typeof v === "string" && v.trim() === "") return false;
+//   if (v === "?") return false;
+//   if (typeof v === "number" && isNaN(v)) return false;
+//   return true;
+// }
+
+// function mergeSafe(oldData: any, newData: any) {
+//   const result = { ...oldData };
+
+//   for (const key in newData) {
+//     const newValue = newData[key];
+
+//     // 嵌套对象：递归处理
+//     if (typeof newValue === "object" && !Array.isArray(newValue) && newValue !== null) {
+//       result[key] = mergeSafe(oldData[key] || {}, newValue);
+//       continue;
+//     }
+
+//     // 如果是有效值 → 覆盖
+//     if (isValidValue(newValue)) {
+//       result[key] = newValue;
+//     }
+//     // 否则：跳过（保留 oldData 的值）
+//   }
+
+//   return result;
+// }
+
+
+
+// function removeEmptyFields(obj: Record<string, any>) {
+//   const clean: Record<string, any> = {};
+  
+//   for (const key in obj) {
+//     const value = obj[key];
+
+//     // 条件：只保留真正的有效值
+//     const isValid =
+//       value !== null &&
+//       value !== undefined &&
+//       !(typeof value === "string" && value.trim() === "") &&
+//       value !== "?" &&
+//       !(typeof value === "number" && isNaN(value));
+
+//     if (isValid) {
+//       clean[key] = value;
+//     }
+//   }
+
+//   return clean;
+// }
+
+// export const employeeUpload = async (req: Request, res: Response) => {
+//   const file = req.file;
+//   if (!file) return res.status(400).send("No file uploaded.");
+
+//   try {
+//     const workbook = xlsx.readFile(file.path);
+//     const sheet = workbook.Sheets[workbook.SheetNames[0]!];
+//     if (!sheet) return res.status(400).send("Sheet not found");
+
+//     const rows = xlsx.utils.sheet_to_json<Record<string, any>>(sheet);
+//     let createdCount = 0;
+//     let updatedCount = 0;
+//     let visaCount = 0;
+
+//     for (const row of rows.slice(0, 2)) {
+//       if (!row["Last name"] || !row["First Name"]) continue;
+
+//       // 1️⃣ 查找员工
+//       const query = {
+//         lastName: row["Last name"],
+//         firstName: row["First Name"],
+//       };
+
+//       // 2️⃣ Employee 更新字段（只包含 profile，不含签证）
+//       const employeeUpdateRaw: Record<string, any> = {
+//         email: row["Employee's UMBC email"] ?? null,
+//         personalEmail: row["Personal email"] ?? null,
+//         countryOfBirth: row["Country of Birth"] ?? null,
+//         allCitizenship: row["All Citizenships"] ? [row["All Citizenships"]] : undefined,
+//         gender: row["Gender"] ?? null,
+
+//         dependents: row["Dependents"] ? Number(row["Dependents"]) : null,
+
+//         // 签证相关字段（属于员工）
+//         initialH1BStart: parseExcelDate(row["initial H-1B start"]),
+//         prepExtensionDate: parseExcelDate(row["Prep extension date"]),
+//         maxHPeriod: parseExcelDate(row["Max H period"]),
+//         documentExpiryI94: parseExcelDate(row["Document Expiry I-94"]),
+
+//         socCode: row["soc code"] ?? null,
+//         socCodeDescription: row["soc code description"] ?? null,
+
+//         salary: row["Annual Salary"] ?? null,
+//         positionTitle: row["Employee Title"] ?? null,
+
+//         highestDegree: row["Employee Educational  Level"] ?? null,
+//         employeeEducationalField: row["Employee Educational Field"] ?? null,
+//         permanentResidencyNotes: row["Permanent residency notes"] ?? null,
+
+//         departmentInfo: {
+//           college: "UMBC",
+//           department: row["Department"] ?? undefined,
+//           supervisor: row["Department Advisor/PI/chair"] ?? undefined,
+//           admin: row["Department Admin"] ?? undefined,
+//         },
+//       };
+
+//       // 清理空字段
+//       const employeeUpdate = removeEmptyFields(employeeUpdateRaw);
+
+//       console.log(employeeUpdate);
+      
+//       let employee = await Employee.findOne(query);
+      
+//       if (!employee) {
+//         employeeUpdate.employeeId = `EMP-${row["First Name"]}-${row["Last name"]}-${Date.now()}`;
+//       }
+//             // 3️⃣ Upsert Employee
+//       employee! = await Employee.findOneAndUpdate(
+//     query,
+//     { $set: employeeUpdate },
+//     { upsert: true, new: true }
+//   );
+
+//       if (employee!.isNew) createdCount++;
+//       else updatedCount++;
+
+//       // 4️⃣ 创建 VisaRecord 数据
+//       const visaUpdateRaw = {
+//         recordId: `VR-${Date.now()}`,
+//         employee: employee._id,
+//         visaType: row["Case type"] ?? null,
+//         issueDate: parseExcelDate(row["Start date"]),
+//         expireDate: parseExcelDate(row["Expiration Date"]),
+//         status: "Active",
+//       };
+
+//       const visaData = removeEmptyFields(visaUpdateRaw);
+
+//       // 如果 caseType 为空，跳过
+//       if (!visaData.visaType) continue;
+
+      
+//       const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
+
+//       let existingVisa = await VisaModel.findOne({
+//         employee: employee._id,
+//         visaType: visaData.visaType,
+//       });
+
+      
+//       if (!existingVisa) {
+//         // 1) 将旧的 active case 全部设置为 expired
+//         await VisaRecord.updateMany(
+//             { employee: employee._id, status: "Active" },
+//             { $set: { status: "Expired" } }
+//         );
+
+//         // 2) 创建新的签证记录
+//         const visaRecord = new VisaRecord(visaData);
+//         const savedVisa = await visaRecord.save();
+
+//         // 3) push 新的签证到 employee.visaHistory
+//         employee.visaHistory.push(savedVisa._id);
+//         await employee.save();
+
+//         visaCount++;
+
+//         if (employeeUpdateRaw.permanentResidencyNotes) {
+//           const newComment = new Comment({
+//             record: savedVisa._id,
+//             content: employeeUpdateRaw.permanentResidencyNotes,
+//             date: new Date()
+//           });
+
+//           const savedComment = await newComment.save();
+//           employee.comments.push(savedComment._id);
+//           await employee.save();
+//         }
+
+//       } else {
+//           console.log(`Visa type "${visaData.visaType}" already exists. Skipping.`);
+//       }
+
+//     }
+
+//     return res.json({
+//       message: "Import Complete",
+//       employeesCreated: createdCount,
+//       employeesUpdated: updatedCount,
+//       visaRecordsCreated: visaCount,
+//     });
+
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).send("Error processing Excel file.");
+//   }
+// };
+
+
 const parseExcelDate = (value: any): Date | null => {
   if (!value) return null;
 
@@ -581,16 +824,22 @@ const parseExcelDate = (value: any): Date | null => {
   return null;
 };
 
+// 判定一个值是不是“有效”（可以用来覆盖旧值）
+function isValidValue(v: any) {
+  if (v === null || v === undefined) return false;
+  if (typeof v === "string" && v.trim() === "") return false;
+  if (v === "?") return false;
+  if (typeof v === "number" && isNaN(v)) return false;
+  return true;
+}
 
-
-
+// 只保留有效字段（不递归，用在 top-level）
 function removeEmptyFields(obj: Record<string, any>) {
   const clean: Record<string, any> = {};
-  
+
   for (const key in obj) {
     const value = obj[key];
 
-    // 条件：只保留真正的有效值
     const isValid =
       value !== null &&
       value !== undefined &&
@@ -606,6 +855,34 @@ function removeEmptyFields(obj: Record<string, any>) {
   return clean;
 }
 
+// 用于嵌套对象：oldData + newData，只有 newData 有“有效值”的字段才覆盖
+function mergeSafe(oldData: any = {}, newData: any = {}) {
+  const result: any = { ...oldData };
+
+  for (const key in newData) {
+    const newValue = newData[key];
+
+    // 子对象递归
+    if (
+      typeof newValue === "object" &&
+      !Array.isArray(newValue) &&
+      newValue !== null
+    ) {
+      result[key] = mergeSafe(oldData?.[key] || {}, newValue);
+      continue;
+    }
+
+    if (isValidValue(newValue)) {
+      result[key] = newValue;
+    }
+    // 无效就跳过，保留旧的
+  }
+
+  return result;
+}
+
+// ----------------- 主逻辑：Excel 上传 -----------------
+
 export const employeeUpload = async (req: Request, res: Response) => {
   const file = req.file;
   if (!file) return res.status(400).send("No file uploaded.");
@@ -616,74 +893,139 @@ export const employeeUpload = async (req: Request, res: Response) => {
     if (!sheet) return res.status(400).send("Sheet not found");
 
     const rows = xlsx.utils.sheet_to_json<Record<string, any>>(sheet);
+
     let createdCount = 0;
     let updatedCount = 0;
     let visaCount = 0;
 
-    for (const row of rows.slice(0, 5)) {
+    // 这里的 slice(0,2) 只是测试用，你之后可以删掉
+    for (const row of rows.slice(0, 8)) {
       if (!row["Last name"] || !row["First Name"]) continue;
 
-      // 1️⃣ 查找员工
+      // PK：first + last name
       const query = {
         lastName: row["Last name"],
         firstName: row["First Name"],
       };
 
-      // 2️⃣ Employee 更新字段（只包含 profile，不含签证）
+      // 从 Excel 读取的“本行数据”
+      const departmentInfoRaw = {
+        college: "UMBC",
+        department: row["Department"],
+        supervisor: row["Department Advisor/PI/chair"],
+        admin: row["Department Admin"],
+      };
+
       const employeeUpdateRaw: Record<string, any> = {
-        email: row["Employee's UMBC email"] ?? null,
-        personalEmail: row["Personal email"] ?? null,
-        countryOfBirth: row["Country of Birth"] ?? null,
-        allCitizenship: row["All Citizenships"] ? [row["All Citizenships"]] : undefined,
-        gender: row["Gender"] ?? null,
+        email: row["Employee's UMBC email"],
+        personalEmail: row["Personal email"],
+        countryOfBirth: row["Country of Birth"],
+        allCitizenship: isValidValue(row["All Citizenships"])
+          ? [row["All Citizenships"]]
+          : undefined,
+        gender: row["Gender"],
 
         dependents: row["Dependents"] ? Number(row["Dependents"]) : null,
 
-        // 签证相关字段（属于员工）
         initialH1BStart: parseExcelDate(row["initial H-1B start"]),
         prepExtensionDate: parseExcelDate(row["Prep extension date"]),
         maxHPeriod: parseExcelDate(row["Max H period"]),
         documentExpiryI94: parseExcelDate(row["Document Expiry I-94"]),
 
-        socCode: row["soc code"] ?? null,
-        socCodeDescription: row["soc code description"] ?? null,
+        socCode: row["soc code"],
+        socCodeDescription: row["soc code description"],
 
-        salary: row["Annual Salary"] ?? null,
-        positionTitle: row["Employee Title"] ?? null,
+        salary: row["Annual Salary"],
+        positionTitle: row["Employee Title"],
 
-        highestDegree: row["Employee Educational  Level"] ?? null,
-        employeeEducationalField: row["Employee Educational Field"] ?? null,
-        permanentResidencyNotes: row["Permanent residency notes"] ?? null,
+        highestDegree: row["Employee Educational  Level"],
+        employeeEducationalField: row["Employee Educational Field"],
+        permanentResidencyNotes: row["Permanent residency notes"],
 
-        departmentInfo: {
-          college: "UMBC",
-          department: row["Department"] ?? undefined,
-          supervisor: row["Department Advisor/PI/chair"] ?? undefined,
-          admin: row["Department Admin"] ?? undefined,
-        },
+        departmentInfo: departmentInfoRaw,
       };
 
-      // 清理空字段
-      const employeeUpdate = removeEmptyFields(employeeUpdateRaw);
-      
+      // 先找一下是否已有这个员工
       let employee = await Employee.findOne(query);
-      
+
+      // ================== 没有员工 → 新建 ==================
       if (!employee) {
-        employeeUpdate.employeeId = `EMP-${row["First Name"]}-${row["Last name"]}-${Date.now()}`;
+        // 新建时：空值可以直接丢掉
+        const cleanDept = removeEmptyFields(departmentInfoRaw);
+        const base: any = removeEmptyFields({
+          ...employeeUpdateRaw,
+          departmentInfo:
+            Object.keys(cleanDept).length > 0 ? cleanDept : undefined,
+        });
+
+        base.firstName = query.firstName;
+        base.lastName = query.lastName;
+        base.employeeId = `EMP-${row["First Name"]}-${row["Last name"]}-${Date.now()}`;
+
+        employee = await Employee.create(base);
+        createdCount++;
       }
-            // 3️⃣ Upsert Employee
-      employee! = await Employee.findOneAndUpdate(query, employeeUpdate, {
-        upsert: true,
-        new: true,
-      });
+      // ================== 已有员工 → 只用“非空字段”覆盖 ==================
+      else {
+        const updateDoc: any = {};
 
-      if (employee!.isNew) createdCount++;
-      else updatedCount++;
+        // 处理普通字段（非嵌套）
+        const simpleKeys = [
+          "email",
+          "personalEmail",
+          "countryOfBirth",
+          "gender",
+          "dependents",
+          "initialH1BStart",
+          "prepExtensionDate",
+          "maxHPeriod",
+          "documentExpiryI94",
+          "socCode",
+          "socCodeDescription",
+          "salary",
+          "positionTitle",
+          "highestDegree",
+          "employeeEducationalField",
+          "permanentResidencyNotes",
+        ];
 
-      // 4️⃣ 创建 VisaRecord 数据
+        for (const key of simpleKeys) {
+          const v = (employeeUpdateRaw as any)[key];
+          if (isValidValue(v)) {
+            updateDoc[key] = v;
+          }
+        }
+
+        // allCitizenship 特殊处理一下
+        if (isValidValue(employeeUpdateRaw.allCitizenship)) {
+          updateDoc.allCitizenship = employeeUpdateRaw.allCitizenship;
+        }
+
+        // departmentInfo：要和旧值 merge
+        const mergedDept = mergeSafe(
+          (employee as any).departmentInfo || {},
+          departmentInfoRaw
+        );
+        const cleanMergedDept = removeEmptyFields(mergedDept);
+        if (Object.keys(cleanMergedDept).length > 0) {
+          updateDoc.departmentInfo = cleanMergedDept;
+        }
+
+        // 如果这一行真的有东西要更新，才去 update
+        if (Object.keys(updateDoc).length > 0) {
+          employee = await Employee.findOneAndUpdate(
+            { _id: employee._id },
+            { $set: updateDoc },
+            { new: true }
+          );
+          updatedCount++;
+        }
+      }
+
+      // ========== 下面是 VisaRecord 逻辑（你原来的，稍微整理了一下） ==========
       const visaUpdateRaw = {
         recordId: `VR-${Date.now()}`,
-        employee: employee._id,
+        employee: employee!._id,
         visaType: row["Case type"] ?? null,
         issueDate: parseExcelDate(row["Start date"]),
         expireDate: parseExcelDate(row["Expiration Date"]),
@@ -692,22 +1034,23 @@ export const employeeUpload = async (req: Request, res: Response) => {
 
       const visaData = removeEmptyFields(visaUpdateRaw);
 
-      // 如果 caseType 为空，跳过
-      if (!visaData.visaType) continue;
+      if (!visaData.visaType) {
+        // 没有签证类型就跳过签证部分
+        continue;
+      }
 
-      
       const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
 
-      let existingVisa = await VisaModel.findOne({
-        employee: employee._id,
+      const existingVisa = await VisaModel.findOne({
+        employee: employee!._id,
         visaType: visaData.visaType,
       });
 
       if (!existingVisa) {
         // 1) 将旧的 active case 全部设置为 expired
         await VisaRecord.updateMany(
-            { employee: employee._id, status: "Active" },
-            { $set: { status: "Expired" } }
+          { employee: employee!._id, status: "Active" },
+          { $set: { status: "Expired" } }
         );
 
         // 2) 创建新的签证记录
@@ -715,27 +1058,26 @@ export const employeeUpload = async (req: Request, res: Response) => {
         const savedVisa = await visaRecord.save();
 
         // 3) push 新的签证到 employee.visaHistory
-        employee.visaHistory.push(savedVisa._id);
-        await employee.save();
+        employee!.visaHistory.push(savedVisa._id);
+        await employee!.save();
 
         visaCount++;
 
+        // 4) 如果有 Permanent residency notes，就存为 Comment
         if (employeeUpdateRaw.permanentResidencyNotes) {
           const newComment = new Comment({
             record: savedVisa._id,
             content: employeeUpdateRaw.permanentResidencyNotes,
-            date: new Date()
+            date: new Date(),
           });
 
           const savedComment = await newComment.save();
-          employee.comments.push(savedComment._id);
-          await employee.save();
+          employee!.comments.push(savedComment._id);
+          await employee!.save();
         }
-
       } else {
-          console.log(`Visa type "${visaData.visaType}" already exists. Skipping.`);
+        console.log(`Visa type "${visaData.visaType}" already exists. Skipping.`);
       }
-
     }
 
     return res.json({
@@ -744,7 +1086,6 @@ export const employeeUpload = async (req: Request, res: Response) => {
       employeesUpdated: updatedCount,
       visaRecordsCreated: visaCount,
     });
-
   } catch (err) {
     console.error(err);
     return res.status(500).send("Error processing Excel file.");

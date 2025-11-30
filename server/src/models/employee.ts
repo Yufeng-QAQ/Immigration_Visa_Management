@@ -68,6 +68,7 @@ const EmployeeSchema: Schema = new Schema({
   addresses: [{ type: String }],
   salary: Number,
   positionTitle: String,
+  
   highestDegree: String,
   permanentResidencyNotes: String,
 

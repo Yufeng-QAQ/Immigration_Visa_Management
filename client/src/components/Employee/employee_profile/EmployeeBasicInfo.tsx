@@ -191,8 +191,12 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
                   </MenuItem>
                   <MenuItem value="Associate">Associate</MenuItem>
                   <MenuItem value="Bachelor">Bachelor</MenuItem>
-                  <MenuItem value="Master">Master</MenuItem>
-                  <MenuItem value="PhD">PhD</MenuItem>
+                  <MenuItem value="Masters">Master</MenuItem>
+                  <MenuItem value="Ph.D.">PhD</MenuItem>
+                  <MenuItem value="MdA">MdA</MenuItem>
+                  <MenuItem value="MS">MS</MenuItem>
+
+                  
                 </Select>
               </FormControl>
             </Grid>
