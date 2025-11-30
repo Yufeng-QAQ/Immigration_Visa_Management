@@ -1,0 +1,103 @@
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  Divider,
+  Grid,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import type { User } from "../../api";
+
+interface UserListProps {
+  users: User[];
+  onEdit: (user: User) => void;
+  onDelete: (id: string) => void;
+}
+
+export default function UserList({ users, onEdit, onDelete }: UserListProps) {
+  return (
+    <Box sx={{ p: 2, backgroundColor: "white" }}>
+      <Typography variant="h5" fontWeight={600} mb={2}>
+        User Information
+      </Typography>
+
+      <Stack spacing={2} >
+        {users.map((user) => (
+          <Card
+            key={user._id}
+            sx={{
+              borderRadius: 3,
+              backgroundColor: "rgba(245, 245, 245, 1)",
+              boxShadow: "none",
+              border: "1px solid #eee",
+            }}
+          >
+            <CardContent>
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Typography variant="h6" fontWeight={600}>
+                  {user.username}
+                </Typography>
+
+                <Stack direction="row" spacing={2}>
+                  <Stack
+                    direction="row"
+                    spacing={0.5}
+                    sx={{ color: "red", cursor: "pointer" }}
+                    onClick={() => onDelete(user._id)}
+                  >
+                    <DeleteIcon fontSize="small" />
+                    <Typography fontSize={14}>Delete</Typography>
+                  </Stack>
+
+                  <Stack
+                    direction="row"
+                    spacing={0.5}
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => onEdit(user)}
+                  >
+                    <EditIcon fontSize="small" />
+                    <Typography fontSize={14}>Edit</Typography>
+                  </Stack>
+                </Stack>
+              </Stack>
+
+              <Divider sx={{ my: 2 }} />
+
+              <Grid display={"flex"} mb={1}>
+                <Typography color="gray" fontSize={14}>
+                  Email Address:
+                </Typography>
+                <Typography fontWeight={500} ml={1} fontSize={14}>
+                  {user.email}
+                </Typography>
+              </Grid>
+
+              <Grid display={"flex"} mb={1}>
+                <Typography color="gray" fontSize={14}>
+                  Role:
+                </Typography>
+                <Typography fontWeight={500} ml={1} fontSize={14}>
+                  {user.role}
+                </Typography>
+              </Grid>
+
+              <Grid display={"flex"} mb={1}>
+                <Typography fontSize={14} color="gray">
+                  Created At:
+                </Typography>
+                <Typography fontWeight={500} fontSize={14} ml={1}>
+                  {user.createdAt ? new Date(user.createdAt).toLocaleString() : "Unknown"}
+                </Typography>
+              </Grid>
+
+            </CardContent>
+          </Card>
+        ))}
+      </Stack>
+    </Box>
+  );
+};
+
