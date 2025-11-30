@@ -642,6 +642,37 @@ function cleanName(str: any): string {
     .trim();                               // 去首尾空格
 }
 
+function normalizeVisaType(raw: any): string | null {
+  if (!raw) return null;
+
+  const str = String(raw)
+    .trim()
+    .replace(/\s+/g, " ")  // 多空格 → 1 个空格
+    .toLowerCase();
+
+  // 所有绿卡的可能写法（全部统一为小写比较）
+  const greenKeywords = [
+    "permanent residency",
+    "permanent residence",
+    "permanent resident",
+    // "Permanent residency",
+    "perm residency",
+    "perm residence",
+    "green card",
+  ];
+
+  for (const k of greenKeywords) {
+    if (str.includes(k)) {
+      return "Permanent Residency";   // ✔最终统一格式
+    }
+  }
+
+  // 其他签证 → 原样保留（但要 normalize 一下）
+  return raw.toString().trim();
+}
+
+
+
 
 // ----------------- 主逻辑：Excel 上传 -----------------
 
@@ -661,7 +692,7 @@ export const employeeUpload = async (req: Request, res: Response) => {
     let visaCount = 0;
 
     // 这里的 slice(0,2) 只是测试用，你之后可以删掉
-    for (const row of rows) {
+    for (const row of rows.slice(75,78)) {
       if (!row["Last name"] || !row["First Name"]) continue;
 
       // PK：first + last name
@@ -794,7 +825,7 @@ export const employeeUpload = async (req: Request, res: Response) => {
       const visaUpdateRaw = {
         recordId: `VR-${Date.now()}`,
         employee: employee!._id,
-        visaType: row["Case type"] ?? null,
+        visaType: normalizeVisaType(row["Case type"]) ?? null,
         issueDate: parseExcelDate(row["Start date"]),
         expireDate: parseExcelDate(row["Expiration Date"]),
         status: "Active",
@@ -820,6 +851,8 @@ export const employeeUpload = async (req: Request, res: Response) => {
           { employee: employee!._id, status: "Active" },
           { $set: { status: "Expired" } }
         );
+
+        console.log(visaData);
 
         // 2) 创建新的签证记录
         const visaRecord = new VisaRecord(visaData);
