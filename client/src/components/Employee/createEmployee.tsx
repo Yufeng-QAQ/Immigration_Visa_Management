@@ -27,8 +27,8 @@ interface EmployeeFormProps {
 }
 
 export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProps) {
-  const degrees = ["PhD", "Master", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower"];
-  const Visatypes = ["J-1", "H-1B", "OPT - 1 Year", "OPT - 3 Years"];
+const degrees = ["Ph.D.", "Masters", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower", "MdA", "MS"];
+  const Visatypes = ["J-1", "H-1B initial COS from J-1", "H-1B extension" ,"H-1B extension recapture" ,"H-1B extension AC21 + recapture 7 days" ,"TN petition" ,"H-1B port" , "OPT - 1 Year", "OPT - 3 Years", "Permanent Residency"];
   const genders = ["Male", "Female"]
 
 
