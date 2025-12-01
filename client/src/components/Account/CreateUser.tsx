@@ -166,7 +166,7 @@ export default function CreateUser({ onClose, onAddSuccess }: UserFormProps) {
                   </List>
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
-                    <Button type="submit" variant="contained" sx={{ color: '#fdb515' }}>Sumbit</Button>
+                    <Button aria-label="Submit" type="submit" variant="contained" sx={{ color: '#fdb515' }}>Sumbit</Button>
                   </Box>
                 </Grid>
               </Grid>
