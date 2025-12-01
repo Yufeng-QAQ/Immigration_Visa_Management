@@ -15,7 +15,7 @@ import type { UserItem } from "../../api";
 interface UserListProps {
   users: UserItem[];
   onEdit: (user: UserItem) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string, username: string) => void;
 }
 
 export default function UserList({ users, onEdit, onDelete }: UserListProps) {
@@ -44,14 +44,16 @@ export default function UserList({ users, onEdit, onDelete }: UserListProps) {
 
                 <Stack direction="row" spacing={1}>
                   <Button
-                    sx={{ color: "red", p: 1}}
-                    onClick={() => onDelete(user._id)}
+                    aria-label="Delete"
+                    sx={{ color: "red", p: 1 }}
+                    onClick={() => onDelete(user._id, user.username)}
                   >
                     <DeleteIcon fontSize="small" />
                     <Typography fontSize={14}>Delete</Typography>
                   </Button>
 
                   <Button
+                    aria-label="Edit"
                     sx={{ cursor: "pointer" }}
                     onClick={() => onEdit(user)}
                   >
@@ -94,6 +96,11 @@ export default function UserList({ users, onEdit, onDelete }: UserListProps) {
           </Card>
         ))}
       </Stack>
+      {/* <Dialog open={isCreateDialogOpen} onClose={handleCloseCreateDialog} maxWidth="sm" fullWidth>
+        <DialogContent aria-label="Create User">
+          <CreateUser onClose={handleCloseCreateDialog} onAddSuccess={triggerReload} />
+        </DialogContent>
+      </Dialog> */}
     </Box>
   );
 };

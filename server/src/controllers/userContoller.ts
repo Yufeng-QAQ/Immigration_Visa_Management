@@ -18,12 +18,25 @@ export class UserContoller {
     }
   }
 
+  getUserById = async (req: Request, res: Response) => {
+    const {id} = req.params;
+    if (!id) return res.status(400).json({message: "User ID is required"});
+
+    try {
+      const user = await this.userService.getUserById(id)
+      if (!user) return res.status(404).json({message: "User not exist."});
+      return res.json(user);
+    } catch (err) {
+      return res.status(500).json({ message: "User fetching failed" });
+    }
+  }
+
   createUser = async (req: Request, res: Response) => {
     try {
       const user = await this.userService.createUser(req.body);
       return res.status(201).json(user);
     } catch (err) {
-      return res.status(500).json({ message: "Failed to create user" });
+      return res.status(500).json({ message: "Failed to create user", errorMsg: err });
     }
   }
 
@@ -35,7 +48,6 @@ export class UserContoller {
       }
 
       const updated = await this.userService.updateUser(id, req.body);
-
       if (!updated) return res.status(404).json({ message: "User not found" });
 
       return res.json(updated);
