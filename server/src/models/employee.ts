@@ -17,7 +17,7 @@ export interface IEmployee extends Document {
   
   personalEmail: string;
   allCitizenship: string[];
-  gender:boolean;
+  gender:string;
   dependents: number;
   initialH1BStart : Date;
   startDate: Date;
@@ -55,7 +55,7 @@ const EmployeeSchema: Schema = new Schema({
 
   personalEmail: String,
   allCitizenship: [{ type: String }],
-  gender: Boolean,
+  gender: String,
   dependents: Number,
   initialH1BStart : Date,
   prepExtensionDate: Date,
