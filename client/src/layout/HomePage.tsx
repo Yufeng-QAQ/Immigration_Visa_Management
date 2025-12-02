@@ -47,7 +47,7 @@ export default function HomePage() {
       valueGetter: (_, row) => {
         const days = row.visaHistory[0]?.expireDate
           ? calculateDaysLeft(row.visaHistory[0].expireDate)
-          : NaN;
+          : Infinity;
         return days;
       },
       renderCell: (params) => {
@@ -55,7 +55,7 @@ export default function HomePage() {
         let bgColor = "gray";
         let text = "";
 
-        if (days === 999 || isNaN(days)) {
+        if (days === Infinity) {
           text = "-";
           bgColor = "gray";
         } else if (days < 0) {
