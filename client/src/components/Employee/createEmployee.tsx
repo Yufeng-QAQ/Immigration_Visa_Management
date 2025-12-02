@@ -27,8 +27,10 @@ interface EmployeeFormProps {
 }
 
 export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProps) {
-  const degrees = ["PhD", "Master", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower"];
-  const Visatypes = ["J-1", "H-1B", "OPT - 1 Year", "OPT - 3 Years"];
+const degrees = ["Ph.D.", "Masters", "Bachelor", "Associate", "High School or Equivalent", "Middle School or Lower", "MdA", "MS"];
+  const Visatypes = ["J-1", "H-1B initial COS from J-1", "H-1B extension" ,"H-1B extension recapture" ,"H-1B extension AC21 + recapture 7 days" ,"TN petition" ,"H-1B port" , "OPT - 1 Year", "OPT - 3 Years", "Permanent Residency"];
+  const genders = ["Male", "Female"]
+
 
   const methods = useForm<EmployeeItem>({
     defaultValues: {
@@ -43,6 +45,15 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
       positionTitle: "",
       highestDegree: "",
       countryOfBirth: "",
+      allCitizenship:[],
+      initialH1BStart:null,
+      prepExtensionDate:null,
+      maxHPeriod:null,
+      documentExpiryI94:null,
+      filedBy:"",
+      gender: "",
+      socCode: "",
+      socCodeDescription:"",
       departmentInfo: {
         college: "",
         department: "",
@@ -182,21 +193,24 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                       control={control}
                       rules={{ required: true }}
                       render={({ field }) => (
-                        <TextField {...field} required label="Email" fullWidth variant="standard" />
+                        <TextField {...field} required label="School Email" fullWidth variant="standard" />
                       )}
                     />
                   </Grid>
 
                   <Grid size={{ xs: 6 }}>
                     <Controller
-                      name="countryOfBirth"
+                      name="personalEmail"
                       control={control}
                       rules={{ required: true }}
                       render={({ field }) => (
-                        <TextField {...field} required label="Country Of Birth" fullWidth variant="standard" />
+                        <TextField {...field} required label="Personal Email" fullWidth variant="standard" />
                       )}
                     />
                   </Grid>
+
+
+                  
 
                   <Grid size={{ xs: 6 }} mb={2}>
                     <Controller
@@ -222,7 +236,75 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                       )}
                     />
                   </Grid>
+
+                  <Grid size={{ xs: 3 }} mb={2}>
+                    <Controller
+                      name="countryOfBirth"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <TextField {...field} required label="Country Of Birth" fullWidth variant="standard" />
+                      )}
+                    />
+                  </Grid>
+
+
+
+
+                  <Grid size={{ xs: 6 }} mb={2}>
+                    <Controller
+                      name = "allCitizenship"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <TextField {...field} required label="AllCitizenship" fullWidth variant="standard" />
+                      )}
+                      >
+                    </Controller>
+                  </Grid>
+
+                  <Grid size={{ xs: 3 }} mb={2}>
+                    <Controller
+                      name = "filedBy"
+                      control={control}
+                      rules={{ required: false }}
+                      render={({ field }) => (
+                        <TextField {...field} required label="FiledBy" fullWidth variant="standard" />
+                      )}
+                      >
+                    </Controller>
+                  </Grid>
+
+                  <Grid size={{ xs: 6 }} mb={2}>
+                    <Controller
+                      name="gender"
+                      control={control}
+                      rules={{ required: "Please select a gender" }}
+                      render={({ field }) => (
+                        <FormControl fullWidth sx={{ m: 0 }}>
+                          <InputLabel id="gender-label">Gender</InputLabel>
+                          <Select
+                            {...field}
+                            required
+                            labelId="gender-label"
+                            label="Gender"
+                          >
+                            {genders.map((gen) => (
+                              <MenuItem key={gen} value={gen}>
+                                {gen}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
+                    />
+                  </Grid>
+
+
+
                 </Grid>
+
+                
 
                 <Grid size={{ xs: 12 }}>
                   {fields.map((field, index) => (
@@ -318,7 +400,30 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                   />
                 </Grid>
 
-                <Grid size={{ xs: 7 }}>
+                 <Grid size={{ xs: 4 }}>
+                  <Controller
+                    name="socCode"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField {...field} label="SocCode" fullWidth variant="standard" />
+                    )}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 10 }}>
+                  <Controller
+                    name="socCodeDescription"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField {...field} label="SocCodeDescription" fullWidth variant="standard" />
+                    )}
+                  />
+                </Grid>
+
+
+
+
+                <Grid size={{ xs: 4 }}>
                   <Controller
                     name="salary"
                     control={control}
@@ -338,6 +443,15 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     )}
                   />
                 </Grid>
+                
+              
+               
+
+                
+
+
+
+
               </Grid>
             </CardContent>
           </Card>
@@ -348,7 +462,78 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                 Current Visa
               </Typography>
               <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
-                <Grid size={{ xs: 18 }}>
+                <Grid size={{ xs: 7 }} mb={2}>
+
+                    <Controller
+                    control={control}
+                    name={"initialH1BStart"}
+                    render={({ field }) => (
+                      <DatePicker
+                        label="Initial H1B Start"
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(date: Dayjs | null) => field.onChange(date?.toDate() || null)}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
+                    )}
+                  />
+                  </Grid>
+
+
+
+                  <Grid size={{ xs: 7 }} mb={2}>
+
+                    <Controller
+                    control={control}
+                    name={"prepExtensionDate"}
+                    render={({ field }) => (
+                      <DatePicker
+                        label="Prep Extension Date"
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(date: Dayjs | null) => field.onChange(date?.toDate() || null)}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
+                    )}
+                  />
+                  </Grid>
+
+                  <Grid size={{ xs: 7 }} mb={2}>
+
+                    <Controller
+                    control={control}
+                    name={"maxHPeriod"}
+                    render={({ field }) => (
+                      <DatePicker
+                        label="Max H Period"
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(date: Dayjs | null) => field.onChange(date?.toDate() || null)}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
+                    )}
+                  />
+                  </Grid>
+
+
+                  <Grid size={{ xs: 7 }} mb={2}>
+
+                    <Controller
+                    control={control}
+                    name={"documentExpiryI94"}
+                    render={({ field }) => (
+                      <DatePicker
+                        label="Document Expiry I94"
+                        value={field.value ? dayjs(field.value) : null}
+                        onChange={(date: Dayjs | null) => field.onChange(date?.toDate() || null)}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
+                    )}
+                  />
+                  </Grid>
+
+
+
+
+
+                <Grid size={{ xs: 18 }}mb={2}>
                   <Grid size={{ xs: 7 }}>
                     <Controller
                       name={`visaHistory.0.visaType`}
@@ -373,7 +558,8 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                     />
                   </Grid>
                 </Grid>
-                <Grid size={{ xs: 7 }} ml={1}>
+
+                <Grid size={{ xs: 7 }}mb={2}>
                   <Controller
                     control={control}
                     name={`visaHistory.0.issueDate`}
@@ -388,7 +574,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                   />
                 </Grid>
 
-                <Grid size={{ xs: 7 }}>
+                <Grid size={{ xs: 7 }}mb={2}>
                   <Controller
                     control={control}
                     name={`visaHistory.0.expireDate`}
@@ -403,7 +589,7 @@ export default function EmployeeForm({ onClose, onAddSuccess }: EmployeeFormProp
                   />
                 </Grid>
 
-                <Grid size={{ xs: 18 }}>
+                <Grid size={{ xs: 18 }}mb={2}>
                   <Controller
                     name="comment"
                     control={control}

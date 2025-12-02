@@ -36,6 +36,19 @@ interface EmployeeSummary {
   middleName?: string;
   lastName: string;
   dateOfBirth?: string;
+  allCitizenship:string[];
+  filedBy:string;
+  gender:string;
+  socCode:string;
+  socCodeDescription:string;
+  initialH1BStart:Date;
+
+  prepExtensionDate:Date;
+  maxHPeriod:Date;
+  documentExpiryI94:Date;
+  personalEmail: string;
+
+
   email: string;
   countryOfBirth: string;
   addresses: string[];
@@ -88,6 +101,17 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
         middleName: emp.middleName || "",
         lastName: emp.lastName,
         dateOfBirth: emp.dateOfBirth || "",
+        allCitizenship: emp.allCitizenship,
+        filedBy: emp.filedBy,
+        gender: emp.gender,
+        socCode: emp.socCode,
+        socCodeDescription: emp.socCodeDescription,
+        initialH1BStart: emp.initialH1BStart,
+        prepExtensionDate: emp.prepExtensionDate,
+        maxHPeriod: emp.maxHPeriod,
+        documentExpiryI94: emp.documentExpiryI94,
+        personalEmail: emp.personalEmail,
+
         email: emp.email,
         addresses: emp.addresses || [],
         salary: emp.salary || 0,
@@ -170,6 +194,7 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
         return { ...prev, [name]: value } as EmployeeSummary;
       });
     }
+
   };
 
   useEffect(() => {
@@ -187,6 +212,9 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
       setInitialEmployeeData(emp);
     }
   };
+
+
+
 
   const deleteEmployee = async (id: string) => {
     try {
@@ -221,7 +249,7 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
 
   const handleVisaHistoryChange = (
     index: number,
-    field: "startDate" | "expireDate" | "visaType",
+    field: "startDate" | "expireDate" | "visaType" ,
     value: string | Date | null
   ) => {
     setSelectedEmployee(prev => {
@@ -275,6 +303,9 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
     setEditMode(false);
   };
 
+
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEmployee) return;
@@ -291,6 +322,18 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
         middleName: selectedEmployee.middleName || "",
         lastName: selectedEmployee.lastName,
         dateOfBirth: selectedEmployee.dateOfBirth || "",
+        allCitizenship: selectedEmployee.allCitizenship,
+        filedBy: selectedEmployee.filedBy,
+        gender: selectedEmployee.gender,
+        socCode: selectedEmployee.socCode,
+        socCodeDescription: selectedEmployee.socCodeDescription,
+        initialH1BStart:selectedEmployee.initialH1BStart,
+        
+        prepExtensionDate:selectedEmployee.prepExtensionDate,
+        maxHPeriod:selectedEmployee.maxHPeriod,
+        documentExpiryI94:selectedEmployee.documentExpiryI94,
+        personalEmail:selectedEmployee.personalEmail,
+
         email: selectedEmployee.email,
         addresses: selectedEmployee.addresses || [],
         salary: selectedEmployee.salary || 0,
@@ -539,6 +582,7 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
             salary={selectedEmployee?.salary}
             editMode={editMode}
             handleInputChange={handleInputChange}
+            selectedEmployee={selectedEmployee}
           />
           <VisaInfo
             visa={currentVisa}
@@ -549,6 +593,8 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
             handleDeleteComment={handleDeleteComment}
             handleEditComment={handleEditComment}
             handleSaveComment={handleSaveComment}
+            selectedEmployee={selectedEmployee}
+            handleInputChange={handleInputChange}
           />
 
           <VisaHistoryInfo

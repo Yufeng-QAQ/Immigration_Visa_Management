@@ -7,6 +7,8 @@ interface DepartmentInfoProps {
   salary?: number | string;
   editMode: boolean;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  selectedEmployee: any;
+
 }
 
 const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
@@ -14,6 +16,7 @@ const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
   salary,
   editMode,
   handleInputChange,
+  selectedEmployee,
 }) => {
   return (
     <Card elevation={2} sx={{ mt: 2, mb: 2 }}>
@@ -70,6 +73,33 @@ const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
               InputProps={{ readOnly: !editMode }}
             />
           </Grid>
+
+          <Grid size={{ xs: 9 }}>
+            <TextField
+              label="soc Code"
+              name="socCode"
+              value={selectedEmployee?.socCode|| ""}
+              onChange={handleInputChange}
+              fullWidth
+              variant="standard"
+              InputProps={{ readOnly: !editMode }}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 9 }}>
+            <TextField
+              label="socCode Description"
+              name="socCodeDescription"
+              value={selectedEmployee?.socCodeDescription || ""}
+              onChange={handleInputChange}
+              fullWidth
+              variant="standard"
+              InputProps={{ readOnly: !editMode }}
+            />
+          </Grid>
+
+
+
 
           <Grid size={{ xs: 7}}>
             <TextField

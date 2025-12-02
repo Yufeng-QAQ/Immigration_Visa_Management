@@ -47,6 +47,8 @@ interface VisaInfoProps {
   handleDeleteComment: (id: string) => void;
   handleEditComment: (id: string, value: string) => void;
   handleSaveComment: (id: string) => void;
+  selectedEmployee: any;
+  handleInputChange: (e: any) => void;
 }
 
 const VisaInfo: React.FC<VisaInfoProps> = ({
@@ -58,6 +60,8 @@ const VisaInfo: React.FC<VisaInfoProps> = ({
   handleDeleteComment,
   handleEditComment,
   handleSaveComment,
+  selectedEmployee,
+  handleInputChange,
 }) => {
   const [newComment, setNewComment] = useState("");
 
@@ -70,7 +74,117 @@ const VisaInfo: React.FC<VisaInfoProps> = ({
 
         <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
           {/* Visa Type */}
-          <Grid size={{ xs: 7 }}>
+          <Grid size={{ xs: 7 }} mb={2} >
+              <DatePicker
+                label="Initial H1B Start"
+                value={
+                  selectedEmployee?.initialH1BStart
+                    ? dayjs(selectedEmployee.initialH1BStart)
+                    : null
+                }
+                onChange={(newValue) => {
+                  if (editMode)
+                    handleInputChange({
+                      target: {
+                        name: "initialH1BStart",
+                        value: newValue?.toDate() || null,
+                      },
+                    });
+                }}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: "standard",
+                    InputProps: { readOnly: !editMode },
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 7 }} mb={2} >
+              <DatePicker
+                label="Prep Extension Date"
+                value={
+                  selectedEmployee?.prepExtensionDate
+                    ? dayjs(selectedEmployee.prepExtensionDate)
+                    : null
+                }
+                onChange={(newValue) => {
+                  if (editMode)
+                    handleInputChange({
+                      target: {
+                        name: "prepExtensionDate",
+                        value: newValue?.toDate() || null,
+                      },
+                    });
+                }}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: "standard",
+                    InputProps: { readOnly: !editMode },
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 7 }} mb={2} >
+              <DatePicker
+                label="Max H Period"
+                value={
+                  selectedEmployee?.maxHPeriod
+                    ? dayjs(selectedEmployee.maxHPeriod)
+                    : null
+                }
+                onChange={(newValue) => {
+                  if (editMode)
+                    handleInputChange({
+                      target: {
+                        name: "maxHPeriod",
+                        value: newValue?.toDate() || null,
+                      },
+                    });
+                }}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: "standard",
+                    InputProps: { readOnly: !editMode },
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 7 }} mb={2} >
+              <DatePicker
+                label="Document Expiry I94"
+                value={
+                  selectedEmployee?.documentExpiryI94
+                    ? dayjs(selectedEmployee.documentExpiryI94)
+                    : null
+                }
+                onChange={(newValue) => {
+                  if (editMode)
+                    handleInputChange({
+                      target: {
+                        name: "documentExpiryI94",
+                        value: newValue?.toDate() || null,
+                      },
+                    });
+                }}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    variant: "standard",
+                    InputProps: { readOnly: !editMode },
+                  },
+                }}
+              />
+            </Grid>
+            
+          <Grid size={{ xs: 7 }} mb={2}>
+
+            
             <FormControl fullWidth sx={{ m: 0 }}>
               <InputLabel>Visa Type</InputLabel>
               <Select
@@ -83,9 +197,18 @@ const VisaInfo: React.FC<VisaInfoProps> = ({
                 disabled={!editMode}
               >
                 <MenuItem value="J-1">J-1</MenuItem>
-                <MenuItem value="H-1B">H-1B</MenuItem>
+                <MenuItem value="H-1B initial COS from J-1">H-1B initial COS from J-1</MenuItem>
+                <MenuItem value="H-1B extension">H-1B extension</MenuItem>
+                <MenuItem value="H-1B extension recapture">H-1B extension recapture</MenuItem>
+                <MenuItem value="H-1B extension AC21 + recapture 7 days">H-1B extension AC21 + recapture 7 days</MenuItem>
+                <MenuItem value="TN petition">TN petition</MenuItem>
+                <MenuItem value="H-1B port">H-1B port</MenuItem>
                 <MenuItem value="OPT - 1 Year">OPT - 1 Year</MenuItem>
                 <MenuItem value="OPT - 3 Years">OPT - 3 Years</MenuItem>
+                <MenuItem value="Permanent Residency">Permanent Residency</MenuItem>
+                <MenuItem value="H-1B (elective)">H-1B (elective)</MenuItem>
+                <MenuItem value="H-1B initial COS from F-1 OPT">H-1B initial COS from F-1 OPT</MenuItem>
+                
               </Select>
             </FormControl>
           </Grid>

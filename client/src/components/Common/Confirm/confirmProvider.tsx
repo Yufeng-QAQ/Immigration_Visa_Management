@@ -1,4 +1,4 @@
-import React, { useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
 
 import {type ConfirmOptions, ConfirmContext } from "./confirmContext";

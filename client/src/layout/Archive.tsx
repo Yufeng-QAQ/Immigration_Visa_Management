@@ -10,8 +10,11 @@ import { notify } from "../components/Common/Notification/eventBus";
 import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Sidebar";
 import UploadEmployee from "../components/Employee/import"
+import { useAuth } from "../components/Common/UserAuth/AuthContext";
 
 export default function Archive() {
+  const { user } = useAuth();
+  const userRole = user?.role;
   const confirm = useConfirm();
   const employeeColumns: GridColDef<EmployeeItem>[] = [
     { field: "employeeId", headerName: "Employee ID", width: 130 },
@@ -49,86 +52,102 @@ export default function Archive() {
       field: "restore",
       headerName: "",
       width: 120,
-      renderCell: (params) => (
-        <Button
-          variant="contained"
-          color="success"
-          onClick={(event) => {
-            event.stopPropagation();
-            handleRestore(params.row._id); 
-          }}
-        >
-          Restore
-        </Button>
-      ),
+      renderCell: (params) => {
+        const canArchive =
+          userRole === "MasterAdmin" ||
+          userRole === "Administrator";
+
+        if (!canArchive) return null;
+        
+        return (
+          <Button
+            variant="contained"
+            color="success"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleRestore(params.row._id);
+            }}
+          >
+            Restore
+          </Button>
+        );
+      },
     },
     {
       field: "delete",
       headerName: "",
       width: 120,
-      renderCell: (params) => (
-        <Button
-          variant="contained"
-          color="error"
-          onClick={(event) => {
-            event.stopPropagation();
-            deleteEmployee(params.row._id);
-          }}
-        >
-          Delete
-        </Button>
-      ),
+      renderCell: (params) => {
+        const canArchive =
+          userRole === "MasterAdmin" ||
+          userRole === "Administrator";
+
+        if (!canArchive) return null;
+
+        return (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={(event) => {
+              event.stopPropagation();
+              deleteEmployee(params.row._id);
+            }}
+          >
+            Delete
+          </Button>
+        );
+      },
     },
   ];
 
   const [reload, setReload] = useState(false);
 
-   const triggerReload = () => {
+  const triggerReload = () => {
     setReload(prev => !prev);
   };
 
   const handleRestore = async (id: string) => {
-  try {
-    const result = await confirm({
-      content: "Are you sure to restore this employee?",
-      confirmText: "Yes",
-      cancelText: "No",
-    });
+    try {
+      const result = await confirm({
+        content: "Are you sure to restore this employee?",
+        confirmText: "Yes",
+        cancelText: "No",
+      });
 
-    if (result) {
-      await api.post(`/employee/restore/${id}`);
-      notify.success("Employee restored successfully!");
-      triggerReload();
+      if (result) {
+        await api.post(`/employee/restore/${id}`);
+        notify.success("Employee restored successfully!");
+        triggerReload();
+      }
+
+    } catch (err) {
+      console.error("Failed to restore employee:", err);
+      alert("Failed to restore employee.");
     }
-    
-  } catch (err) {
-    console.error("Failed to restore employee:", err);
-    alert("Failed to restore employee.");
-  }
-};
+  };
 
 
-const deleteEmployee = async (id: string) => {
-  try {
-    const result = await confirm({
-      title: "Warning!",
-      content: "Are you sure you want to delete this employee?",
-      confirmText: "Delete",
-      cancelText: "No",
-      isDelete: true
-    });
+  const deleteEmployee = async (id: string) => {
+    try {
+      const result = await confirm({
+        title: "Warning!",
+        content: "Are you sure you want to delete this employee?",
+        confirmText: "Delete",
+        cancelText: "No",
+        isDelete: true
+      });
 
-    if (result) {
-      await api.delete(`/employee/deleteEmployee/${id}`);
-      notify.success("Employee restored successfully!");
-      triggerReload();
+      if (result) {
+        await api.delete(`/employee/deleteEmployee/${id}`);
+        notify.success("Employee restored successfully!");
+        triggerReload();
+      }
+
+    } catch (err: unknown) {
+      console.error("Failed to delete employee:", err);
+      alert("Failed to delete employee.");
     }
-
-  } catch (err: unknown) {
-    console.error("Failed to delete employee:", err);
-    alert("Failed to delete employee.");
-  }
-};
+  };
 
   return (
     <Box sx={{ ml: 7 }}>
@@ -149,7 +168,7 @@ const deleteEmployee = async (id: string) => {
       </Container>
 
       <UploadEmployee>
-        
+
       </UploadEmployee>
     </Box>
 

@@ -1,29 +1,17 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { Grid, Box, Typography, Button, Container, TextField } from "@mui/material";
 import api from "../api/axios";
 import { notify } from "../components/Common/Notification/eventBus";
+import { useAuth } from "../components/Common/UserAuth/AuthContext";
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await api.get("/auth/getCurrUser");
-        if (res.data.username) {
-          navigate("/home");
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    checkSession();
-  }, [navigate]);
+  const [, setError] = useState("");
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     try {
@@ -31,6 +19,11 @@ export default function LandingPage() {
         username,
         password,
       });
+
+      const user = await api.get(`/user/getUserById/${res.data?.userId}`);
+      if (user) {
+        login(user.data);
+      }
 
       notify.success(res.data?.message)
       navigate("/home");

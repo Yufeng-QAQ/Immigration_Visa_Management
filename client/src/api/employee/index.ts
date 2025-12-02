@@ -35,6 +35,18 @@ export interface EmployeeItem {
   email: string;
   addresses: AddressItem[];
   countryOfBirth: string;
+
+  allCitizenship:string[];
+  filedBy:string;
+  gender:string;
+  socCode:string;
+  socCodeDescription:string;
+  initialH1BStart:Date | null;
+  prepExtensionDate: Date | null;
+  maxHPeriod: Date | null;
+  documentExpiryI94: Date | null;
+  personalEmail:string;
+  
   salary: number;
   positionTitle: string;
   highestDegree: string;
