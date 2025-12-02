@@ -7,6 +7,7 @@ import HomePage from "./HomePage";
 import ManageEmp from "./ManageEmployee";
 import Archive from "./Archive";
 import AccountAdmin from "./AccountAdmin";
+import ReportPage from "./Report";
 
 import { GlobalNotification } from "../components/Common/Notification/Notification";
 import { notify } from "../components/Common/Notification/eventBus";
@@ -75,6 +76,7 @@ export default function AppContent() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/manage" element={<ManageEmp />} />
           <Route path="/archive" element={<Archive />} />
+          <Route path="/report" element={<ReportPage />} />
           <Route path="/account" element={<ProtectedRoute userRole={user?.role} allowedRoles={['MasterAdmin']}>
             <AccountAdmin />
           </ProtectedRoute>} />

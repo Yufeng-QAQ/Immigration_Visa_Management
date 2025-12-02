@@ -2,7 +2,6 @@ import { Response, Request } from "express";
 import { UserService } from "../services/userService";
 import bcrypt from "bcryptjs";
 
-
 export class UserContoller {
   private userService: UserService;
 

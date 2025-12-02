@@ -277,52 +277,43 @@ export const getHistoryVisaComments = async (req: Request, res: Response) => {
 
 export const getVisaStats = async (req: Request, res: Response) => {
   try {
-    const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
-    const result = await VisaModel.aggregate([
-      { $match: { status: "Active" } },
-      {
-        $lookup: {
-          from: "employees",
-          localField: "employee",
-          foreignField: "_id",
-          as: "employeeData"
-        }
-      },
-      { $unwind: "$employeeData" },
-      {
-        $facet: {
-          visaCount: [
-            { $group: { _id: "$visaType", total: { $sum: 1 } } }
-          ],
-          deptCount: [
-            { $group: { _id: "$employeeData.departmentInfo.department", total: { $sum: 1 } } }
-          ],
-          collCount: [
-            { $group: { _id: "$employeeData.departmentInfo.college", total: { $sum: 1 } } }
-          ],
-          counCount: [
-            { $group: { _id: "$employeeData.countryOfBirth", total: { $sum: 1 } } }
-          ],
-        }
-      }
-    ]);
+    const filters = req.body as any;
+    const query: any = {};
+    if (filters.salaryFrom === '')  filters.salaryFrom  = null;
+    if (filters.salaryTo === '')  filters.salaryTo = null;
+    if (filters.highestDegree != "") query.highestDegree = filters.highestDegree;
+    if (filters.countryOfBirth != "") query.countryOfBirth = filters.countryOfBirth;
+    if (filters.admin != "") query["departmentInfo.admin"] = filters.admin;
+    if (filters.college != "") query["departmentInfo.college"] = filters.college;
+    if (filters.department != "") query["departmentInfo.department"] = filters.department;
+    if (filters.salaryFrom != null|| filters.salaryTo != null) {
+      query.salary = {};
+      if (filters.salaryFrom != null) query.salary.$gte = filters.salaryFrom;
+      if (filters.salaryTo != null) query.salary.$lte = filters.salaryTo;
+    }
+    
+    const visaMatch:any = { status: "Active"};
+    if (filters.visaType) visaMatch.visaType = filters.visaType;
+    if(filters.fromDate && filters.toDate){
+      visaMatch.expireDate = { $gte: filters.fromDate };
+      visaMatch.issueDate = { $lte: filters.toDate };
+    }else{
+      if (filters.fromDate) visaMatch.expireDate = { $gte: filters.fromDate };
+      if (filters.toDate)   visaMatch.issueDate = { $lte: filters.toDate };
+    }
 
-    const visaCount: Record<string, number> = {};
-    result[0].visaCount.forEach((r: any) => visaCount[r._id] = r.total);
-    const deptCount: Record<string, number> = {};
-    result[0].deptCount.forEach((r: any) => deptCount[r._id] = r.total);
-    const collCount: Record<string, number> = {};
-    result[0].collCount.forEach((r: any) => collCount[r._id] = r.total);
-    const counCount: Record<string, number> = {};
-    result[0].counCount.forEach((r: any) => counCount[r._id] = r.total);
-
-    res.json({
-      visaCount,
-      deptCount,
-      counCount,
-      collCount
-    });
-
+    const employees = await Employee.find(query)
+      .populate({
+        path: "visaHistory",
+        match: visaMatch,
+        options: { sort: { issueDate: -1 }, limit: 1 }
+      })
+      .populate({
+        path: 'comments',
+        select: 'content date',
+      });
+    const result = employees.filter(emp => emp.visaHistory.length > 0);
+    res.json(result);
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: err.message || "Server error" });
@@ -505,13 +496,11 @@ export const getEmployeeArchive = async (req: Request, res: Response) => {
 
 export const editComment = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;        // URL 里的 comment id
-    const { content } = req.body;     // POST 请求 body 里的新内容
+    const { id } = req.params; 
+    const { content } = req.body;  
 
     const CommentModel = Comment as mongoose.Model<IComment>;
 
-
-    // 更新数据库
     const updatedComment = await CommentModel.findByIdAndUpdate(
       id,
       { content },

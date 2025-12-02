@@ -3,7 +3,6 @@ import type { GridColDef } from "@mui/x-data-grid";
 
 import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Sidebar";
-import VisaStatsComponent from "../components/Reports/visaSummary";
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
 
@@ -14,7 +13,7 @@ export default function HomePage() {
     { field: "firstName", headerName: "First Name", width: 150 },
     { field: "lastName", headerName: "Last Name", width: 150 },
     {
-      field: "visaType", headerName: "Visa Type", width: 150,
+      field: "visaType", headerName: "Visa Type", width: 200,
       valueGetter: (_, row) => {
         const visaType = row.visaHistory[0]?.visaType;
         return visaType ? visaType : "N/A";
@@ -27,6 +26,20 @@ export default function HomePage() {
         return date ? new Date(date).toLocaleDateString("en-US") : "N/A";
       }
     },
+      {
+        field: "department", headerName: "department", width: 200,
+        valueGetter: (_, row) => {
+          const department = row.departmentInfo?.department;
+          return department ? department : "N/A";
+        }
+      },
+      {
+        field: "supervisor", headerName: "Supervisor", width: 200,
+        valueGetter: (_, row) => {
+          const supervisor = row.departmentInfo?.supervisor;
+          return supervisor ? supervisor : "N/A";
+        }
+      },
     {
       field: "daysRemain",
       headerName: "Days Remain",
@@ -34,7 +47,7 @@ export default function HomePage() {
       valueGetter: (_, row) => {
         const days = row.visaHistory[0]?.expireDate
           ? calculateDaysLeft(row.visaHistory[0].expireDate)
-          : NaN;
+          : Infinity;
         return days;
       },
       renderCell: (params) => {
@@ -42,7 +55,7 @@ export default function HomePage() {
         let bgColor = "gray";
         let text = "";
 
-        if (days === 999 || isNaN(days)) {
+        if (days === Infinity) {
           text = "-";
           bgColor = "gray";
         } else if (days < 0) {
@@ -95,7 +108,7 @@ export default function HomePage() {
         </Box>
 
         <Grid container spacing={2} display={"flex"} justifyContent={"space-around"}>
-          <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer" }}>
+          <Grid size={{ xs: 12}} sx={{ mr: 5, cursor: "pointer" }}>
             <EmployeeTable
               title="Current Live Cases"
               url="employee/getEmployee"
@@ -103,10 +116,6 @@ export default function HomePage() {
               initialSort="daysRemain"
               change={false}
             />
-          </Grid>
-
-          <Grid size={{ xs: 12, lg: 3 }}>
-            <VisaStatsComponent />
           </Grid>
         </Grid>
       </Container>

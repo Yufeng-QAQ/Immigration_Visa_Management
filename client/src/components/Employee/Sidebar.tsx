@@ -14,6 +14,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 import { useAuth } from "../Common/UserAuth/AuthContext";
 
 export default function TemporaryDrawer() {
@@ -24,6 +25,7 @@ export default function TemporaryDrawer() {
     { text: 'Homepage', action: () => navigate("/home"), path: "/home", icon: HomeIcon },
     { text: 'Manage Employee', action: () => navigate("/manage"), path: "/manage", icon: PeopleIcon },
     { text: 'Archive', action: () => navigate("/archive"), path: "/archive", icon: ArchiveIcon },
+    { text: 'Report', action: () => navigate("/report"), path: "/report", icon: SummarizeIcon},
     { text: 'Account', action: () => navigate("/account"), path: "/account", icon: AccountBoxIcon, roles: ["MasterAdmin"] },
   ];
 
