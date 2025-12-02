@@ -27,7 +27,7 @@ export class AuthController {
       (req.session as any).userId = user._id;
       (req.session as any).username = user.username;
 
-      res.json({ message: "Login successful" });
+      res.json({ message: "Login successful", userId: user._id });
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
