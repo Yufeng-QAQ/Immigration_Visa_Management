@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
-import type { GridColDef } from "@mui/x-data-grid";
+import type { GridColDef , GridRowsProp} from "@mui/x-data-grid";
 import EmpDetail from "./EmpDetail";
 import {
   Alert,
@@ -18,11 +18,12 @@ interface EmployeeTableProps {
   columns: GridColDef[];
   initialSort: string;
   change: boolean;
+  passedRows?: EmployeeItem[];
 }
 
 import type { EmployeeItem } from "../../api";
 
-export default function EmployeeTable({ url, title, columns, initialSort, change}: EmployeeTableProps) {
+export default function EmployeeTable({ url, title, columns, initialSort, change, passedRows}: EmployeeTableProps) {
   const [reload, setReload] = useState(false);
   const [rows, setRows] = useState<EmployeeItem[]>([]);
   const [isloading, setIsLoading] = useState(false);
@@ -87,7 +88,7 @@ export default function EmployeeTable({ url, title, columns, initialSort, change
             <Grid size={{ xs: 12 }}>
               <DataGrid
                 loading={isloading}
-                rows={rows}
+                rows={passedRows? passedRows: rows}
                 columns={columns}
                 getRowId={(row) => row._id || row.id}
                 pageSizeOptions={[5, 10, 25]}

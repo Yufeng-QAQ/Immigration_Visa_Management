@@ -277,52 +277,43 @@ export const getHistoryVisaComments = async (req: Request, res: Response) => {
 
 export const getVisaStats = async (req: Request, res: Response) => {
   try {
-    const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
-    const result = await VisaModel.aggregate([
-      { $match: { status: "Active" } },
-      {
-        $lookup: {
-          from: "employees",
-          localField: "employee",
-          foreignField: "_id",
-          as: "employeeData"
-        }
-      },
-      { $unwind: "$employeeData" },
-      {
-        $facet: {
-          visaCount: [
-            { $group: { _id: "$visaType", total: { $sum: 1 } } }
-          ],
-          deptCount: [
-            { $group: { _id: "$employeeData.departmentInfo.department", total: { $sum: 1 } } }
-          ],
-          collCount: [
-            { $group: { _id: "$employeeData.departmentInfo.college", total: { $sum: 1 } } }
-          ],
-          counCount: [
-            { $group: { _id: "$employeeData.countryOfBirth", total: { $sum: 1 } } }
-          ],
-        }
-      }
-    ]);
+    const filters = req.body as any;
+    const query: any = {};
+    
+    if (filters.highestDegree != "") query.highestDegree = filters.highestDegree;
+    if (filters.countryOfBirth != "") query.countryOfBirth = filters.countryOfBirth;
+    if (filters.admin != "") query["departmentInfo.admin"] = filters.admin;
+    if (filters.college != "") query["departmentInfo.college"] = filters.college;
+    if (filters.department != "") query["departmentInfo.department"] = filters.department;
+    if (filters.salaryFrom != null|| filters.salaryTo != null) {
+      query.salary = {};
+      if (filters.salaryFrom != null) query.salary.$gte = filters.salaryFrom;
+      if (filters.salaryTo != null) query.salary.$lte = filters.salaryTo;
+    }
+    if (filters.visaType || filters.fromDate || filters.toDate) {
+      const startDateQuery: any = {};
+      if (filters.fromDate) startDateQuery.$gte = filters.fromDate;
+      if (filters.toDate) startDateQuery.$lte = filters.toDate;
 
-    const visaCount: Record<string, number> = {};
-    result[0].visaCount.forEach((r: any) => visaCount[r._id] = r.total);
-    const deptCount: Record<string, number> = {};
-    result[0].deptCount.forEach((r: any) => deptCount[r._id] = r.total);
-    const collCount: Record<string, number> = {};
-    result[0].collCount.forEach((r: any) => collCount[r._id] = r.total);
-    const counCount: Record<string, number> = {};
-    result[0].counCount.forEach((r: any) => counCount[r._id] = r.total);
+      query.visaHistory = {
+        $elemMatch: {
+          status: "Active",
+          ...(filters.visaType ? { visaType: filters.visaType } : {}),
+          ...(Object.keys(startDateQuery).length ? { startDate: startDateQuery } : {}),
+        },
+      };
+    }
+    const employees = await Employee.find(query)
+      .populate({
+        path: "visaHistory",
+        options: { sort: { issueDate: -1 }, limit: 1 }
+      })
+      .populate({
+        path: 'comments',
+        select: 'content date',
+      });
 
-    res.json({
-      visaCount,
-      deptCount,
-      counCount,
-      collCount
-    });
-
+    res.json(employees);
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: err.message || "Server error" });
@@ -500,13 +491,11 @@ export const getEmployeeArchive = async (req: Request, res: Response) => {
 
 export const editComment = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;        // URL 里的 comment id
-    const { content } = req.body;     // POST 请求 body 里的新内容
+    const { id } = req.params; 
+    const { content } = req.body;  
 
     const CommentModel = Comment as mongoose.Model<IComment>;
 
-
-    // 更新数据库
     const updatedComment = await CommentModel.findByIdAndUpdate(
       id,
       { content },
@@ -553,25 +542,19 @@ export const employeeUpload = async (req: Request, res: Response) => {
   res.send("File uploaded successfully!");
 
   try {
-    // 1️⃣ 读取上传的 Excel 文件
     const workbook = xlsx.readFile(file.path);
-
-    // 2️⃣ 获取第一个 Sheet
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName!];
     if (!sheet) {
       return res.status(400).send("Sheet not found in Excel file.");
     }
 
-
-    // 3️⃣ 将 Sheet 转为 JSON 数组
     const rows = xlsx.utils.sheet_to_json(sheet);
 
     if (rows.length === 0) {
       return res.status(400).send("Excel is empty.");
     }
 
-    // 4️⃣ 取第一行数据
     const firstRow = rows[0];
     console.log("First row:", firstRow);
 

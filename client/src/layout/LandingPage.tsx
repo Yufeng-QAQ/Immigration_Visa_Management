@@ -7,8 +7,8 @@ import { notify } from "../components/Common/Notification/eventBus";
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -37,7 +37,8 @@ export default function LandingPage() {
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         console.error("Failed to login:", err.message);
-        setError(err.response?.data?.error || err.message);
+        setError(err.response?.data?.message || err.message);
+        notify.error(err.response?.data?.message);
       } else {
         console.error("Failed to login:", err);
         setError("Failed to login");
@@ -98,12 +99,6 @@ export default function LandingPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </Grid>
-
-          {error && (
-            <Grid size={{ xs: 12 }}>
-              <Typography color="error">{error}</Typography>
-            </Grid>
-          )}
 
           <Grid size={{ xs: 12 }}>
             <Button

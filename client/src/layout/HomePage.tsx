@@ -3,7 +3,6 @@ import type { GridColDef } from "@mui/x-data-grid";
 
 import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Sidebar";
-import VisaStatsComponent from "../components/Reports/visaSummary";
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
 
@@ -103,10 +102,6 @@ export default function HomePage() {
               initialSort="daysRemain"
               change={false}
             />
-          </Grid>
-
-          <Grid size={{ xs: 12, lg: 3 }}>
-            <VisaStatsComponent />
           </Grid>
         </Grid>
       </Container>
