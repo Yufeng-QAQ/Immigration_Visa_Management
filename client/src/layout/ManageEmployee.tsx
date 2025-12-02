@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useConfirm } from "../components/Common/Confirm";
 import { Box, Container, Grid, Button } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -12,7 +13,12 @@ import UploadEmployee from "../components/Employee/import";
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
 import { notify } from "../components/Common/Notification/eventBus";
+import { useAuth } from "../components/Common/UserAuth/AuthContext";
+
 export default function ManageEmployee() {
+  const confirm = useConfirm();
+  const {user} = useAuth();
+  const userRole = user?.role;
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
   const employeeColumns: GridColDef<EmployeeItem>[] = [
     { field: "employeeId", headerName: "Employee ID", width: 130 },
@@ -108,19 +114,28 @@ export default function ManageEmployee() {
       field: "archive",
       headerName: "",
       width: 120,
-      renderCell: (params) => (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={(event) => {
-            event.stopPropagation();
-            const employeeId = params.row._id || params.row.employeeId;
-            handleArchive(employeeId);
-          }}
-        >
-          Archive
-        </Button>
-      ),
+      renderCell: (params) => {
+        const employeeId = params.row._id || params.row.employeeId;
+
+        const canArchive =
+          userRole === "MasterAdmin" ||
+          userRole === "Administrator";
+
+        if (!canArchive) return null;
+
+        return (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleArchive(employeeId);
+            }}
+          >
+            Archive
+          </Button>
+        );
+      },
     },
   ];
   const [reload, setReload] = useState(false);
@@ -137,24 +152,33 @@ export default function ManageEmployee() {
 
   const handleArchive = async (id: string) => {
     try {
-      await api.post(`/employee/archive/${id}`);
-      alert("Employee archived successfully!");
-      triggerReload();
+      const result = await confirm({
+        content: "Are you sure to archive this employee?",
+        confirmText: "Yes",
+        cancelText: "No",
+      });
+
+      if (result) {
+        await api.post(`/employee/archive/${id}`);
+        notify.success("Employee archived successfully!");
+        triggerReload();
+      }
+      
     } catch (err) {
       console.error("Failed to archive employee:", err);
-      alert("Failed to archive employee.");
+      notify.error("Failed to archive employee.");
     }
   };
 
-  const handleDeleteAll = async () => {
-    try {
-      await api.delete("/employee/deleteAll");
-      notify.success("Deleted all employee!")
-    } catch (error) {
-      console.error("Failed to archive employee:", error);
-      alert("Failed to archive employee.");
-    }
-  };
+  // const handleDeleteAll = async () => {
+  //   try {
+  //     await api.delete("/employee/deleteAll");
+  //     notify.success("Deleted all employee!")
+  //   } catch (error) {
+  //     console.error("Failed to archive employee:", error);
+  //     alert("Failed to archive employee.");
+  //   }
+  // };
 
 
 
@@ -164,9 +188,9 @@ export default function ManageEmployee() {
         <Box sx={{ mb: 2, mt: 2 }}>
           <TemporaryDrawer />
         </Box>
-        <Button variant="contained" color="primary" onClick={handleDeleteAll}>
+        {/* <Button variant="contained" color="primary" onClick={handleDeleteAll}>
           DELETE ALL Employee
-        </Button>
+        </Button> */}
         <Box sx={{ position: "relative" }}>
           <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer" }}>
             <EmployeeTable
