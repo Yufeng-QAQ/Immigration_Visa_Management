@@ -33,7 +33,7 @@ export const GlobalNotification: React.FC = () => {
       autoHideDuration={3000}
       onClose={handleClose}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      sx={{ zIndex: 1300 }}
+      sx={{ zIndex: 1800 }}
     >
       <Alert
         onClose={handleClose}

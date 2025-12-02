@@ -8,18 +8,23 @@ import {
   Button,
   Box,
   Drawer,
+  Typography,
 } from "@mui/material";
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
 import ArchiveIcon from '@mui/icons-material/Archive';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import { useAuth } from "../Common/UserAuth/AuthContext";
 
 export default function TemporaryDrawer() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const menu = [
     { text: 'Homepage', action: () => navigate("/home"), path: "/home", icon: HomeIcon },
     { text: 'Manage Employee', action: () => navigate("/manage"), path: "/manage", icon: PeopleIcon },
     { text: 'Archive', action: () => navigate("/archive"), path: "/archive", icon: ArchiveIcon },
+    { text: 'Account', action: () => navigate("/account"), path: "/account", icon: AccountBoxIcon, roles: ["MasterAdmin"] },
   ];
 
   const [open, setOpen] = useState(false);
@@ -33,32 +38,56 @@ export default function TemporaryDrawer() {
 
       <Drawer anchor="left" open={open} onClose={toggleDrawer(false)}>
         <Box sx={{ width: 250, p: 2 }}>
+          <Box sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            mb: 2
+          }}>
+            <Box
+              component={"img"}
+              src="/umbc-logo2.png"
+              alt="UMBC Logo"
+              sx={{
+                width: "50%",
+                borderRadius: "50%",
+                objectFit: "cover",
+                mb: 2
+              }} />
+
+            <Typography sx={{ color: "white", fontWeight: 600, fontSize: "1.5rem" }}>
+              {user?.username ?? "Guest"}
+            </Typography>
+          </Box>
+
           <List>
-            {menu.map((choice) => {
-              const isActive = location.pathname === choice.path;
-              const Icon = choice.icon;
+            {menu
+              .filter(choice => !choice.roles || choice.roles.includes(user?.role || ""))
+              .map((choice) => {
+                const isActive = location.pathname === choice.path;
+                const Icon = choice.icon;
 
-              return (
-                <ListItemButton
-                  key={choice.text}
-                  onClick={choice.action}
-                  sx={{
-                    backgroundColor: isActive ? "#555555" : "transparent",
-                    "&:hover": {
-                      backgroundColor: isActive ? "#555555" : "#2e2e2eff",
-                    },
-                  }}
-                >
-                  {Icon && (
-                    <ListItemIcon sx={{ minWidth: 36, color: "white" }}>
-                      <Icon />
-                    </ListItemIcon>
-                  )}
+                return (
+                  <ListItemButton
+                    key={choice.text}
+                    onClick={choice.action}
+                    sx={{
+                      backgroundColor: isActive ? "#555555" : "transparent",
+                      "&:hover": {
+                        backgroundColor: isActive ? "#555555" : "#2e2e2eff",
+                      },
+                    }}
+                  >
+                    {Icon && (
+                      <ListItemIcon sx={{ minWidth: 36, color: "white" }}>
+                        <Icon />
+                      </ListItemIcon>
+                    )}
 
-                  <ListItemText primary={choice.text} sx={{ color: "white" }} />
-                </ListItemButton>
-              );
-            })}
+                    <ListItemText primary={choice.text} sx={{ color: "white" }} />
+                  </ListItemButton>
+                );
+              })}
           </List>
         </Box>
       </Drawer>

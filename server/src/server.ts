@@ -8,6 +8,7 @@ import MongoStore from "connect-mongo"
 import { userAuthenticate } from "./middlewares/authMiddleware";
 import authRouter from "./routes/authRoutes";
 import employeeRouter from "./routes/employeeRoutes";
+import userRouter from "./routes/userRoutes";
 
 dotenv.config();
 
@@ -56,6 +57,7 @@ mongoose.connect(uri)
 // Routers
 app.use("/api/auth", authRouter);
 app.use("/api/employee", userAuthenticate, employeeRouter);
+app.use("/api/user", userAuthenticate, userRouter);
 
 
 const PORT = process.env.PORT || 8000;
