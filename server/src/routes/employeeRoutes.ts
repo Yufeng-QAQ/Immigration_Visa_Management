@@ -1,4 +1,5 @@
 import express from "express";
+import Employee from "../models/employee";
 import {
   createEmployee,
   getEmployee,
@@ -38,5 +39,24 @@ router.post("/comments/:id", editComment)
 router.delete("/comments/:id", deleteComment);
 
 router.post("/upload", upload.single("file"), employeeUpload);
+
+router.delete("/deleteAll", async (req, res) => {
+  try {
+    // Optional: Check environment
+    // if (process.env.NODE_ENV === "production") {
+    //   return res.status(403).json({ message: "Not allowed in production!" });
+    // }
+
+    const result = await Employee.deleteMany({});
+
+    res.json({
+      message: "All employees deleted successfully (TEST ONLY).",
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.error("Delete all employees error:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+});
 
 export default router;

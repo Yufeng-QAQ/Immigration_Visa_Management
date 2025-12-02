@@ -405,12 +405,17 @@ export const deleteEmployee = async (req: Request, res: Response) => {
     }
 
     const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
-    // Validate if visaRecord exist
-    if (employee.visaHistory && employee.visaHistory.length > 0) {
-      await VisaModel.deleteMany({
-        _id: { $in: employee.visaHistory },
-      });
-    }
+    const CommentModel = Comment as mongoose.Model<IComment>;
+
+    const visaIds = employee.visaHistory || [];
+
+    await CommentModel.deleteMany({
+      record: { $in: visaIds }
+    });
+
+    await VisaModel.deleteMany({
+      _id: { $in: visaIds }
+    });
 
     const deleted = await Employee.findByIdAndDelete(id);
 
@@ -691,8 +696,7 @@ export const employeeUpload = async (req: Request, res: Response) => {
     let updatedCount = 0;
     let visaCount = 0;
 
-    // 这里的 slice(0,2) 只是测试用，你之后可以删掉
-    for (const row of rows.slice(75,78)) {
+    for (const row of rows) {
       if (!row["Last name"] || !row["First Name"]) continue;
 
       // PK：first + last name
@@ -821,7 +825,10 @@ export const employeeUpload = async (req: Request, res: Response) => {
         }
       }
 
-      // ========== 下面是 VisaRecord 逻辑（你原来的，稍微整理了一下） ==========
+      if (normalizeVisaType(row["Case type"]) == "Permanent Residency"){
+        continue;
+      }
+
       const visaUpdateRaw = {
         recordId: `VR-${Date.now()}`,
         employee: employee!._id,

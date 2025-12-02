@@ -7,8 +7,11 @@ import api from "../api/axios";
 import EmployeeForm from "../components/Employee/createEmployee";
 import EmployeeTable from "../components/Employee/EmployeeTable";
 import TemporaryDrawer from "../components/Employee/Sidebar";
+import UploadEmployee from "../components/Employee/import";
+
 import type { EmployeeItem } from "../api";
 import { calculateDaysLeft } from "../util";
+import { notify } from "../components/Common/Notification/eventBus";
 export default function ManageEmployee() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
   const employeeColumns: GridColDef<EmployeeItem>[] = [
@@ -111,7 +114,7 @@ export default function ManageEmployee() {
           color="primary"
           onClick={(event) => {
             event.stopPropagation();
-            const employeeId = params.row._id || params.row.employeeId; 
+            const employeeId = params.row._id || params.row.employeeId;
             handleArchive(employeeId);
           }}
         >
@@ -132,18 +135,27 @@ export default function ManageEmployee() {
     setIsCreateDialogOpen(false);
   };
 
-   const handleArchive = async (id: string) => {
+  const handleArchive = async (id: string) => {
     try {
       await api.post(`/employee/archive/${id}`);
       alert("Employee archived successfully!");
-      triggerReload(); 
+      triggerReload();
     } catch (err) {
       console.error("Failed to archive employee:", err);
       alert("Failed to archive employee.");
     }
   };
 
-  
+  const handleDeleteAll = async () => {
+    try {
+      await api.delete("/employee/deleteAll");
+      notify.success("Deleted all employee!")
+    } catch (error) {
+      console.error("Failed to archive employee:", error);
+      alert("Failed to archive employee.");
+    }
+  };
+
 
 
   return (
@@ -152,6 +164,9 @@ export default function ManageEmployee() {
         <Box sx={{ mb: 2, mt: 2 }}>
           <TemporaryDrawer />
         </Box>
+        <Button variant="contained" color="primary" onClick={handleDeleteAll}>
+          DELETE ALL Employee
+        </Button>
         <Box sx={{ position: "relative" }}>
           <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer" }}>
             <EmployeeTable
@@ -180,6 +195,10 @@ export default function ManageEmployee() {
             <EmployeeForm onClose={handleCloseCreateDialog} onAddSuccess={triggerReload} />
           </DialogContent>
         </Dialog>
+
+        <Box>
+          <UploadEmployee></UploadEmployee>
+        </Box>
 
       </Container>
     </Box>
