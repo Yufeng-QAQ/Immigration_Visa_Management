@@ -75,7 +75,7 @@ export default function AppContent() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/manage" element={<ManageEmp />} />
           <Route path="/archive" element={<Archive />} />
-          <Route path="/account" element={<ProtectedRoute userRole={user?.role} allowedRoles={['masterAdmin']}>
+          <Route path="/account" element={<ProtectedRoute userRole={user?.role} allowedRoles={['MasterAdmin']}>
             <AccountAdmin />
           </ProtectedRoute>} />
         </Routes>
