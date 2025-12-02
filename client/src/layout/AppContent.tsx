@@ -11,13 +11,14 @@ import AccountAdmin from "./AccountAdmin";
 import { GlobalNotification } from "../components/Common/Notification/Notification";
 import { notify } from "../components/Common/Notification/eventBus";
 import { useAuth } from "../components/Common/UserAuth/AuthContext";
+import ProtectedRoute from "../components/Common/ProtectedRoute";
 import api from "../api/axios";
 
 
 export default function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const isLandingPage = location.pathname === "/";
 
@@ -74,7 +75,9 @@ export default function AppContent() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/manage" element={<ManageEmp />} />
           <Route path="/archive" element={<Archive />} />
-          <Route path="/account" element={<AccountAdmin />} />
+          <Route path="/account" element={<ProtectedRoute userRole={user?.role} allowedRoles={['masterAdmin']}>
+            <AccountAdmin />
+          </ProtectedRoute>} />
         </Routes>
       </Container>
     </>

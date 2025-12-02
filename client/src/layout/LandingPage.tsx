@@ -10,7 +10,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
   const { login } = useAuth();
 
   const handleLogin = async () => {

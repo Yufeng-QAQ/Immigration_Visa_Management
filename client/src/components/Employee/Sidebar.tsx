@@ -24,7 +24,7 @@ export default function TemporaryDrawer() {
     { text: 'Homepage', action: () => navigate("/home"), path: "/home", icon: HomeIcon },
     { text: 'Manage Employee', action: () => navigate("/manage"), path: "/manage", icon: PeopleIcon },
     { text: 'Archive', action: () => navigate("/archive"), path: "/archive", icon: ArchiveIcon },
-    { text: 'Account', action: () => navigate("/account"), path: "/account", icon: AccountBoxIcon },
+    { text: 'Account', action: () => navigate("/account"), path: "/account", icon: AccountBoxIcon, roles: ["MasterAdmin"] },
   ];
 
   const [open, setOpen] = useState(false);
@@ -61,31 +61,33 @@ export default function TemporaryDrawer() {
           </Box>
 
           <List>
-            {menu.map((choice) => {
-              const isActive = location.pathname === choice.path;
-              const Icon = choice.icon;
+            {menu
+              .filter(choice => !choice.roles || choice.roles.includes(user?.role || ""))
+              .map((choice) => {
+                const isActive = location.pathname === choice.path;
+                const Icon = choice.icon;
 
-              return (
-                <ListItemButton
-                  key={choice.text}
-                  onClick={choice.action}
-                  sx={{
-                    backgroundColor: isActive ? "#555555" : "transparent",
-                    "&:hover": {
-                      backgroundColor: isActive ? "#555555" : "#2e2e2eff",
-                    },
-                  }}
-                >
-                  {Icon && (
-                    <ListItemIcon sx={{ minWidth: 36, color: "white" }}>
-                      <Icon />
-                    </ListItemIcon>
-                  )}
+                return (
+                  <ListItemButton
+                    key={choice.text}
+                    onClick={choice.action}
+                    sx={{
+                      backgroundColor: isActive ? "#555555" : "transparent",
+                      "&:hover": {
+                        backgroundColor: isActive ? "#555555" : "#2e2e2eff",
+                      },
+                    }}
+                  >
+                    {Icon && (
+                      <ListItemIcon sx={{ minWidth: 36, color: "white" }}>
+                        <Icon />
+                      </ListItemIcon>
+                    )}
 
-                  <ListItemText primary={choice.text} sx={{ color: "white" }} />
-                </ListItemButton>
-              );
-            })}
+                    <ListItemText primary={choice.text} sx={{ color: "white" }} />
+                  </ListItemButton>
+                );
+              })}
           </List>
         </Box>
       </Drawer>
