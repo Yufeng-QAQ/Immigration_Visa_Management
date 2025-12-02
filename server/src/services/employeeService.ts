@@ -279,7 +279,8 @@ export const getVisaStats = async (req: Request, res: Response) => {
   try {
     const filters = req.body as any;
     const query: any = {};
-    
+    if (filters.salaryFrom === '')  filters.salaryFrom  = null;
+    if (filters.salaryTo === '')  filters.salaryTo = null;
     if (filters.highestDegree != "") query.highestDegree = filters.highestDegree;
     if (filters.countryOfBirth != "") query.countryOfBirth = filters.countryOfBirth;
     if (filters.admin != "") query["departmentInfo.admin"] = filters.admin;
@@ -290,30 +291,29 @@ export const getVisaStats = async (req: Request, res: Response) => {
       if (filters.salaryFrom != null) query.salary.$gte = filters.salaryFrom;
       if (filters.salaryTo != null) query.salary.$lte = filters.salaryTo;
     }
-    if (filters.visaType || filters.fromDate || filters.toDate) {
-      const startDateQuery: any = {};
-      if (filters.fromDate) startDateQuery.$gte = filters.fromDate;
-      if (filters.toDate) startDateQuery.$lte = filters.toDate;
-
-      query.visaHistory = {
-        $elemMatch: {
-          status: "Active",
-          ...(filters.visaType ? { visaType: filters.visaType } : {}),
-          ...(Object.keys(startDateQuery).length ? { startDate: startDateQuery } : {}),
-        },
-      };
+    
+    const visaMatch:any = { status: "Active"};
+    if (filters.visaType) visaMatch.visaType = filters.visaType;
+    if(filters.fromDate && filters.toDate){
+      visaMatch.expireDate = { $gte: filters.fromDate };
+      visaMatch.issueDate = { $lte: filters.toDate };
+    }else{
+      if (filters.fromDate) visaMatch.expireDate = { $gte: filters.fromDate };
+      if (filters.toDate)   visaMatch.issueDate = { $lte: filters.toDate };
     }
+
     const employees = await Employee.find(query)
       .populate({
         path: "visaHistory",
+        match: visaMatch,
         options: { sort: { issueDate: -1 }, limit: 1 }
       })
       .populate({
         path: 'comments',
         select: 'content date',
       });
-
-    res.json(employees);
+    const result = employees.filter(emp => emp.visaHistory.length > 0);
+    res.json(result);
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: err.message || "Server error" });

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
-import type { GridColDef , GridRowsProp} from "@mui/x-data-grid";
+import type { GridColDef } from "@mui/x-data-grid";
 import EmpDetail from "./EmpDetail";
 import {
   Alert,
@@ -93,7 +93,7 @@ export default function EmployeeTable({ url, title, columns, initialSort, change
                 getRowId={(row) => row._id || row.id}
                 pageSizeOptions={[5, 10, 25]}
                 initialState={{
-                  pagination: { paginationModel: { pageSize: 10, page: 0 } },
+                  pagination: { paginationModel: { pageSize: 15, page: 0 } },
                   sorting: {
                     sortModel: [{ field: initialSort, sort: 'asc' }], 
                   },

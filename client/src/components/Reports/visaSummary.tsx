@@ -48,6 +48,7 @@ export default function VisaStatsComponent() {
       { field: "employeeId", headerName: "Employee ID", width: 130 },
       { field: "firstName", headerName: "First Name", width: 150 },
       { field: "lastName", headerName: "Last Name", width: 150 },
+      { field: "salary", headerName: "Salary", width: 130 },
       {
         field: "college", headerName: "college", width: 150,
         valueGetter: (_, row) => {
@@ -75,7 +76,7 @@ export default function VisaStatsComponent() {
           const date = row.visaHistory[0]?.expireDate;
           return date ? new Date(date).toLocaleDateString("en-US") : "N/A";
         }
-      }
+      },
     ]
   const methods = useForm<ReportItem>({
     defaultValues: {
@@ -102,6 +103,7 @@ export default function VisaStatsComponent() {
         setRows(raw);
         
         console.log(raw);
+        console.log(data);
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
           console.error(error.response?.data || error.message);
@@ -158,9 +160,9 @@ export default function VisaStatsComponent() {
   }, []);
 
   return (
-      <Grid>
+      <Grid sx={{ width: "100%" }}>
         <FormProvider {...methods}>
-            <Box width="100%">
+            <Box sx={{ maxWidth: 1200, margin: "0"}}>
             <form onSubmit={handleSubmit(onSubmit)}>
             <Card >
             <CardContent>
@@ -413,20 +415,22 @@ export default function VisaStatsComponent() {
           </form>
           </Box>
         </FormProvider>
-        <Card>
+        <Card sx={{ maxWidth: 1200, margin: "0"}}>
             <CardContent>
+              <Grid container spacing={2}>
               <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
                 Total Number of cases found: {rows.length}
               </Typography>
-                        <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer" }}>
-                          <EmployeeTable
-                            title=""
-                            url="employee/getEmployee"
-                            columns={employeeColumns}
-                            initialSort="daysRemain"
-                            change={false}
-                            passedRows={rows}
-                          />
+              <Grid size={{ xs: 12}} sx={{cursor: "pointer" }}>
+                <EmployeeTable
+                  title=""
+                  url="employee/getEmployee"
+                  columns={employeeColumns}
+                  initialSort="daysRemain"
+                  change={false}
+                  passedRows={rows}
+                />
+                </Grid>
               </Grid>
             </CardContent>
         </Card>
