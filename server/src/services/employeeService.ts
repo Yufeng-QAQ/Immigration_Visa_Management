@@ -8,6 +8,7 @@ import { IComment } from "../models/comment"
 import { Department } from "models/department";
 import multer from "multer";
 import xlsx from "xlsx";
+import { LogService } from "../services/logService";
 
 export const createEmployee = async (req: Request, res: Response) => {
   try {
@@ -50,6 +51,8 @@ export const createEmployee = async (req: Request, res: Response) => {
 
     }
 
+    const username = (req.session as any).username;
+    await LogService.write(username, "CREATED_RECORD", `${newEmployee?.firstName} ${newEmployee?.lastName}`);
     res.status(201).json(savedEmployee);
 
   } catch (err: any) {
@@ -167,6 +170,10 @@ export const updateEmployee = async (req: Request, res: Response) => {
     }
 
     const savedEmployee = await employee.save();
+
+    const operator = (req.session as any).username;
+    await LogService.write(operator, "UPDATED_RECORD", `${employee?.firstName} ${employee?.lastName}`);
+
     res.json({ message: "Employee updated", employee: savedEmployee });
 
   } catch (err: any) {
@@ -395,6 +402,9 @@ export const deleteEmployee = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
+    const firstName = employee?.firstName;
+    const lastName = employee?.lastName;
+
     const VisaModel = VisaRecord as mongoose.Model<IVisaRecord>;
     const CommentModel = Comment as mongoose.Model<IComment>;
 
@@ -409,6 +419,9 @@ export const deleteEmployee = async (req: Request, res: Response) => {
     });
 
     const deleted = await Employee.findByIdAndDelete(id);
+
+    const operator = (req.session as any).username;
+    await LogService.write(operator, "DELETED_RECORD", `${firstName} ${lastName}`);
 
     res.json({
       message: "Employee and related active visa records deleted successfully",
@@ -439,6 +452,9 @@ export const updateArchive = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
+    const operator = (req.session as any).username;
+    await LogService.write(operator, "ARCHIVED_RECORD", `${updatedEmployee?.firstName} ${updatedEmployee?.lastName}`);
+
     res.status(200).json({
       message: "Employee archived successfully",
       employee: updatedEmployee,
@@ -463,6 +479,9 @@ export const restoreEmployee = async (req: Request, res: Response) => {
     if (!updatedEmployee) {
       return res.status(404).json({ message: "Employee not found" });
     }
+
+    const operator = (req.session as any).username;
+    await LogService.write(operator, "RESTORED_RECORD", `${updatedEmployee?.firstName} ${updatedEmployee?.lastName}`);
 
     res.status(200).json({
       message: "Employee restored successfully",

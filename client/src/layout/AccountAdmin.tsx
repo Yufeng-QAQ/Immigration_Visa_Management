@@ -16,6 +16,7 @@ import TemporaryDrawer from "../components/Employee/Sidebar";
 import UserList from "../components/Account/UserList";
 import CreateUser from "../components/Account/CreateUser";
 import UserDetail from "../components/Account/UserDetail";
+import SystemLog from "../components/Account/systemLog";
 import type { UserItem } from "../api";
 
 export default function AccountAdmin() {
@@ -95,6 +96,10 @@ export default function AccountAdmin() {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 7, lg: 6 }}>
             <UserList users={users} onDelete={handleDelete} onEdit={handleEdit} />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 5, lg: 6 }}>
+            <SystemLog></SystemLog>
           </Grid>
         </Grid>
 
