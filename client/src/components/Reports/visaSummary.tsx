@@ -162,7 +162,7 @@ export default function VisaStatsComponent() {
       <Grid container columns={{xs: 18}}>
         <Grid size={{xs: 18, md:13}}>
           <FormProvider {...methods}>
-            <Box   display={"flex"}>
+            <Box   display={"flex"} sx={{mb:1}}>
               <form onSubmit={handleSubmit(onSubmit)}>
               <Card>
                 <CardContent>

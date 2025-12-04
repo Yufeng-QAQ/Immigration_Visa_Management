@@ -41,9 +41,9 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
           Basic Information
         </Typography>
 
-        <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
+        <Grid container spacing={2} columns={{ xs: 12, md: 12 }}>
           {/* First Name */}
-          <Grid size={{ xs: 7 }}>
+          <Grid size={{ xs: 3 }}>
             <TextField
               label="First Name"
               name="firstName"
@@ -56,7 +56,7 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
           </Grid>
 
           {/* Middle Name */}
-          <Grid size={{ xs: 4 }}>
+          <Grid size={{ xs: 2 }}>
             <TextField
               label="Middle Name"
               name="middleName"
@@ -69,7 +69,7 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
           </Grid>
 
           {/* Last Name */}
-          <Grid size={{ xs: 7 }}>
+          <Grid size={{ xs: 3 }}>
             <TextField
               label="Last Name"
               name="lastName"
@@ -81,35 +81,10 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
             />
           </Grid>
 
-          {/* Employee ID */}
-          <Grid size={{ xs: 6 }}>
-            <TextField
-              label="Employee ID"
-              name="employeeId"
-              fullWidth
-              variant="standard"
-              value={selectedEmployee?.employeeId || ""}
-              onChange={handleInputChange}
-              InputProps={{ readOnly: !editMode }}
-            />
-          </Grid>
-
-          {/* Position Title */}
-          <Grid size={{ xs: 6 }}>
-            <TextField
-              label="Position Title"
-              name="positionTitle"
-              fullWidth
-              variant="standard"
-              value={selectedEmployee?.positionTitle || ""}
-              onChange={handleInputChange}
-              InputProps={{ readOnly: !editMode }}
-            />
-          </Grid>
 
           {/* Date of Birth */}
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{ xs: 2 }}>
               <DatePicker
                 label="Date of Birth"
                 value={
@@ -136,109 +111,7 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
               />
             </Grid>
           </LocalizationProvider>
-
-          {/* Email + Country + Degree */}
-          <Grid
-            size={{ xs: 18 }}
-            container
-            spacing={2}
-            columns={18}
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Grid size={{ xs: 6 }}>
-              <TextField
-                label="School Email"
-                name="email"
-                fullWidth
-                variant="standard"
-                value={selectedEmployee?.email || ""}
-                onChange={handleInputChange}
-                InputProps={{ readOnly: !editMode }}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 6 }}>
-              <TextField
-                label="Personal Email"
-                name="personalEmail"
-                fullWidth
-                variant="standard"
-                value={selectedEmployee?.personalEmail || ""}
-                onChange={handleInputChange}
-                InputProps={{ readOnly: !editMode }}
-              />
-            </Grid>
-
-
-            
-
-            <Grid size={{ xs: 6 }} mb={2}>
-              <FormControl fullWidth sx={{ m: 0 }}>
-                <InputLabel>Highest Degree</InputLabel>
-                <Select
-                  name="highestDegree"
-                  value={selectedEmployee?.highestDegree || ""}
-                  onChange={handleInputChange}
-                  variant="standard"
-                  disabled={!editMode}
-                >
-                  <MenuItem value="Middle School or Lower">
-                    Middle School
-                  </MenuItem>
-                  <MenuItem value="High School or Equivalent">
-                    High School
-                  </MenuItem>
-                  <MenuItem value="Associate">Associate</MenuItem>
-                  <MenuItem value="Bachelor">Bachelor</MenuItem>
-                  <MenuItem value="Masters">Master</MenuItem>
-                  <MenuItem value="Ph.D.">PhD</MenuItem>
-                  <MenuItem value="MdA">MdA</MenuItem>
-                  <MenuItem value="MS">MS</MenuItem>
-                  
-                </Select>
-              </FormControl>
-            </Grid>
-
-            <Grid size={{ xs: 3 }} mb={2}>
-              <TextField
-                label="Country Of Birth"
-                name="countryOfBirth"
-                fullWidth
-                variant="standard"
-                value={selectedEmployee?.countryOfBirth || ""}
-                onChange={handleInputChange}
-                InputProps={{ readOnly: !editMode }}
-              />
-            </Grid>
-
-
-            <Grid size={{ xs: 6 }} mb={2}>
-              <TextField
-                label="All Citizenship"
-                name="allCitizenship"
-                fullWidth
-                variant="standard"
-                value={selectedEmployee?.allCitizenship || ""}
-                onChange={handleInputChange}
-                InputProps={{ readOnly: !editMode }}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 3 }} mb={2}>
-              <TextField
-                label="Filed By"
-                name="filedBy"
-                fullWidth
-                variant="standard"
-                value={selectedEmployee?.filedBy || ""}
-                onChange={handleInputChange}
-                InputProps={{ readOnly: !editMode }}
-              />
-            </Grid>
-
-
-            <Grid size={{ xs: 6 }} mb={4}>
+            <Grid size={{ xs: 2 }}>
               <FormControl fullWidth>
                 <InputLabel>Gender</InputLabel>
                 <Select
@@ -258,13 +131,126 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
               </FormControl>
             </Grid>
 
-          
+          {/* Position Title */}
+          <Grid size={{ xs: 3 }}>
+            <TextField
+              label="Position Title"
+              name="positionTitle"
+              fullWidth
+              variant="standard"
+              value={selectedEmployee?.positionTitle || ""}
+              onChange={handleInputChange}
+              InputProps={{ readOnly: !editMode }}
+            />
+          </Grid>
+
+
+
+          {/* <Grid
+            size={{ xs: 18 }}
+            container
+            spacing={2}
+            columns={18}
+            alignItems="center"
+            justifyContent="space-between"
+          > */}
+
+
+
+
+            <Grid size={{ xs: 2 }} >
+              <TextField
+                label="Country Of Birth"
+                name="countryOfBirth"
+                fullWidth
+                variant="standard"
+                value={selectedEmployee?.countryOfBirth || ""}
+                onChange={handleInputChange}
+                InputProps={{ readOnly: !editMode }}
+              />
+            </Grid>
+
+
+            <Grid size={{ xs: 2 }}>
+              <TextField
+                label="All Citizenship"
+                name="allCitizenship"
+                fullWidth
+                variant="standard"
+                value={selectedEmployee?.allCitizenship || ""}
+                onChange={handleInputChange}
+                InputProps={{ readOnly: !editMode }}
+              />
+            </Grid>
+            <Grid size={{ xs: 3 }} >
+                <TextField
+                  label="Highest Degree"
+                  name="highestDegree"
+                  fullWidth
+                  variant="standard"
+                  value={selectedEmployee?.highestDegree || ""}
+                  onChange={handleInputChange}
+                  InputProps={{ readOnly: !editMode }}
+                />
+            </Grid>
+            <Grid size={{ xs: 2 }}>
+              <TextField
+                label="Filed By"
+                name="filedBy"
+                fullWidth
+                variant="standard"
+                value={selectedEmployee?.filedBy || ""}
+                onChange={handleInputChange}
+                InputProps={{ readOnly: !editMode }}
+              />
+            </Grid>
+          {/* Employee ID */}
+          <Grid size={{ xs: 3 }}>
+            <TextField
+              label="Employee ID"
+              name="employeeId"
+              fullWidth
+              variant="standard"
+              value={selectedEmployee?.employeeId || ""}
+              onChange={handleInputChange}
+              InputProps={{ readOnly: !editMode }}
+            />
+          </Grid>
+
+            <Grid size={{ xs: 3 }}>
+              <TextField
+                label="Personal Email"
+                name="personalEmail"
+                fullWidth
+                variant="standard"
+                value={selectedEmployee?.personalEmail || ""}
+                onChange={handleInputChange}
+                InputProps={{ readOnly: !editMode }}
+              />
+            </Grid>
+          <Grid size={{ xs: 3 }}>
+            <TextField
+              label="School Email"
+              name="email"
+              fullWidth
+              variant="standard"
+              value={selectedEmployee?.email || ""}
+              onChange={handleInputChange}
+              InputProps={{ readOnly: !editMode }}
+            />
+          </Grid>
+
+
+
+
+
+
 
 
           </Grid>
 
           {/* Addresses */}
-          <Grid size={{ xs: 12 }}>
+          <Grid size={{ xs: 10 }}>
             {selectedEmployee?.addresses?.length > 0 ? (
               selectedEmployee.addresses.map(
                 (addr: string | { address: string }, idx: number) => {
@@ -320,7 +306,7 @@ const EmployeeBasicInfo: React.FC<EmployeeBasicInfoProps> = ({
               </Button>
             )}
           </Grid>
-        </Grid>
+        {/* </Grid> */}
       </CardContent>
     </Card>
   );

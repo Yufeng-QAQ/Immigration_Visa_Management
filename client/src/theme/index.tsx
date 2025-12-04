@@ -71,6 +71,13 @@ const theme = createTheme({
         },
       },
     },
+    MuiCssBaseline: {
+      styleOverrides: {
+        html: {
+          zoom: 0.8,
+        },
+      },
+    },
   },
 });
 

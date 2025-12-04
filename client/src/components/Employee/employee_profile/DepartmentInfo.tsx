@@ -25,8 +25,8 @@ const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
           Department Information
         </Typography>
 
-        <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
-          <Grid size={{ xs: 9 }}>
+        <Grid container spacing={2} columns={{ xs: 12, md: 15 }}>
+          <Grid size={{ xs: 4 }}>
             <TextField
               label="College"
               name="department.collegeName"
@@ -38,7 +38,7 @@ const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
             />
           </Grid>
 
-          <Grid size={{ xs: 9 }}>
+          <Grid size={{ xs: 4 }}>
             <TextField
               label="Department"
               name="department.departmentName"
@@ -50,7 +50,7 @@ const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
             />
           </Grid>
 
-          <Grid size={{ xs: 9 }}>
+          <Grid size={{ xs: 4 }}>
             <TextField
               label="Supervisor"
               name="department.supervisor"
@@ -61,8 +61,18 @@ const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
               InputProps={{ readOnly: !editMode }}
             />
           </Grid>
-
-          <Grid size={{ xs: 9 }}>
+          <Grid size={{ xs: 3}}>
+            <TextField
+              label="Salary"
+              name="salary"
+              value={salary || "0"}
+              onChange={handleInputChange}
+              fullWidth
+              variant="standard"
+              InputProps={{ readOnly: !editMode }}
+            />
+          </Grid>
+          <Grid size={{ xs: 4 }}>
             <TextField
               label="Admin"
               name="department.admin"
@@ -74,7 +84,9 @@ const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
             />
           </Grid>
 
-          <Grid size={{ xs: 9 }}>
+
+
+          <Grid size={{ xs: 4 }}>
             <TextField
               label="soc Code"
               name="socCode"
@@ -86,7 +98,7 @@ const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
             />
           </Grid>
 
-          <Grid size={{ xs: 9 }}>
+          <Grid size={{ xs: 4 }}>
             <TextField
               label="socCode Description"
               name="socCodeDescription"
@@ -99,19 +111,6 @@ const DepartmentInfo: React.FC<DepartmentInfoProps> = ({
           </Grid>
 
 
-
-
-          <Grid size={{ xs: 7}}>
-            <TextField
-              label="Salary"
-              name="salary"
-              value={salary || "0"}
-              onChange={handleInputChange}
-              fullWidth
-              variant="standard"
-              InputProps={{ readOnly: !editMode }}
-            />
-          </Grid>
         </Grid>
       </CardContent>
     </Card>
