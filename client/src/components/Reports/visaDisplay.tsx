@@ -27,8 +27,6 @@ export default function VisaStatsDisplay({searchResult, fromDate, toDate}:employ
   const [degrOpen, setDegrOpen] = useState(false);
   const [statOpen, setStatOpen] = useState(false);
   useEffect(() => {
-    console.log(fromDate);
-    console.log(toDate);
     const result : VisaStats ={
         visaCount: {},
         deptCount: {},
