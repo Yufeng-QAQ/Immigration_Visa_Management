@@ -14,8 +14,8 @@ interface VisaStats {
 
 interface employeeFound {
   searchResult: EmployeeItem[];
-  fromDate? : Date;
-  toDate? : Date;
+  fromDate? : Date | null;
+  toDate? : Date | null;
 }
 
 export default function VisaStatsDisplay({searchResult, fromDate, toDate}:employeeFound) {
@@ -27,6 +27,8 @@ export default function VisaStatsDisplay({searchResult, fromDate, toDate}:employ
   const [degrOpen, setDegrOpen] = useState(false);
   const [statOpen, setStatOpen] = useState(false);
   useEffect(() => {
+    console.log(fromDate);
+    console.log(toDate);
     const result : VisaStats ={
         visaCount: {},
         deptCount: {},
@@ -58,9 +60,30 @@ export default function VisaStatsDisplay({searchResult, fromDate, toDate}:employ
         result.visaCount[visa] = (result.visaCount[visa] || 0) + 1;
     });
     const visaExpire = visaList.map(emp => emp[0].expireDate);
-    visaExpire.forEach( visa => {
-        result.statCount["Expired"] = (result.statCount["Expired"]) + 1;
+
+    const inRange = (date: Date, from?: Date | null, to?: Date | null) => {
+      if (from && date < from) return false;
+      if (to && date > to) return false;
+      return true;
+    };
+
+    visaExpire.forEach(visa => {
+      if(!visa) return;
+      const date = new Date(visa);
+      if (inRange(date, fromDate, toDate)) {
+        result.statCount["Expired"]++;
+      }
     });
+    
+    const visaIssued = visaList.map(emp => emp[0].issueDate);
+    visaIssued.forEach(visa => {
+      if(!visa) return;
+      const date = new Date(visa);
+      if (inRange(date, fromDate, toDate)) {
+        result.statCount["Issued"]++;
+      }
+    });
+
     setStats(result);
 
 
