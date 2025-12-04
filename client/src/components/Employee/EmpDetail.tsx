@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Grid
 } from "@mui/material";
 import { notify } from "../Common/Notification/eventBus";
 
@@ -565,10 +566,13 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
   if (loading) return <div>Loading...</div>;
 
   return (
-    <Container maxWidth="md">
-      <Dialog open={open} onClose={() => { onClose(); setEditMode(false); }} fullWidth maxWidth="lg" sx={{ zIndex: 500 }} >
+    <Container >
+      <Dialog open={open} onClose={() => { onClose(); setEditMode(false); }} fullWidth  maxWidth={false} sx={{ zIndex: 500 }}
+        slotProps={{paper: {sx:{ml:12, mr:12}}}}>
         <DialogTitle>Employee Details</DialogTitle>
         <DialogContent>
+          <Grid container spacing={2} columns={{ xs: 18, md: 18 }}>
+          <Grid size={{xs:18}} sx={{m:2}}>
           <EmployeeBasicInfo
             selectedEmployee={selectedEmployee}
             editMode={editMode}
@@ -605,8 +609,8 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
             handleSaveHistoryComment={handleSaveHistoryComment}
             handleDeleteComment={handleDeleteComment}
           />
-
-
+          </Grid>
+          </Grid>
         </DialogContent>
 
         <DialogActions>
@@ -619,6 +623,7 @@ export default function EmpDetail({ empId, open, onClose, onValueChange, change 
                     deleteEmployee(selectedEmployee._id);
                   }
                 }}>Delete</Button> */}
+                <Button variant="contained" color="primary" onClick={() => onClose()}>Cancel</Button>
               </>
             ) : (
               <>

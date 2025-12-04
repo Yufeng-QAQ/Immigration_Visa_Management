@@ -16,7 +16,11 @@ const VisuallyHiddenInput = styled('input')({
   width: 1,
 });
 
-const UploadEmployee = () => {
+interface reload{
+  onValueChange: () => void
+};
+
+const UploadEmployee = ({onValueChange}:reload) => {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState("");
 
@@ -45,6 +49,7 @@ const UploadEmployee = () => {
       },
     });
     setStatus("Upload successful!");
+    onValueChange();
     console.log(res.data);
   } catch (err) {
     console.error(err);

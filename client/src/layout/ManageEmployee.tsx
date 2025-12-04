@@ -170,15 +170,15 @@ export default function ManageEmployee() {
     }
   };
 
-  // const handleDeleteAll = async () => {
-  //   try {
-  //     await api.delete("/employee/deleteAll");
-  //     notify.success("Deleted all employee!")
-  //   } catch (error) {
-  //     console.error("Failed to archive employee:", error);
-  //     alert("Failed to archive employee.");
-  //   }
-  // };
+  const handleDeleteAll = async () => {
+    try {
+      await api.delete("/employee/deleteAll");
+      notify.success("Deleted all employee!")
+    } catch (error) {
+      console.error("Failed to archive employee:", error);
+      alert("Failed to archive employee.");
+    }
+  };
 
 
 
@@ -188,9 +188,9 @@ export default function ManageEmployee() {
         <Box sx={{ mb: 2, mt: 2 }}>
           <TemporaryDrawer />
         </Box>
-        {/* <Button variant="contained" color="primary" onClick={handleDeleteAll}>
+        <Button variant="contained" color="primary" onClick={handleDeleteAll}>
           DELETE ALL Employee
-        </Button> */}
+        </Button>
         <Box sx={{ position: "relative" }}>
           <Grid size={{ xs: 12, lg: 8 }} sx={{ mr: 5, cursor: "pointer" }}>
             <EmployeeTable
@@ -221,7 +221,7 @@ export default function ManageEmployee() {
         </Dialog>
 
         <Box>
-          <UploadEmployee></UploadEmployee>
+          <UploadEmployee onValueChange={triggerReload}/>
         </Box>
 
       </Container>

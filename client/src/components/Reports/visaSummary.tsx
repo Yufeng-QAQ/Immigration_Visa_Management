@@ -45,6 +45,9 @@ export default function VisaStatsComponent() {
   const [admins, setAdmins] = useState<string[]>([]);
   const [colleges, setcolleges] = useState<string[]>([]);
   const [rows, setRows] = useState<EmployeeItem[]>([]);
+  const [fromDate, setFromDate] = useState<Date | null>();
+  const [toDate, setToDate] = useState<Date | null>();
+
   const employeeColumns: GridColDef<EmployeeItem>[] = [
       { field: "employeeId", headerName: "Employee ID", width: 130 },
       { field: "firstName", headerName: "First Name", width: 150 },
@@ -102,6 +105,8 @@ export default function VisaStatsComponent() {
         )
         const raw = Array.isArray(res.data) ? res.data : res.data.data || [];
         setRows(raw);
+        setFromDate(data.fromDate);
+        setToDate(data.toDate);
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
           console.error(error.response?.data || error.message);
@@ -162,7 +167,7 @@ export default function VisaStatsComponent() {
       <Grid container columns={{xs: 18}}>
         <Grid size={{xs: 18, md:13}}>
           <FormProvider {...methods}>
-            <Box   display={"flex"}>
+            <Box   display={"flex"} sx={{mb:1}}>
               <form onSubmit={handleSubmit(onSubmit)}>
               <Card>
                 <CardContent>
@@ -437,7 +442,7 @@ export default function VisaStatsComponent() {
         <Grid size={{xs:18, md:5}}>
           <Box>
             <Card sx={{ml:1}}>
-              <VisaStatsDisplay searchResult={rows}/>
+              <VisaStatsDisplay searchResult={rows} fromDate={fromDate} toDate={toDate}/>
             </Card>
           </Box>
         </Grid>

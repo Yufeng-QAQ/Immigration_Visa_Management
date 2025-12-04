@@ -167,7 +167,7 @@ export default function Archive() {
         </Grid>
       </Container>
 
-      <UploadEmployee>
+      <UploadEmployee onValueChange={triggerReload}>
 
       </UploadEmployee>
     </Box>
