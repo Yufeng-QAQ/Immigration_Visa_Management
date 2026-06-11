@@ -1,9 +1,13 @@
-import express from "express";
-import { getUsers, createUser } from "../services/userService"
+import { Router } from "express";
+import { UserContoller } from "../controllers/userContoller";
 
-const router = express.Router();
+const router = Router();
+const controller = new UserContoller();
 
-router.get("/getUsers", getUsers);
-router.post("/createUser", createUser);
+router.get("/getAllUsers", controller.getAllUsers);
+router.get("/getUserById/:id", controller.getUserById);
+router.post("/createUser", controller.createUser);
+router.put("/updateUser/:id", controller.updateUser);
+router.delete("/deleteUser/:id", controller.deleteUser);
 
 export default router;
